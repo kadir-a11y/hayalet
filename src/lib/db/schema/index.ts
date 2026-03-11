@@ -11,6 +11,7 @@ export { tags } from "./tags";
 export { personaTags } from "./persona-tags";
 export { campaigns } from "./campaigns";
 export { contentItems } from "./content-items";
+export { mediaLibrary } from "./media";
 export { activityLog } from "./activity-log";
 
 import { users } from "./users";
@@ -24,6 +25,7 @@ import { tags } from "./tags";
 import { personaTags } from "./persona-tags";
 import { campaigns } from "./campaigns";
 import { contentItems } from "./content-items";
+import { mediaLibrary } from "./media";
 import { activityLog } from "./activity-log";
 
 // ── Users relations ──────────────────────────────────────────────────
@@ -47,6 +49,7 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
   contentItems: many(contentItems),
   personaTags: many(personaTags),
   personaRoles: many(personaRoles),
+  media: many(mediaLibrary),
 }));
 
 // ── Social accounts relations ────────────────────────────────────────
@@ -138,6 +141,14 @@ export const contentItemsRelations = relations(contentItems, ({ one }) => ({
   campaign: one(campaigns, {
     fields: [contentItems.campaignId],
     references: [campaigns.id],
+  }),
+}));
+
+// ── Media library relations ─────────────────────────────────────────
+export const mediaLibraryRelations = relations(mediaLibrary, ({ one }) => ({
+  persona: one(personas, {
+    fields: [mediaLibrary.personaId],
+    references: [personas.id],
   }),
 }));
 
