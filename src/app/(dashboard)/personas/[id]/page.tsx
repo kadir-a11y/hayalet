@@ -17,6 +17,13 @@ import {
   Smile,
   Pen,
   Settings2,
+  MapPin,
+  FileText,
+  Eye,
+  EyeOff,
+  Mail,
+  Phone,
+  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,8 +82,23 @@ interface SocialAccount {
   platform: string;
   platformUserId: string | null;
   platformUsername: string | null;
+  platformEmail: string | null;
+  platformPhone: string | null;
+  platformPassword: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
+  createdAt: string | null;
+}
+
+interface ContentItem {
+  id: string;
+  platform: string;
+  contentType: string;
+  content: string;
+  status: string;
+  scheduledAt: string | null;
+  publishedAt: string | null;
+  aiGenerated: boolean;
   createdAt: string | null;
 }
 
@@ -96,6 +118,8 @@ interface Persona {
   personalityTraits: string[];
   interests: string[];
   behavioralPatterns: BehavioralPatterns;
+  country: string | null;
+  city: string | null;
   language: string | null;
   timezone: string | null;
   activeHoursStart: number | null;
@@ -112,6 +136,8 @@ interface EditFormData {
   name: string;
   displayName: string;
   bio: string;
+  country: string;
+  city: string;
   language: string;
   timezone: string;
   activeHoursStart: number;
@@ -136,11 +162,11 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-const behavioralLabels: Record<string, string> = {
-  writing_style: "Yazim Stili",
-  tone: "Ton",
-  emoji_usage: "Emoji Kullanimi",
-  hashtag_style: "Hashtag Stili",
+const languageNames: Record<string, string> = {
+  tr: "Turkce", en: "English", de: "Deutsch", fr: "Francais",
+  es: "Espanol", ar: "Arabic", ru: "Russian", pt: "Portugues",
+  ja: "Japanese", zh: "Chinese", ko: "Korean", it: "Italiano",
+  nl: "Nederlands", pl: "Polski", sv: "Svenska",
 };
 
 const usageLevelLabels: Record<string, string> = {
@@ -149,6 +175,39 @@ const usageLevelLabels: Record<string, string> = {
   moderate: "Orta",
   heavy: "Yogun",
 };
+
+const statusLabels: Record<string, string> = {
+  draft: "Taslak",
+  scheduled: "Zamanlanmis",
+  published: "Yayinlanmis",
+  failed: "Basarisiz",
+};
+
+const statusColors: Record<string, string> = {
+  draft: "secondary",
+  scheduled: "outline",
+  published: "default",
+  failed: "destructive",
+};
+
+const platformNames: Record<string, string> = {
+  twitter: "X (Twitter)",
+  instagram: "Instagram",
+  facebook: "Facebook",
+  linkedin: "LinkedIn",
+  tiktok: "TikTok",
+  youtube: "YouTube",
+  threads: "Threads",
+  pinterest: "Pinterest",
+};
+
+function platformIcon(platform: string): string {
+  const icons: Record<string, string> = {
+    twitter: "X", instagram: "IG", facebook: "FB", linkedin: "LI",
+    tiktok: "TT", youtube: "YT", threads: "TH", pinterest: "PI",
+  };
+  return icons[platform.toLowerCase()] || platform.slice(0, 2).toUpperCase();
+}
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "-";
@@ -161,16 +220,15 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
-function platformIcon(platform: string): string {
-  const icons: Record<string, string> = {
-    twitter: "X",
-    instagram: "IG",
-    facebook: "FB",
-    linkedin: "LI",
-    tiktok: "TT",
-    youtube: "YT",
-  };
-  return icons[platform.toLowerCase()] || platform.slice(0, 2).toUpperCase();
+function formatShortDate(dateStr: string | null): string {
+  if (!dateStr) return "-";
+  return new Date(dateStr).toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -225,6 +283,8 @@ function EditPersonaDialog({
     name: persona.name,
     displayName: persona.displayName || "",
     bio: persona.bio || "",
+    country: persona.country || "",
+    city: persona.city || "",
     language: persona.language || "tr",
     timezone: persona.timezone || "Europe/Istanbul",
     activeHoursStart: persona.activeHoursStart ?? 9,
@@ -240,12 +300,13 @@ function EditPersonaDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  // Re-sync form when persona changes
   useEffect(() => {
     setFormData({
       name: persona.name,
       displayName: persona.displayName || "",
       bio: persona.bio || "",
+      country: persona.country || "",
+      city: persona.city || "",
       language: persona.language || "tr",
       timezone: persona.timezone || "Europe/Istanbul",
       activeHoursStart: persona.activeHoursStart ?? 9,
@@ -306,6 +367,8 @@ function EditPersonaDialog({
           name: formData.name.trim(),
           displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
+          country: formData.country.trim() || undefined,
+          city: formData.city.trim() || undefined,
           language: formData.language,
           timezone: formData.timezone,
           activeHoursStart: formData.activeHoursStart,
@@ -348,7 +411,7 @@ function EditPersonaDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="edit-name">
-                Isim <span className="text-destructive">*</span>
+                Kullanici Adi <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="edit-name"
@@ -379,6 +442,30 @@ function EditPersonaDialog({
               onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
               disabled={isSubmitting}
             />
+          </div>
+
+          {/* Country & City */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="edit-country">Ulke</Label>
+              <Input
+                id="edit-country"
+                placeholder="Turkiye"
+                value={formData.country}
+                onChange={(e) => setFormData((f) => ({ ...f, country: e.target.value }))}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-city">Sehir</Label>
+              <Input
+                id="edit-city"
+                placeholder="Istanbul"
+                value={formData.city}
+                onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Status */}
@@ -485,10 +572,7 @@ function EditPersonaDialog({
                   onChange={(e) =>
                     setFormData((f) => ({
                       ...f,
-                      behavioralPatterns: {
-                        ...f.behavioralPatterns,
-                        writing_style: e.target.value,
-                      },
+                      behavioralPatterns: { ...f.behavioralPatterns, writing_style: e.target.value },
                     }))
                   }
                   disabled={isSubmitting}
@@ -505,10 +589,7 @@ function EditPersonaDialog({
                   onChange={(e) =>
                     setFormData((f) => ({
                       ...f,
-                      behavioralPatterns: {
-                        ...f.behavioralPatterns,
-                        tone: e.target.value,
-                      },
+                      behavioralPatterns: { ...f.behavioralPatterns, tone: e.target.value },
                     }))
                   }
                   disabled={isSubmitting}
@@ -523,10 +604,7 @@ function EditPersonaDialog({
                   onValueChange={(v) =>
                     setFormData((f) => ({
                       ...f,
-                      behavioralPatterns: {
-                        ...f.behavioralPatterns,
-                        emoji_usage: v,
-                      },
+                      behavioralPatterns: { ...f.behavioralPatterns, emoji_usage: v },
                     }))
                   }
                   disabled={isSubmitting}
@@ -551,10 +629,7 @@ function EditPersonaDialog({
                   onValueChange={(v) =>
                     setFormData((f) => ({
                       ...f,
-                      behavioralPatterns: {
-                        ...f.behavioralPatterns,
-                        hashtag_style: v,
-                      },
+                      behavioralPatterns: { ...f.behavioralPatterns, hashtag_style: v },
                     }))
                   }
                   disabled={isSubmitting}
@@ -588,10 +663,9 @@ function EditPersonaDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="tr">Turkce</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
-                  <SelectItem value="fr">Francais</SelectItem>
+                  {Object.entries(languageNames).map(([code, name]) => (
+                    <SelectItem key={code} value={code}>{name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -609,8 +683,12 @@ function EditPersonaDialog({
                   <SelectItem value="Europe/Istanbul">Europe/Istanbul</SelectItem>
                   <SelectItem value="Europe/London">Europe/London</SelectItem>
                   <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
+                  <SelectItem value="Europe/Moscow">Europe/Moscow</SelectItem>
                   <SelectItem value="America/New_York">America/New_York</SelectItem>
                   <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                  <SelectItem value="Asia/Shanghai">Asia/Shanghai</SelectItem>
+                  <SelectItem value="Asia/Dubai">Asia/Dubai</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -626,10 +704,7 @@ function EditPersonaDialog({
                 max={23}
                 value={formData.activeHoursStart}
                 onChange={(e) =>
-                  setFormData((f) => ({
-                    ...f,
-                    activeHoursStart: parseInt(e.target.value) || 0,
-                  }))
+                  setFormData((f) => ({ ...f, activeHoursStart: parseInt(e.target.value) || 0 }))
                 }
                 disabled={isSubmitting}
               />
@@ -643,10 +718,7 @@ function EditPersonaDialog({
                 max={23}
                 value={formData.activeHoursEnd}
                 onChange={(e) =>
-                  setFormData((f) => ({
-                    ...f,
-                    activeHoursEnd: parseInt(e.target.value) || 0,
-                  }))
+                  setFormData((f) => ({ ...f, activeHoursEnd: parseInt(e.target.value) || 0 }))
                 }
                 disabled={isSubmitting}
               />
@@ -660,10 +732,7 @@ function EditPersonaDialog({
                 max={100}
                 value={formData.maxPostsPerDay}
                 onChange={(e) =>
-                  setFormData((f) => ({
-                    ...f,
-                    maxPostsPerDay: parseInt(e.target.value) || 1,
-                  }))
+                  setFormData((f) => ({ ...f, maxPostsPerDay: parseInt(e.target.value) || 1 }))
                 }
                 disabled={isSubmitting}
               />
@@ -695,6 +764,176 @@ function EditPersonaDialog({
               ) : (
                 "Kaydet"
               )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Add Social Account Dialog
+// ---------------------------------------------------------------------------
+
+function AddSocialAccountDialog({
+  open,
+  onOpenChange,
+  personaId,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  personaId: string;
+  onCreated: () => void;
+}) {
+  const [platform, setPlatform] = useState("twitter");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  function resetForm() {
+    setPlatform("twitter");
+    setUsername("");
+    setEmail("");
+    setPhone("");
+    setPassword("");
+    setShowPassword(false);
+    setError("");
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/social-accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personaId,
+          platform,
+          platformUsername: username.trim() || undefined,
+          platformEmail: email.trim() || undefined,
+          platformPhone: phone.trim() || undefined,
+          platformPassword: password || undefined,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Hesap eklenemedi.");
+
+      resetForm();
+      onOpenChange(false);
+      onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) resetForm();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Sosyal Medya Hesabi Ekle</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Platform</Label>
+            <Select value={platform} onValueChange={setPlatform} disabled={isSubmitting}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(platformNames).map(([key, name]) => (
+                  <SelectItem key={key} value={key}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-username">Kullanici Adi</Label>
+            <Input
+              id="social-username"
+              placeholder="@kullaniciadi"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-email">E-posta</Label>
+            <Input
+              id="social-email"
+              type="email"
+              placeholder="hesap@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-phone">Telefon</Label>
+            <Input
+              id="social-phone"
+              placeholder="+90 5xx xxx xx xx"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-password">Sifre</Label>
+            <div className="relative">
+              <Input
+                id="social-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Hesap sifresi"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              Iptal
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              Ekle
             </Button>
           </DialogFooter>
         </form>
@@ -738,11 +977,8 @@ function TagsManager({
   function toggleTag(tagId: string) {
     setSelectedTagIds((prev) => {
       const next = new Set(prev);
-      if (next.has(tagId)) {
-        next.delete(tagId);
-      } else {
-        next.add(tagId);
-      }
+      if (next.has(tagId)) next.delete(tagId);
+      else next.add(tagId);
       return next;
     });
   }
@@ -780,8 +1016,7 @@ function TagsManager({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-sm text-muted-foreground">
-          Henuz etiket olusturulmamis. Etiketler sayfasindan yeni etiket
-          olusturabilirsiniz.
+          Henuz etiket olusturulmamis.
         </p>
       </div>
     );
@@ -830,6 +1065,195 @@ function TagsManager({
 }
 
 // ---------------------------------------------------------------------------
+// Posts Tab Content
+// ---------------------------------------------------------------------------
+
+function PostsTab({ personaId }: { personaId: string }) {
+  const [posts, setPosts] = useState<ContentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/personas/${personaId}/content`)
+      .then((res) => res.json())
+      .then((data) => setPosts(Array.isArray(data) ? data : []))
+      .catch(() => setPosts([]))
+      .finally(() => setIsLoading(false));
+  }, [personaId]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <FileText className="h-8 w-8 text-muted-foreground" />
+        <h3 className="mt-4 text-sm font-semibold">Henuz gonderi yok</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Bu personaya henuz icerik olusturulmamis.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {posts.map((post) => (
+        <div
+          key={post.id}
+          className="rounded-lg border p-4 space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-bold">
+                {platformIcon(post.platform)}
+              </div>
+              <span className="text-xs font-medium capitalize text-muted-foreground">
+                {post.platform}
+              </span>
+              {post.aiGenerated && (
+                <Badge variant="outline" className="text-xs px-1.5 py-0">
+                  AI
+                </Badge>
+              )}
+            </div>
+            <Badge
+              variant={statusColors[post.status] as any || "secondary"}
+            >
+              {statusLabels[post.status] || post.status}
+            </Badge>
+          </div>
+          <p className="text-sm whitespace-pre-wrap line-clamp-4">{post.content}</p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span>{formatShortDate(post.createdAt)}</span>
+            {post.scheduledAt && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {formatShortDate(post.scheduledAt)}
+              </span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Social Account Card with credentials
+// ---------------------------------------------------------------------------
+
+function SocialAccountCard({
+  account,
+  onDelete,
+}: {
+  account: SocialAccount;
+  onDelete: () => void;
+}) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDelete() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/social-accounts/${account.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error();
+      onDelete();
+    } catch {
+      setIsDeleting(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
+            {platformIcon(account.platform)}
+          </div>
+          <div>
+            <p className="text-sm font-medium">
+              {platformNames[account.platform] || account.platform}
+            </p>
+            {account.platformUsername && (
+              <p className="text-xs text-muted-foreground">
+                @{account.platformUsername}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant={account.isActive ? "default" : "secondary"}>
+            {account.isActive ? "Aktif" : "Pasif"}
+          </Badge>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hesabi silmek istediginize emin misiniz?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bu sosyal medya hesap bilgileri kalici olarak silinecektir.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Iptal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      {/* Credentials */}
+      <div className="grid gap-2 text-sm">
+        {account.platformEmail && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Mail className="h-3.5 w-3.5 shrink-0" />
+            <span>{account.platformEmail}</span>
+          </div>
+        )}
+        {account.platformPhone && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Phone className="h-3.5 w-3.5 shrink-0" />
+            <span>{account.platformPhone}</span>
+          </div>
+        )}
+        {account.platformPassword && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Key className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-mono text-xs">
+              {showPassword ? account.platformPassword : "••••••••"}
+            </span>
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {account.lastUsedAt && (
+        <p className="text-xs text-muted-foreground">
+          Son kullanim: {formatShortDate(account.lastUsedAt)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -842,6 +1266,7 @@ export default function PersonaDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [addSocialOpen, setAddSocialOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchPersona = useCallback(async () => {
@@ -873,17 +1298,12 @@ export default function PersonaDetailPage() {
       if (!res.ok) throw new Error("Silme basarisiz.");
       router.push("/personas");
     } catch {
-      console.error("Persona silinemedi.");
       setIsDeleting(false);
     }
   }
 
-  // Loading
-  if (isLoading) {
-    return <ProfileSkeleton />;
-  }
+  if (isLoading) return <ProfileSkeleton />;
 
-  // Error
   if (error || !persona) {
     return (
       <div className="space-y-6">
@@ -897,14 +1317,7 @@ export default function PersonaDetailPage() {
             <h3 className="mt-4 text-lg font-semibold">
               {error || "Persona bulunamadi"}
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Bu persona mevcut degil veya erisiminiz yok.
-            </p>
-            <Button
-              variant="outline"
-              className="mt-6"
-              onClick={() => router.push("/personas")}
-            >
+            <Button variant="outline" className="mt-6" onClick={() => router.push("/personas")}>
               Personas Listesine Don
             </Button>
           </CardContent>
@@ -913,9 +1326,7 @@ export default function PersonaDetailPage() {
     );
   }
 
-  const traits = Array.isArray(persona.personalityTraits)
-    ? persona.personalityTraits
-    : [];
+  const traits = Array.isArray(persona.personalityTraits) ? persona.personalityTraits : [];
   const interests = Array.isArray(persona.interests) ? persona.interests : [];
   const patterns =
     persona.behavioralPatterns && typeof persona.behavioralPatterns === "object"
@@ -971,25 +1382,36 @@ export default function PersonaDetailPage() {
               <AvatarImage src={persona.avatarUrl} alt={persona.name} />
             )}
             <AvatarFallback className="text-xl">
-              {getInitials(persona.name)}
+              {getInitials(persona.displayName || persona.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold">{persona.name}</h2>
+              <h2 className="text-2xl font-bold">{persona.displayName || persona.name}</h2>
               <Badge variant={persona.isActive ? "default" : "secondary"}>
                 {persona.isActive ? "Aktif" : "Pasif"}
               </Badge>
             </div>
-            {persona.displayName && (
-              <p className="text-muted-foreground">@{persona.displayName}</p>
-            )}
+            <p className="text-muted-foreground">@{persona.name}</p>
             {persona.bio && (
-              <p className="mt-2 text-sm text-muted-foreground">{persona.bio}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{persona.bio}</p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Olusturulma: {formatDate(persona.createdAt)}
-            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Globe className="h-3.5 w-3.5" />
+                {languageNames[persona.language || "tr"] || persona.language}
+              </span>
+              {(persona.country || persona.city) && (
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {[persona.city, persona.country].filter(Boolean).join(", ")}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {persona.activeHoursStart ?? 9}:00 - {persona.activeHoursEnd ?? 23}:00
+              </span>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -998,14 +1420,14 @@ export default function PersonaDetailPage() {
       <Tabs defaultValue="profil">
         <TabsList className="w-full justify-start">
           <TabsTrigger value="profil">Profil</TabsTrigger>
-          <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="sosyal">Sosyal Hesaplar</TabsTrigger>
+          <TabsTrigger value="gonderiler">Gonderiler</TabsTrigger>
+          <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
         </TabsList>
 
         {/* ---- Profil Tab ---- */}
         <TabsContent value="profil" className="space-y-6">
-          {/* Personality Traits */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1017,20 +1439,15 @@ export default function PersonaDetailPage() {
               {traits.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {traits.map((t) => (
-                    <Badge key={t} variant="secondary">
-                      {t}
-                    </Badge>
+                    <Badge key={t} variant="secondary">{t}</Badge>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Henuz kisilik ozelligi eklenmemis.
-                </p>
+                <p className="text-sm text-muted-foreground">Henuz kisilik ozelligi eklenmemis.</p>
               )}
             </CardContent>
           </Card>
 
-          {/* Interests */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1042,20 +1459,15 @@ export default function PersonaDetailPage() {
               {interests.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {interests.map((i) => (
-                    <Badge key={i} variant="outline">
-                      {i}
-                    </Badge>
+                    <Badge key={i} variant="outline">{i}</Badge>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Henuz ilgi alani eklenmemis.
-                </p>
+                <p className="text-sm text-muted-foreground">Henuz ilgi alani eklenmemis.</p>
               )}
             </CardContent>
           </Card>
 
-          {/* Behavioral Patterns */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -1074,9 +1486,7 @@ export default function PersonaDetailPage() {
                   <p className="text-sm">{patterns.tone || "-"}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Emoji Kullanimi
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullanimi</p>
                   <p className="text-sm">
                     {patterns.emoji_usage
                       ? usageLevelLabels[patterns.emoji_usage] || patterns.emoji_usage
@@ -1084,9 +1494,7 @@ export default function PersonaDetailPage() {
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Hashtag Stili
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Hashtag Stili</p>
                   <p className="text-sm">
                     {patterns.hashtag_style
                       ? usageLevelLabels[patterns.hashtag_style] || patterns.hashtag_style
@@ -1098,14 +1506,73 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
+        {/* ---- Sosyal Hesaplar Tab ---- */}
+        <TabsContent value="sosyal">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Sosyal Hesaplar</CardTitle>
+                <CardDescription>
+                  Personaya bagli sosyal medya hesaplari ve kimlik bilgileri.
+                </CardDescription>
+              </div>
+              <Button size="sm" onClick={() => setAddSocialOpen(true)}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Hesap Ekle
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {persona.socialAccounts && persona.socialAccounts.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {persona.socialAccounts.map((account) => (
+                    <SocialAccountCard
+                      key={account.id}
+                      account={account}
+                      onDelete={fetchPersona}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Globe className="h-8 w-8 text-muted-foreground" />
+                  <h3 className="mt-4 text-sm font-semibold">Bagli sosyal hesap yok</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Bu personaya henuz sosyal medya hesabi baglenmamis.
+                  </p>
+                  <Button size="sm" className="mt-4" onClick={() => setAddSocialOpen(true)}>
+                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    Hesap Ekle
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ---- Gonderiler Tab ---- */}
+        <TabsContent value="gonderiler">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <FileText className="h-4 w-4" />
+                Gonderiler
+              </CardTitle>
+              <CardDescription>
+                Bu personanin tum icerikleri ve gonderileri.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PostsTab personaId={persona.id} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* ---- Etiketler Tab ---- */}
         <TabsContent value="etiketler">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Etiketler</CardTitle>
-              <CardDescription>
-                Personaya atanan etiketleri yonetin.
-              </CardDescription>
+              <CardDescription>Personaya atanan etiketleri yonetin.</CardDescription>
             </CardHeader>
             <CardContent>
               <TagsManager
@@ -1113,68 +1580,6 @@ export default function PersonaDetailPage() {
                 personaTags={persona.tags}
                 onUpdated={fetchPersona}
               />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ---- Sosyal Hesaplar Tab ---- */}
-        <TabsContent value="sosyal">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Sosyal Hesaplar</CardTitle>
-              <CardDescription>
-                Personaya bagli sosyal medya hesaplari.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {persona.socialAccounts && persona.socialAccounts.length > 0 ? (
-                <div className="space-y-3">
-                  {persona.socialAccounts.map((account) => (
-                    <div
-                      key={account.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-                          {platformIcon(account.platform)}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium capitalize">
-                            {account.platform}
-                          </p>
-                          {account.platformUsername && (
-                            <p className="text-xs text-muted-foreground">
-                              @{account.platformUsername}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={account.isActive ? "default" : "secondary"}
-                        >
-                          {account.isActive ? "Aktif" : "Pasif"}
-                        </Badge>
-                        {account.lastUsedAt && (
-                          <span className="text-xs text-muted-foreground">
-                            Son: {formatDate(account.lastUsedAt)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <Globe className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">
-                    Bagli sosyal hesap yok
-                  </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henuz sosyal medya hesabi baglenmamis.
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -1192,27 +1597,26 @@ export default function PersonaDetailPage() {
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-muted-foreground">Dil</p>
-                  <p className="text-sm">{persona.language || "tr"}</p>
+                  <p className="text-sm">{languageNames[persona.language || "tr"] || persona.language}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Saat Dilimi
+                  <p className="text-xs font-medium text-muted-foreground">Konum</p>
+                  <p className="text-sm">
+                    {[persona.city, persona.country].filter(Boolean).join(", ") || "-"}
                   </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">Saat Dilimi</p>
                   <p className="text-sm">{persona.timezone || "Europe/Istanbul"}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Aktif Saatler
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Aktif Saatler</p>
                   <p className="text-sm">
-                    {persona.activeHoursStart ?? 9}:00 -{" "}
-                    {persona.activeHoursEnd ?? 23}:00
+                    {persona.activeHoursStart ?? 9}:00 - {persona.activeHoursEnd ?? 23}:00
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Gunluk Maks. Gonderi
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Gunluk Maks. Gonderi</p>
                   <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
                 </div>
                 <div className="space-y-1">
@@ -1222,10 +1626,12 @@ export default function PersonaDetailPage() {
                   </Badge>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Son Guncelleme
-                  </p>
+                  <p className="text-xs font-medium text-muted-foreground">Son Guncelleme</p>
                   <p className="text-sm">{formatDate(persona.updatedAt)}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">Olusturulma</p>
+                  <p className="text-sm">{formatDate(persona.createdAt)}</p>
                 </div>
               </div>
             </CardContent>
@@ -1233,14 +1639,22 @@ export default function PersonaDetailPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Edit dialog */}
+      {/* Dialogs */}
       {persona && (
-        <EditPersonaDialog
-          open={editDialogOpen}
-          onOpenChange={setEditDialogOpen}
-          persona={persona}
-          onUpdated={fetchPersona}
-        />
+        <>
+          <EditPersonaDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            persona={persona}
+            onUpdated={fetchPersona}
+          />
+          <AddSocialAccountDialog
+            open={addSocialOpen}
+            onOpenChange={setAddSocialOpen}
+            personaId={persona.id}
+            onCreated={fetchPersona}
+          />
+        </>
       )}
     </div>
   );

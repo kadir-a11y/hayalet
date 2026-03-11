@@ -2,9 +2,12 @@ import { z } from "zod";
 
 export const socialAccountCreateSchema = z.object({
   personaId: z.string().uuid(),
-  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok"]),
+  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "youtube", "threads", "pinterest"]),
   platformUserId: z.string().max(255).optional(),
   platformUsername: z.string().max(255).optional(),
+  platformEmail: z.string().max(255).optional(),
+  platformPhone: z.string().max(50).optional(),
+  platformPassword: z.string().optional(),
   credentialsRef: z.string().optional(),
   isActive: z.boolean().default(true),
 });

@@ -2,14 +2,23 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, User, MoreVertical, Loader2, Users } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Loader2,
+  Users,
+  Globe,
+  MapPin,
+  LayoutGrid,
+  List,
+  Upload,
+  X,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,8 +28,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -32,6 +41,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -53,6 +70,8 @@ interface Persona {
   interests: string[];
   behavioralPatterns: Record<string, string>;
   language: string | null;
+  country: string | null;
+  city: string | null;
   timezone: string | null;
   activeHoursStart: number | null;
   activeHoursEnd: number | null;
@@ -67,6 +86,8 @@ interface CreateFormData {
   name: string;
   displayName: string;
   bio: string;
+  country: string;
+  city: string;
   language: string;
   timezone: string;
   activeHoursStart: number;
@@ -87,10 +108,48 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+const languageLabels: Record<string, string> = {
+  tr: "TR",
+  en: "EN",
+  de: "DE",
+  fr: "FR",
+  es: "ES",
+  ar: "AR",
+  ru: "RU",
+  pt: "PT",
+  ja: "JA",
+  zh: "ZH",
+  ko: "KO",
+  it: "IT",
+  nl: "NL",
+  pl: "PL",
+  sv: "SV",
+};
+
+const languageNames: Record<string, string> = {
+  tr: "Turkce",
+  en: "English",
+  de: "Deutsch",
+  fr: "Francais",
+  es: "Espanol",
+  ar: "Arabic",
+  ru: "Russian",
+  pt: "Portugues",
+  ja: "Japanese",
+  zh: "Chinese",
+  ko: "Korean",
+  it: "Italiano",
+  nl: "Nederlands",
+  pl: "Polski",
+  sv: "Svenska",
+};
+
 const defaultFormData: CreateFormData = {
   name: "",
   displayName: "",
   bio: "",
+  country: "",
+  city: "",
   language: "tr",
   timezone: "Europe/Istanbul",
   activeHoursStart: 9,
@@ -99,33 +158,92 @@ const defaultFormData: CreateFormData = {
 };
 
 // ---------------------------------------------------------------------------
-// Skeleton card for loading state
+// Compact Persona Row (Table View)
 // ---------------------------------------------------------------------------
 
-function PersonaCardSkeleton() {
+function PersonaRow({
+  persona,
+  onClick,
+}: {
+  persona: Persona;
+  onClick: () => void;
+}) {
   return (
-    <Card className="animate-pulse">
-      <CardHeader className="flex flex-row items-center gap-4">
-        <div className="h-12 w-12 rounded-full bg-muted" />
-        <div className="flex-1 space-y-2">
-          <div className="h-4 w-1/2 rounded bg-muted" />
-          <div className="h-3 w-1/3 rounded bg-muted" />
+    <TableRow
+      className="cursor-pointer hover:bg-muted/50"
+      onClick={onClick}
+    >
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            {persona.avatarUrl && (
+              <AvatarImage src={persona.avatarUrl} alt={persona.name} />
+            )}
+            <AvatarFallback className="text-xs">
+              {getInitials(persona.displayName || persona.name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{persona.displayName || persona.name}</p>
+            <p className="truncate text-xs text-muted-foreground">@{persona.name}</p>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="h-3 w-full rounded bg-muted" />
-        <div className="h-3 w-4/5 rounded bg-muted" />
-        <div className="flex gap-2">
-          <div className="h-5 w-14 rounded-full bg-muted" />
-          <div className="h-5 w-16 rounded-full bg-muted" />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-medium">
+            {languageLabels[persona.language || "tr"] || persona.language}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+      </TableCell>
+      <TableCell>
+        {(persona.country || persona.city) ? (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="truncate">
+              {[persona.city, persona.country].filter(Boolean).join(", ")}
+            </span>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">-</span>
+        )}
+      </TableCell>
+      <TableCell>
+        <Badge
+          variant={persona.isActive ? "default" : "secondary"}
+          className="text-xs"
+        >
+          {persona.isActive ? "Aktif" : "Pasif"}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-wrap gap-1">
+          {persona.tags.slice(0, 3).map((tag) => (
+            <Badge
+              key={tag.id}
+              variant="outline"
+              className="text-xs px-1.5 py-0"
+              style={{
+                borderColor: tag.color ?? undefined,
+                color: tag.color ?? undefined,
+              }}
+            >
+              {tag.name}
+            </Badge>
+          ))}
+          {persona.tags.length > 3 && (
+            <span className="text-xs text-muted-foreground">
+              +{persona.tags.length - 3}
+            </span>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Persona Card
+// Compact Card (Grid View)
 // ---------------------------------------------------------------------------
 
 function PersonaCard({
@@ -140,45 +258,64 @@ function PersonaCard({
       className="cursor-pointer transition-shadow hover:shadow-md"
       onClick={onClick}
     >
-      <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-        <Avatar className="h-12 w-12">
-          {persona.avatarUrl && <AvatarImage src={persona.avatarUrl} alt={persona.name} />}
-          <AvatarFallback>{getInitials(persona.name)}</AvatarFallback>
-        </Avatar>
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{persona.name}</CardTitle>
-            <Badge variant={persona.isActive ? "default" : "secondary"}>
-              {persona.isActive ? "Aktif" : "Pasif"}
-            </Badge>
-          </div>
-          {persona.displayName && (
-            <CardDescription>@{persona.displayName}</CardDescription>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {persona.bio && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {persona.bio}
-          </p>
-        )}
-        {persona.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {persona.tags.map((tag) => (
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <Avatar className="h-10 w-10 shrink-0">
+            {persona.avatarUrl && (
+              <AvatarImage src={persona.avatarUrl} alt={persona.name} />
+            )}
+            <AvatarFallback className="text-xs">
+              {getInitials(persona.displayName || persona.name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-sm font-medium">
+                {persona.displayName || persona.name}
+              </p>
               <Badge
-                key={tag.id}
-                variant="outline"
-                style={{
-                  borderColor: tag.color ?? undefined,
-                  color: tag.color ?? undefined,
-                }}
+                variant={persona.isActive ? "default" : "secondary"}
+                className="shrink-0 text-xs"
               >
-                {tag.name}
+                {persona.isActive ? "Aktif" : "Pasif"}
               </Badge>
-            ))}
+            </div>
+            <p className="text-xs text-muted-foreground">@{persona.name}</p>
+            <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="font-medium">
+                {languageLabels[persona.language || "tr"] || persona.language}
+              </span>
+              {(persona.country || persona.city) && (
+                <span className="flex items-center gap-0.5 truncate">
+                  <MapPin className="h-3 w-3" />
+                  {[persona.city, persona.country].filter(Boolean).join(", ")}
+                </span>
+              )}
+            </div>
+            {persona.tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {persona.tags.slice(0, 3).map((tag) => (
+                  <Badge
+                    key={tag.id}
+                    variant="outline"
+                    className="text-xs px-1.5 py-0"
+                    style={{
+                      borderColor: tag.color ?? undefined,
+                      color: tag.color ?? undefined,
+                    }}
+                  >
+                    {tag.name}
+                  </Badge>
+                ))}
+                {persona.tags.length > 3 && (
+                  <span className="text-xs text-muted-foreground">
+                    +{persona.tags.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -224,6 +361,8 @@ function CreatePersonaDialog({
           name: formData.name.trim(),
           displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
+          country: formData.country.trim() || undefined,
+          city: formData.city.trim() || undefined,
           language: formData.language,
           timezone: formData.timezone,
           activeHoursStart: formData.activeHoursStart,
@@ -268,11 +407,11 @@ function CreatePersonaDialog({
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="create-name">
-              Isim <span className="text-destructive">*</span>
+              Kullanici Adi <span className="text-destructive">*</span>
             </Label>
             <Input
               id="create-name"
-              placeholder="Persona ismi"
+              placeholder="ornek_kullanici"
               value={formData.name}
               onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
               disabled={isSubmitting}
@@ -284,7 +423,7 @@ function CreatePersonaDialog({
             <Label htmlFor="create-displayName">Gorunen Ad</Label>
             <Input
               id="create-displayName"
-              placeholder="@gorunenAd"
+              placeholder="Ahmet Yilmaz"
               value={formData.displayName}
               onChange={(e) =>
                 setFormData((f) => ({ ...f, displayName: e.target.value }))
@@ -299,11 +438,39 @@ function CreatePersonaDialog({
             <Textarea
               id="create-bio"
               placeholder="Kisa bir tanim..."
-              rows={3}
+              rows={2}
               value={formData.bio}
               onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
               disabled={isSubmitting}
             />
+          </div>
+
+          {/* Country & City */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="create-country">Ulke</Label>
+              <Input
+                id="create-country"
+                placeholder="Turkiye"
+                value={formData.country}
+                onChange={(e) =>
+                  setFormData((f) => ({ ...f, country: e.target.value }))
+                }
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-city">Sehir</Label>
+              <Input
+                id="create-city"
+                placeholder="Istanbul"
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData((f) => ({ ...f, city: e.target.value }))
+                }
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Language & Timezone */}
@@ -319,10 +486,11 @@ function CreatePersonaDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="tr">Turkce</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
-                  <SelectItem value="fr">Francais</SelectItem>
+                  {Object.entries(languageNames).map(([code, name]) => (
+                    <SelectItem key={code} value={code}>
+                      {name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -340,17 +508,21 @@ function CreatePersonaDialog({
                   <SelectItem value="Europe/Istanbul">Europe/Istanbul</SelectItem>
                   <SelectItem value="Europe/London">Europe/London</SelectItem>
                   <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
+                  <SelectItem value="Europe/Moscow">Europe/Moscow</SelectItem>
                   <SelectItem value="America/New_York">America/New_York</SelectItem>
                   <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                  <SelectItem value="Asia/Shanghai">Asia/Shanghai</SelectItem>
+                  <SelectItem value="Asia/Dubai">Asia/Dubai</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           {/* Active Hours */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="create-activeStart">Aktif Baslangic Saati</Label>
+              <Label htmlFor="create-activeStart">Aktif Baslangic</Label>
               <Input
                 id="create-activeStart"
                 type="number"
@@ -367,7 +539,7 @@ function CreatePersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-activeEnd">Aktif Bitis Saati</Label>
+              <Label htmlFor="create-activeEnd">Aktif Bitis</Label>
               <Input
                 id="create-activeEnd"
                 type="number"
@@ -383,25 +555,23 @@ function CreatePersonaDialog({
                 disabled={isSubmitting}
               />
             </div>
-          </div>
-
-          {/* Max Posts Per Day */}
-          <div className="space-y-2">
-            <Label htmlFor="create-maxPosts">Gunluk Maks. Gonderi</Label>
-            <Input
-              id="create-maxPosts"
-              type="number"
-              min={1}
-              max={100}
-              value={formData.maxPostsPerDay}
-              onChange={(e) =>
-                setFormData((f) => ({
-                  ...f,
-                  maxPostsPerDay: parseInt(e.target.value) || 1,
-                }))
-              }
-              disabled={isSubmitting}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="create-maxPosts">Maks. Gonderi</Label>
+              <Input
+                id="create-maxPosts"
+                type="number"
+                min={1}
+                max={100}
+                value={formData.maxPostsPerDay}
+                onChange={(e) =>
+                  setFormData((f) => ({
+                    ...f,
+                    maxPostsPerDay: parseInt(e.target.value) || 1,
+                  }))
+                }
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Error */}
@@ -441,6 +611,272 @@ function CreatePersonaDialog({
 }
 
 // ---------------------------------------------------------------------------
+// Bulk Create Dialog
+// ---------------------------------------------------------------------------
+
+interface BulkPersonaEntry {
+  name: string;
+  displayName: string;
+  bio: string;
+  country: string;
+  city: string;
+  language: string;
+}
+
+function BulkCreateDialog({
+  open,
+  onOpenChange,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreated: () => void;
+}) {
+  const [entries, setEntries] = useState<BulkPersonaEntry[]>([
+    { name: "", displayName: "", bio: "", country: "", city: "", language: "tr" },
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<{ success: number; total: number } | null>(null);
+
+  function resetForm() {
+    setEntries([{ name: "", displayName: "", bio: "", country: "", city: "", language: "tr" }]);
+    setError("");
+    setResult(null);
+  }
+
+  function addRow() {
+    setEntries((prev) => [
+      ...prev,
+      { name: "", displayName: "", bio: "", country: "", city: "", language: "tr" },
+    ]);
+  }
+
+  function removeRow(index: number) {
+    if (entries.length <= 1) return;
+    setEntries((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateRow(index: number, field: keyof BulkPersonaEntry, value: string) {
+    setEntries((prev) =>
+      prev.map((entry, i) =>
+        i === index ? { ...entry, [field]: value } : entry
+      )
+    );
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setResult(null);
+
+    const validEntries = entries.filter((e) => e.name.trim());
+    if (validEntries.length === 0) {
+      setError("En az bir persona ismi gerekli.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/personas/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personas: validEntries.map((e) => ({
+            name: e.name.trim(),
+            displayName: e.displayName.trim() || undefined,
+            bio: e.bio.trim() || undefined,
+            country: e.country.trim() || undefined,
+            city: e.city.trim() || undefined,
+            language: e.language,
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Toplu olusturma basarisiz.");
+      }
+
+      const data = await res.json();
+      setResult({ success: data.successCount, total: data.totalCount });
+
+      if (data.successCount > 0) {
+        onCreated();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) resetForm();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Toplu Persona Olustur</DialogTitle>
+          <DialogDescription>
+            Birden fazla persona ayni anda olusturabilirsiniz. Maks. 50 adet.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[180px]">Kullanici Adi *</TableHead>
+                  <TableHead className="w-[160px]">Gorunen Ad</TableHead>
+                  <TableHead className="w-[200px]">Biyografi</TableHead>
+                  <TableHead className="w-[120px]">Ulke</TableHead>
+                  <TableHead className="w-[100px]">Sehir</TableHead>
+                  <TableHead className="w-[80px]">Dil</TableHead>
+                  <TableHead className="w-[40px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {entries.map((entry, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="p-1.5">
+                      <Input
+                        placeholder="kullanici_adi"
+                        value={entry.name}
+                        onChange={(e) => updateRow(index, "name", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Input
+                        placeholder="Gorunen Ad"
+                        value={entry.displayName}
+                        onChange={(e) => updateRow(index, "displayName", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Input
+                        placeholder="Kisa bio..."
+                        value={entry.bio}
+                        onChange={(e) => updateRow(index, "bio", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Input
+                        placeholder="Ulke"
+                        value={entry.country}
+                        onChange={(e) => updateRow(index, "country", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Input
+                        placeholder="Sehir"
+                        value={entry.city}
+                        onChange={(e) => updateRow(index, "city", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-8 text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Select
+                        value={entry.language}
+                        onValueChange={(v) => updateRow(index, "language", v)}
+                        disabled={isSubmitting}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(languageNames).map(([code, name]) => (
+                            <SelectItem key={code} value={code}>
+                              {code.toUpperCase()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="p-1.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => removeRow(index)}
+                        disabled={entries.length <= 1 || isSubmitting}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addRow}
+            disabled={entries.length >= 50 || isSubmitting}
+          >
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
+            Satir Ekle
+          </Button>
+
+          {result && (
+            <div className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-600">
+              {result.success}/{result.total} persona basariyla olusturuldu.
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Kapat
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Olusturuluyor...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  {entries.filter((e) => e.name.trim()).length} Persona Olustur
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -451,6 +887,8 @@ export default function PersonasPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   const fetchPersonas = useCallback(async () => {
     try {
@@ -476,14 +914,17 @@ export default function PersonasPage() {
     const q = search.toLowerCase();
     return (
       p.name.toLowerCase().includes(q) ||
-      (p.displayName && p.displayName.toLowerCase().includes(q))
+      (p.displayName && p.displayName.toLowerCase().includes(q)) ||
+      (p.country && p.country.toLowerCase().includes(q)) ||
+      (p.city && p.city.toLowerCase().includes(q)) ||
+      (p.language && p.language.toLowerCase().includes(q))
     );
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Personas</h1>
           {!isLoading && (
@@ -492,23 +933,49 @@ export default function PersonasPage() {
             </p>
           )}
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Yeni Persona
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Toplu Olustur
+          </Button>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Yeni Persona
+          </Button>
+        </div>
       </div>
 
       <Separator />
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Persona ara..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      {/* Search + View Toggle */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Persona, ulke, sehir veya dil ara..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex rounded-lg border">
+          <Button
+            variant={viewMode === "table" ? "secondary" : "ghost"}
+            size="icon"
+            className="h-9 w-9 rounded-r-none"
+            onClick={() => setViewMode("table")}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "grid" ? "secondary" : "ghost"}
+            size="icon"
+            className="h-9 w-9 rounded-l-none"
+            onClick={() => setViewMode("grid")}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Error state */}
@@ -532,10 +999,8 @@ export default function PersonasPage() {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <PersonaCardSkeleton key={i} />
-          ))}
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
 
@@ -550,10 +1015,16 @@ export default function PersonasPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Ilk personanizi olusturarak baslayabilirsiniz.
             </p>
-            <Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Yeni Persona
-            </Button>
+            <div className="mt-6 flex gap-2">
+              <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Toplu Olustur
+              </Button>
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Yeni Persona
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -571,9 +1042,35 @@ export default function PersonasPage() {
         </Card>
       )}
 
-      {/* Persona grid */}
-      {!isLoading && !error && filteredPersonas.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Table View */}
+      {!isLoading && !error && filteredPersonas.length > 0 && viewMode === "table" && (
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Persona</TableHead>
+                <TableHead className="w-[60px]">Dil</TableHead>
+                <TableHead className="w-[180px]">Konum</TableHead>
+                <TableHead className="w-[80px]">Durum</TableHead>
+                <TableHead className="w-[200px]">Etiketler</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPersonas.map((persona) => (
+                <PersonaRow
+                  key={persona.id}
+                  persona={persona}
+                  onClick={() => router.push(`/personas/${persona.id}`)}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Grid View */}
+      {!isLoading && !error && filteredPersonas.length > 0 && viewMode === "grid" && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredPersonas.map((persona) => (
             <PersonaCard
               key={persona.id}
@@ -584,10 +1081,18 @@ export default function PersonasPage() {
         </div>
       )}
 
-      {/* Create dialog */}
+      {/* Dialogs */}
       <CreatePersonaDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
+        onCreated={() => {
+          setIsLoading(true);
+          fetchPersonas();
+        }}
+      />
+      <BulkCreateDialog
+        open={bulkDialogOpen}
+        onOpenChange={setBulkDialogOpen}
         onCreated={() => {
           setIsLoading(true);
           fetchPersonas();

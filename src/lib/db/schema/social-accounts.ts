@@ -5,10 +5,13 @@ export const socialAccounts = pgTable("social_accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
   personaId: uuid("persona_id")
     .notNull()
-    .references(() => personas.id),
+    .references(() => personas.id, { onDelete: "cascade" }),
   platform: varchar("platform", { length: 50 }).notNull(),
   platformUserId: varchar("platform_user_id", { length: 255 }),
   platformUsername: varchar("platform_username", { length: 255 }),
+  platformEmail: varchar("platform_email", { length: 255 }),
+  platformPhone: varchar("platform_phone", { length: 50 }),
+  platformPassword: text("platform_password"),
   credentialsRef: text("credentials_ref"),
   isActive: boolean("is_active").default(true),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),

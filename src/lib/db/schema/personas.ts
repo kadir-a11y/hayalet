@@ -13,6 +13,8 @@ export const personas = pgTable("personas", {
   personalityTraits: jsonb("personality_traits").default([]),
   interests: jsonb("interests").default([]),
   behavioralPatterns: jsonb("behavioral_patterns").default({}),
+  country: varchar("country", { length: 100 }),
+  city: varchar("city", { length: 100 }),
   language: varchar("language", { length: 10 }).default("tr"),
   timezone: varchar("timezone", { length: 50 }).default("Europe/Istanbul"),
   activeHoursStart: integer("active_hours_start").default(9),
