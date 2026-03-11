@@ -32,10 +32,10 @@ import {
 import { Plus, Edit, Trash2, Tag, Users } from "lucide-react";
 
 const PREDEFINED_COLORS = [
-  { value: "#EF4444", label: "Kirmizi" },
+  { value: "#EF4444", label: "Kırmızı" },
   { value: "#F97316", label: "Turuncu" },
-  { value: "#EAB308", label: "Sari" },
-  { value: "#22C55E", label: "Yesil" },
+  { value: "#EAB308", label: "Sarı" },
+  { value: "#22C55E", label: "Yeşil" },
   { value: "#3B82F6", label: "Mavi" },
   { value: "#8B5CF6", label: "Mor" },
   { value: "#EC4899", label: "Pembe" },

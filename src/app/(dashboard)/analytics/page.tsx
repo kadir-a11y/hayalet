@@ -83,16 +83,16 @@ const STATUS_COLORS: Record<string, string> = {
 const PIE_COLORS = ["#94a3b8", "#3b82f6", "#f59e0b", "#22c55e", "#ef4444", "#8b5cf6"];
 
 const ACTION_LABELS: Record<string, string> = {
-  created: "Olusturuldu",
-  updated: "Guncellendi",
+  created: "Oluşturuldu",
+  updated: "Güncellendi",
   deleted: "Silindi",
-  executed: "Calistirildi",
-  scheduled: "Zamanlandi",
+  executed: "Çalıştırıldı",
+  scheduled: "Zamanlanmış",
 };
 
 const ENTITY_LABELS: Record<string, string> = {
   persona: "Persona",
-  content: "Icerik",
+  content: "İçerik",
   campaign: "Kampanya",
   tag: "Etiket",
 };
@@ -159,11 +159,11 @@ export default function AnalyticsPage() {
     try {
       setError("");
       const res = await fetch("/api/analytics");
-      if (!res.ok) throw new Error("Analitik verileri yuklenemedi.");
+      if (!res.ok) throw new Error("Analitik verileri yüklenemedi.");
       const json = await res.json();
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -198,7 +198,7 @@ export default function AnalyticsPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Analitik</h1>
         <p className="text-sm text-muted-foreground">
-          Genel bakis ve istatistikler
+          Genel bakış ve istatistikler
         </p>
       </div>
 
@@ -243,12 +243,12 @@ export default function AnalyticsPage() {
               icon={Users}
             />
             <StatCard
-              title="Toplam Icerik"
+              title="Toplam İçerik"
               value={totalContent}
               icon={FileText}
             />
             <StatCard
-              title="Yayinlanan Icerik"
+              title="Yayınlanan İçerik"
               value={publishedContent}
               icon={CheckCircle}
             />
@@ -264,9 +264,9 @@ export default function AnalyticsPage() {
             {/* Content Status Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Icerik Durum Dagilimi</CardTitle>
+                <CardTitle className="text-base">İçerik Durum Dağılımı</CardTitle>
                 <CardDescription>
-                  Icerik durumlarinin genel dagilimi
+                  İçerik durumlarının genel dağılımı
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -295,7 +295,7 @@ export default function AnalyticsPage() {
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
-                    Henuz icerik verisi yok
+                    Henüz içerik verisi yok
                   </div>
                 )}
               </CardContent>
@@ -306,7 +306,7 @@ export default function AnalyticsPage() {
               <CardHeader>
                 <CardTitle className="text-base">Aktivite (Son 30 Gun)</CardTitle>
                 <CardDescription>
-                  Gunluk aktivite sayilari
+                  Günlük aktivite sayıları
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
-                    Henuz aktivite verisi yok
+                    Henüz aktivite verisi yok
                   </div>
                 )}
               </CardContent>
@@ -351,7 +351,7 @@ export default function AnalyticsPage() {
             <CardHeader>
               <CardTitle className="text-base">Son Aktiviteler</CardTitle>
               <CardDescription>
-                Son yapilan islemler
+                Son yapılan işlemler
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -359,9 +359,9 @@ export default function AnalyticsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Tur</TableHead>
-                      <TableHead>Islem</TableHead>
-                      <TableHead>Varlik ID</TableHead>
+                      <TableHead>Tür</TableHead>
+                      <TableHead>İşlem</TableHead>
+                      <TableHead>Varlık ID</TableHead>
                       <TableHead className="text-right">Tarih</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -406,7 +406,7 @@ export default function AnalyticsPage() {
                 <div className="flex flex-col items-center justify-center py-12">
                   <BarChart3 className="h-8 w-8 text-muted-foreground" />
                   <p className="mt-4 text-sm text-muted-foreground">
-                    Henuz aktivite kaydi yok
+                    Henüz aktivite kaydı yok
                   </p>
                 </div>
               )}

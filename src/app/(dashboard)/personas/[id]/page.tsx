@@ -188,24 +188,69 @@ function getInitials(name: string): string {
 }
 
 const languageNames: Record<string, string> = {
-  tr: "Turkce", en: "English", de: "Deutsch", fr: "Francais",
-  es: "Espanol", ar: "Arabic", ru: "Russian", pt: "Portugues",
-  ja: "Japanese", zh: "Chinese", ko: "Korean", it: "Italiano",
-  nl: "Nederlands", pl: "Polski", sv: "Svenska",
+  tr: "Türkçe",
+  en: "English",
+  de: "Deutsch",
+  fr: "Français",
+  es: "Español",
+  ar: "العربية",
+  ru: "Русский",
+  pt: "Português",
+  ja: "日本語",
+  zh: "中文",
+  ko: "한국어",
+  it: "Italiano",
+  nl: "Nederlands",
+  pl: "Polski",
+  sv: "Svenska",
+  hi: "हिन्दी",
+  bn: "বাংলা",
+  ur: "اردو",
+  fa: "فارسی",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  th: "ไทย",
+  vi: "Tiếng Việt",
+  tl: "Filipino",
+  el: "Ελληνικά",
+  cs: "Čeština",
+  ro: "Română",
+  hu: "Magyar",
+  da: "Dansk",
+  no: "Norsk",
+  fi: "Suomi",
+  uk: "Українська",
+  he: "עברית",
+  sw: "Kiswahili",
+  az: "Azərbaycan",
+  kk: "Қазақша",
+  uz: "Oʻzbek",
+  ka: "ქართული",
+  sr: "Српски",
+  hr: "Hrvatski",
+  bg: "Български",
+  sq: "Shqip",
+  ca: "Català",
+  sk: "Slovenčina",
+  lt: "Lietuvių",
+  lv: "Latviešu",
+  et: "Eesti",
+  sl: "Slovenščina",
+  mk: "Македонски",
 };
 
 const usageLevelLabels: Record<string, string> = {
-  none: "Hic",
+  none: "Hiç",
   minimal: "Minimal",
   moderate: "Orta",
-  heavy: "Yogun",
+  heavy: "Yoğun",
 };
 
 const statusLabels: Record<string, string> = {
   draft: "Taslak",
-  scheduled: "Zamanlanmis",
-  published: "Yayinlanmis",
-  failed: "Basarisiz",
+  scheduled: "Zamanlanmış",
+  published: "Yayınlanmış",
+  failed: "Başarısız",
 };
 
 const statusColors: Record<string, string> = {
@@ -411,14 +456,14 @@ function EditPersonaDialog({
         throw new Error(
           data?.error?.fieldErrors
             ? Object.values(data.error.fieldErrors).flat().join(", ")
-            : "Guncelleme basarisiz."
+            : "Güncelleme başarısız."
         );
       }
 
       onOpenChange(false);
       onUpdated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -428,7 +473,7 @@ function EditPersonaDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Personayi Duzenle</DialogTitle>
+          <DialogTitle>Personayı Düzenle</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -436,7 +481,7 @@ function EditPersonaDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="edit-name">
-                Kullanici Adi <span className="text-destructive">*</span>
+                Kullanıcı Adı <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="edit-name"
@@ -446,7 +491,7 @@ function EditPersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-displayName">Gorunen Ad</Label>
+              <Label htmlFor="edit-displayName">Görünen Ad</Label>
               <Input
                 id="edit-displayName"
                 value={formData.displayName}
@@ -472,7 +517,7 @@ function EditPersonaDialog({
           {/* Country & City */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Ulke</Label>
+              <Label>Ülke</Label>
               <Select
                 value={formData.country}
                 onValueChange={(v) =>
@@ -481,7 +526,7 @@ function EditPersonaDialog({
                 disabled={isSubmitting}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Ulke secin" />
+                  <SelectValue placeholder="Ülke seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
@@ -491,7 +536,7 @@ function EditPersonaDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Sehir</Label>
+              <Label>Şehir</Label>
               <Select
                 value={formData.city}
                 onValueChange={(v) =>
@@ -500,7 +545,7 @@ function EditPersonaDialog({
                 disabled={isSubmitting || !formData.country}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Sehir secin" />
+                  <SelectValue placeholder="Şehir seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {getCitiesByCountry(formData.country).map((city) => (
@@ -528,7 +573,7 @@ function EditPersonaDialog({
 
           {/* Personality Traits */}
           <div className="space-y-2">
-            <Label>Kisilik Ozellikleri</Label>
+            <Label>Kişilik Özellikleri</Label>
             <div className="flex flex-wrap gap-1.5">
               {formData.personalityTraits.map((t) => (
                 <Badge key={t} variant="secondary" className="gap-1">
@@ -545,7 +590,7 @@ function EditPersonaDialog({
             </div>
             <div className="flex gap-2">
               <Input
-                placeholder="Yeni ozellik ekle..."
+                placeholder="Yeni özellik ekle..."
                 value={newTrait}
                 onChange={(e) => setNewTrait(e.target.value)}
                 onKeyDown={(e) => {
@@ -564,7 +609,7 @@ function EditPersonaDialog({
 
           {/* Interests */}
           <div className="space-y-2">
-            <Label>Ilgi Alanlari</Label>
+            <Label>İlgi Alanları</Label>
             <div className="flex flex-wrap gap-1.5">
               {formData.interests.map((i) => (
                 <Badge key={i} variant="outline" className="gap-1">
@@ -581,7 +626,7 @@ function EditPersonaDialog({
             </div>
             <div className="flex gap-2">
               <Input
-                placeholder="Yeni ilgi alani ekle..."
+                placeholder="Yeni ilgi alanı ekle..."
                 value={newInterest}
                 onChange={(e) => setNewInterest(e.target.value)}
                 onKeyDown={(e) => {
@@ -602,15 +647,15 @@ function EditPersonaDialog({
 
           {/* Behavioral patterns */}
           <div className="space-y-3">
-            <Label>Davranissal Kaliplar</Label>
+            <Label>Davranışsal Kalıplar</Label>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="edit-writingStyle" className="text-xs text-muted-foreground">
-                  Yazim Stili
+                  Yazım Stili
                 </Label>
                 <Input
                   id="edit-writingStyle"
-                  placeholder="ornegin: resmi, samimi..."
+                  placeholder="örneğin: resmi, samimi..."
                   value={formData.behavioralPatterns.writing_style || ""}
                   onChange={(e) =>
                     setFormData((f) => ({
@@ -627,7 +672,7 @@ function EditPersonaDialog({
                 </Label>
                 <Input
                   id="edit-tone"
-                  placeholder="ornegin: ciddi, eglenceli..."
+                  placeholder="örneğin: ciddi, eğlenceli..."
                   value={formData.behavioralPatterns.tone || ""}
                   onChange={(e) =>
                     setFormData((f) => ({
@@ -640,7 +685,7 @@ function EditPersonaDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-emojiUsage" className="text-xs text-muted-foreground">
-                  Emoji Kullanimi
+                  Emoji Kullanımı
                 </Label>
                 <Select
                   value={formData.behavioralPatterns.emoji_usage || "none"}
@@ -656,10 +701,10 @@ function EditPersonaDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Hic</SelectItem>
+                    <SelectItem value="none">Hiç</SelectItem>
                     <SelectItem value="minimal">Minimal</SelectItem>
                     <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yogun</SelectItem>
+                    <SelectItem value="heavy">Yoğun</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -681,10 +726,10 @@ function EditPersonaDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Hic</SelectItem>
+                    <SelectItem value="none">Hiç</SelectItem>
                     <SelectItem value="minimal">Minimal</SelectItem>
                     <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yogun</SelectItem>
+                    <SelectItem value="heavy">Yoğun</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -739,7 +784,7 @@ function EditPersonaDialog({
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="edit-activeStart">Aktif Baslangic</Label>
+              <Label htmlFor="edit-activeStart">Aktif Başlangıç</Label>
               <Input
                 id="edit-activeStart"
                 type="number"
@@ -753,7 +798,7 @@ function EditPersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-activeEnd">Aktif Bitis</Label>
+              <Label htmlFor="edit-activeEnd">Aktif Bitiş</Label>
               <Input
                 id="edit-activeEnd"
                 type="number"
@@ -767,7 +812,7 @@ function EditPersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-maxPosts">Maks. Gonderi</Label>
+              <Label htmlFor="edit-maxPosts">Maks. Gönderi</Label>
               <Input
                 id="edit-maxPosts"
                 type="number"
@@ -796,7 +841,7 @@ function EditPersonaDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
@@ -874,7 +919,7 @@ function AddSocialAccountDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -890,7 +935,7 @@ function AddSocialAccountDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Sosyal Medya Hesabi Ekle</DialogTitle>
+          <DialogTitle>Sosyal Medya Hesabı Ekle</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -909,10 +954,10 @@ function AddSocialAccountDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="social-username">Kullanici Adi</Label>
+            <Label htmlFor="social-username">Kullanıcı Adı</Label>
             <Input
               id="social-username"
-              placeholder="@kullaniciadi"
+              placeholder="@kullanıcıadı"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isSubmitting}
@@ -943,12 +988,12 @@ function AddSocialAccountDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="social-password">Sifre</Label>
+            <Label htmlFor="social-password">Şifre</Label>
             <div className="relative">
               <Input
                 id="social-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Hesap sifresi"
+                placeholder="Hesap şifresi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
@@ -972,7 +1017,7 @@ function AddSocialAccountDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -1059,7 +1104,7 @@ function TagsManager({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-sm text-muted-foreground">
-          Henuz etiket olusturulmamis.
+          Henüz etiket oluşturulmamış.
         </p>
       </div>
     );
@@ -1068,7 +1113,7 @@ function TagsManager({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istediginiz etiketleri secin.
+        Bu personaya atamak istediğiniz etiketleri seçin.
       </p>
       <div className="flex flex-wrap gap-2">
         {allTags.map((tag) => {
@@ -1099,7 +1144,7 @@ function TagsManager({
               Kaydediliyor...
             </>
           ) : (
-            "Degisiklikleri Kaydet"
+            "Değişiklikleri Kaydet"
           )}
         </Button>
       )}
@@ -1135,9 +1180,9 @@ function PostsTab({ personaId }: { personaId: string }) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <FileText className="h-8 w-8 text-muted-foreground" />
-        <h3 className="mt-4 text-sm font-semibold">Henuz gonderi yok</h3>
+        <h3 className="mt-4 text-sm font-semibold">Henüz gönderi yok</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Bu personaya henuz icerik olusturulmamis.
+          Bu personaya henüz içerik oluşturulmamış.
         </p>
       </div>
     );
@@ -1243,13 +1288,13 @@ function SocialAccountCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Hesabi silmek istediginize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu sosyal medya hesap bilgileri kalici olarak silinecektir.
+                  Bu sosyal medya hesap bilgileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Iptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -1289,7 +1334,7 @@ function SocialAccountCard({
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
-          Son kullanim: {formatShortDate(account.lastUsedAt)}
+          Son kullanım: {formatShortDate(account.lastUsedAt)}
         </p>
       )}
     </div>
@@ -1337,7 +1382,7 @@ function AddForumAccountDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!portalName.trim()) {
-      setError("Portal adi zorunludur.");
+      setError("Portal adı zorunludur.");
       return;
     }
     setError("");
@@ -1365,7 +1410,7 @@ function AddForumAccountDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1381,15 +1426,15 @@ function AddForumAccountDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Forum / Portal Hesabi Ekle</DialogTitle>
+          <DialogTitle>Forum / Portal Hesabı Ekle</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="forum-name">Portal Adi *</Label>
+            <Label htmlFor="forum-name">Portal Adı *</Label>
             <Input
               id="forum-name"
-              placeholder="ornek: Technopat, r10.net, Eksi Sozluk"
+              placeholder="örnek: Technopat, r10.net, Ekşi Sözlük"
               value={portalName}
               onChange={(e) => setPortalName(e.target.value)}
               disabled={isSubmitting}
@@ -1408,10 +1453,10 @@ function AddForumAccountDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="forum-username">Kullanici Adi</Label>
+            <Label htmlFor="forum-username">Kullanıcı Adı</Label>
             <Input
               id="forum-username"
-              placeholder="kullaniciadi"
+              placeholder="kullanıcıadı"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isSubmitting}
@@ -1442,12 +1487,12 @@ function AddForumAccountDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="forum-password">Sifre</Label>
+            <Label htmlFor="forum-password">Şifre</Label>
             <div className="relative">
               <Input
                 id="forum-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Hesap sifresi"
+                placeholder="Hesap şifresi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
@@ -1483,7 +1528,7 @@ function AddForumAccountDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -1559,13 +1604,13 @@ function ForumAccountCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Hesabi silmek istediginize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu forum/portal hesap bilgileri kalici olarak silinecektir.
+                  Bu forum/portal hesap bilgileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Iptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -1611,7 +1656,7 @@ function ForumAccountCard({
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
-          Son kullanim: {formatShortDate(account.lastUsedAt)}
+          Son kullanım: {formatShortDate(account.lastUsedAt)}
         </p>
       )}
     </div>
@@ -1683,12 +1728,12 @@ function MediaTab({ personaId }: { personaId: string }) {
 
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Yukleme basarisiz.");
+          throw new Error(err.error || "Yükleme başarısız.");
         }
       }
       fetchMedia();
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Yukleme basarisiz.");
+      setUploadError(err instanceof Error ? err.message : "Yükleme başarısız.");
     } finally {
       setIsUploading(false);
       e.target.value = "";
@@ -1736,8 +1781,8 @@ function MediaTab({ personaId }: { personaId: string }) {
               onClick={() => setFilter(t)}
               className="text-xs"
             >
-              {t === "all" && "Tumu"}
-              {t === "image" && "Gorseller"}
+              {t === "all" && "Tümü"}
+              {t === "image" && "Görseller"}
               {t === "video" && "Videolar"}
               {t === "document" && "Belgeler"}
               {counts[t] > 0 && (
@@ -1768,7 +1813,7 @@ function MediaTab({ personaId }: { personaId: string }) {
             ) : (
               <Upload className="mr-1.5 h-3.5 w-3.5" />
             )}
-            Yukle
+            Yükle
           </Button>
         </div>
       </div>
@@ -1783,10 +1828,10 @@ function MediaTab({ personaId }: { personaId: string }) {
         <div className="flex flex-col items-center justify-center py-12">
           <Image className="h-8 w-8 text-muted-foreground" />
           <h3 className="mt-4 text-sm font-semibold">
-            {media.length === 0 ? "Henuz medya yok" : "Bu filtrede medya yok"}
+            {media.length === 0 ? "Henüz medya yok" : "Bu filtrede medya yok"}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Gorsel, video veya belge yukleyin.
+            Görsel, video veya belge yükleyin.
           </p>
           {media.length === 0 && (
             <Button
@@ -1795,7 +1840,7 @@ function MediaTab({ personaId }: { personaId: string }) {
               onClick={() => document.getElementById("media-upload")?.click()}
             >
               <Upload className="mr-1.5 h-3.5 w-3.5" />
-              Dosya Yukle
+              Dosya Yükle
             </Button>
           )}
         </div>
@@ -1855,13 +1900,13 @@ function MediaTab({ personaId }: { personaId: string }) {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Dosyayi silmek istediginize emin misiniz?</AlertDialogTitle>
+                      <AlertDialogTitle>Dosyayı silmek istediğinize emin misiniz?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        &ldquo;{item.filename}&rdquo; kalici olarak silinecektir.
+                        &ldquo;{item.filename}&rdquo; kalıcı olarak silinecektir.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Iptal</AlertDialogCancel>
+                      <AlertDialogCancel>İptal</AlertDialogCancel>
                       <AlertDialogAction onClick={() => handleDelete(item.id)}>
                         Sil
                       </AlertDialogAction>
@@ -1975,9 +2020,9 @@ function RolesManager({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Shield className="h-8 w-8 text-muted-foreground" />
-        <h3 className="mt-4 text-sm font-semibold">Henuz rol tanimlanmamis</h3>
+        <h3 className="mt-4 text-sm font-semibold">Henüz rol tanımlanmamış</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Oncelikle &ldquo;Roller&rdquo; sayfasindan rol ve kategori olusturun.
+          Öncelikle &ldquo;Roller&rdquo; sayfasından rol ve kategori oluşturun.
         </p>
       </div>
     );
@@ -2007,7 +2052,7 @@ function RolesManager({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istediginiz rolleri secin. AI icerik uretiminde bu roller dikkate alinacaktir.
+        Bu personaya atamak istediğiniz rolleri seçin. AI içerik üretiminde bu roller dikkate alınacaktır.
       </p>
 
       {Array.from(grouped.entries()).map(([catId, group]) => (
@@ -2048,7 +2093,7 @@ function RolesManager({
       {uncategorized.length > 0 && (
         <div className="space-y-2">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Diger
+            Diğer
           </span>
           <div className="flex flex-wrap gap-2">
             {uncategorized.map((role) => {
@@ -2082,7 +2127,7 @@ function RolesManager({
               Kaydediliyor...
             </>
           ) : (
-            "Degisiklikleri Kaydet"
+            "Değişiklikleri Kaydet"
           )}
         </Button>
       )}
@@ -2112,14 +2157,14 @@ export default function PersonaDetailPage() {
       setError("");
       const res = await fetch(`/api/personas/${id}`);
       if (res.status === 404) {
-        setError("Persona bulunamadi.");
+        setError("Persona bulunamadı.");
         return;
       }
-      if (!res.ok) throw new Error("Persona yuklenemedi.");
+      if (!res.ok) throw new Error("Persona yüklenemedi.");
       const data = await res.json();
       setPersona(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -2133,7 +2178,7 @@ export default function PersonaDetailPage() {
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/personas/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Silme basarisiz.");
+      if (!res.ok) throw new Error("Silme başarısız.");
       router.push("/personas");
     } catch {
       setIsDeleting(false);
@@ -2153,10 +2198,10 @@ export default function PersonaDetailPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <User className="h-10 w-10 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">
-              {error || "Persona bulunamadi"}
+              {error || "Persona bulunamadı"}
             </h3>
             <Button variant="outline" className="mt-6" onClick={() => router.push("/personas")}>
-              Personas Listesine Don
+              Personas Listesine Dön
             </Button>
           </CardContent>
         </Card>
@@ -2182,7 +2227,7 @@ export default function PersonaDetailPage() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            Duzenle
+            Düzenle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -2197,14 +2242,14 @@ export default function PersonaDetailPage() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Personayi silmek istediginize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Personayı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu islem geri alinamaz. &ldquo;{persona.name}&rdquo; personasi ve iliskili
-                  tum verileri kalici olarak silinecektir.
+                  Bu işlem geri alınamaz. &ldquo;{persona.name}&rdquo; personası ve ilişkili
+                  tüm verileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Iptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -2262,7 +2307,7 @@ export default function PersonaDetailPage() {
           <TabsTrigger value="forumlar">Forum & Portallar</TabsTrigger>
           <TabsTrigger value="roller">Roller</TabsTrigger>
           <TabsTrigger value="medya">Medya</TabsTrigger>
-          <TabsTrigger value="gonderiler">Gonderiler</TabsTrigger>
+          <TabsTrigger value="gonderiler">Gönderiler</TabsTrigger>
           <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
         </TabsList>
@@ -2273,7 +2318,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <User className="h-4 w-4" />
-                Kisilik Ozellikleri
+                Kişilik Özellikleri
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -2284,7 +2329,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Henuz kisilik ozelligi eklenmemis.</p>
+                <p className="text-sm text-muted-foreground">Henüz kişilik özelliği eklenmemiş.</p>
               )}
             </CardContent>
           </Card>
@@ -2293,7 +2338,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <MessageSquare className="h-4 w-4" />
-                Ilgi Alanlari
+                İlgi Alanları
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -2304,7 +2349,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Henuz ilgi alani eklenmemis.</p>
+                <p className="text-sm text-muted-foreground">Henüz ilgi alanı eklenmemiş.</p>
               )}
             </CardContent>
           </Card>
@@ -2313,13 +2358,13 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Pen className="h-4 w-4" />
-                Davranissal Kaliplar
+                Davranışsal Kalıplar
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Yazim Stili</p>
+                  <p className="text-xs font-medium text-muted-foreground">Yazım Stili</p>
                   <p className="text-sm">{patterns.writing_style || "-"}</p>
                 </div>
                 <div className="space-y-1">
@@ -2327,7 +2372,7 @@ export default function PersonaDetailPage() {
                   <p className="text-sm">{patterns.tone || "-"}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullanimi</p>
+                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullanımı</p>
                   <p className="text-sm">
                     {patterns.emoji_usage
                       ? usageLevelLabels[patterns.emoji_usage] || patterns.emoji_usage
@@ -2354,7 +2399,7 @@ export default function PersonaDetailPage() {
               <div>
                 <CardTitle className="text-base">Sosyal Hesaplar</CardTitle>
                 <CardDescription>
-                  Personaya bagli sosyal medya hesaplari ve kimlik bilgileri.
+                  Personaya bağlı sosyal medya hesapları ve kimlik bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddSocialOpen(true)}>
@@ -2376,9 +2421,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Globe className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Bagli sosyal hesap yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Bağlı sosyal hesap yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henuz sosyal medya hesabi baglenmamis.
+                    Bu personaya henüz sosyal medya hesabı bağlanmamış.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddSocialOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -2395,9 +2440,9 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">Forum & Portal Uyelikleri</CardTitle>
+                <CardTitle className="text-base">Forum & Portal Üyelikleri</CardTitle>
                 <CardDescription>
-                  Personanin uye oldugu forum ve portallardaki hesap bilgileri.
+                  Personanın üye olduğu forum ve portallardaki hesap bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddForumOpen(true)}>
@@ -2419,9 +2464,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <BookOpen className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Bagli forum/portal hesabi yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Bağlı forum/portal hesabı yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henuz forum veya portal hesabi eklenmemis.
+                    Bu personaya henüz forum veya portal hesabı eklenmemiş.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddForumOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -2442,7 +2487,7 @@ export default function PersonaDetailPage() {
                 Roller
               </CardTitle>
               <CardDescription>
-                Personanin karakter ozelliklerini belirleyen roller. AI icerik uretiminde kullanilir.
+                Personanın karakter özelliklerini belirleyen roller. AI içerik üretiminde kullanılır.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -2457,10 +2502,10 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Image className="h-4 w-4" />
-                Medya Kutuphanesi
+                Medya Kütüphanesi
               </CardTitle>
               <CardDescription>
-                Personanin gorsel, video ve belge dosyalari. Icerik paylasimlarinda kullanilir.
+                Personanın görsel, video ve belge dosyaları. İçerik paylaşımlarında kullanılır.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -2469,16 +2514,16 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- Gonderiler Tab ---- */}
+        {/* ---- Gönderiler Tab ---- */}
         <TabsContent value="gonderiler">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileText className="h-4 w-4" />
-                Gonderiler
+                Gönderiler
               </CardTitle>
               <CardDescription>
-                Bu personanin tum icerikleri ve gonderileri.
+                Bu personanın tüm içerikleri ve gönderleri.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -2492,7 +2537,7 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Etiketler</CardTitle>
-              <CardDescription>Personaya atanan etiketleri yonetin.</CardDescription>
+              <CardDescription>Personaya atanan etiketleri yönetin.</CardDescription>
             </CardHeader>
             <CardContent>
               <TagsManager
@@ -2536,7 +2581,7 @@ export default function PersonaDetailPage() {
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Gunluk Maks. Gonderi</p>
+                  <p className="text-xs font-medium text-muted-foreground">Günlük Maks. Gönderi</p>
                   <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
                 </div>
                 <div className="space-y-1">
@@ -2546,11 +2591,11 @@ export default function PersonaDetailPage() {
                   </Badge>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Son Guncelleme</p>
+                  <p className="text-xs font-medium text-muted-foreground">Son Güncelleme</p>
                   <p className="text-sm">{formatDate(persona.updatedAt)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Olusturulma</p>
+                  <p className="text-xs font-medium text-muted-foreground">Oluşturulma</p>
                   <p className="text-sm">{formatDate(persona.createdAt)}</p>
                 </div>
               </div>

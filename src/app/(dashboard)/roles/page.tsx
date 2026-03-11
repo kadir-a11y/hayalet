@@ -115,7 +115,7 @@ function CategoryDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Kategori adi zorunludur.");
+      setError("Kategori adı zorunludur.");
       return;
     }
     setError("");
@@ -135,12 +135,12 @@ function CategoryDialog({
         }),
       });
 
-      if (!res.ok) throw new Error("Kaydetme basarisiz.");
+      if (!res.ok) throw new Error("Kaydetme başarısız.");
 
       onOpenChange(false);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -151,15 +151,15 @@ function CategoryDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {category ? "Kategoriyi Duzenle" : "Yeni Kategori Olustur"}
+            {category ? "Kategoriyi Düzenle" : "Yeni Kategori Oluştur"}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Kategori Adi *</Label>
+            <Label>Kategori Adı *</Label>
             <Input
-              placeholder="ornek: Siyasi, Spor, Teknoloji"
+              placeholder="örnek: Siyasi, Spor, Teknoloji"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
@@ -167,9 +167,9 @@ function CategoryDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Aciklama</Label>
+            <Label>Açıklama</Label>
             <Textarea
-              placeholder="Kategori aciklamasi..."
+              placeholder="Kategori açıklaması..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
@@ -209,13 +209,13 @@ function CategoryDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              {category ? "Kaydet" : "Olustur"}
+              {category ? "Kaydet" : "Oluştur"}
             </Button>
           </DialogFooter>
         </form>
@@ -259,7 +259,7 @@ function RoleDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Rol adi zorunludur.");
+      setError("Rol adı zorunludur.");
       return;
     }
     setError("");
@@ -278,12 +278,12 @@ function RoleDialog({
         }),
       });
 
-      if (!res.ok) throw new Error("Kaydetme basarisiz.");
+      if (!res.ok) throw new Error("Kaydetme başarısız.");
 
       onOpenChange(false);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -294,15 +294,15 @@ function RoleDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {role ? "Rolu Duzenle" : "Yeni Rol Olustur"}
+            {role ? "Rolü Düzenle" : "Yeni Rol Oluştur"}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Rol Adi *</Label>
+            <Label>Rol Adı *</Label>
             <Input
-              placeholder="ornek: Futbolsever, Apolitik, Gamer"
+              placeholder="örnek: Futbolsever, Apolitik, Gamer"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
@@ -317,7 +317,7 @@ function RoleDialog({
               disabled={isSubmitting}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Kategori secin (opsiyonel)" />
+                <SelectValue placeholder="Kategori seçin (opsiyonel)" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Kategorisiz</SelectItem>
@@ -337,9 +337,9 @@ function RoleDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Aciklama</Label>
+            <Label>Açıklama</Label>
             <Textarea
-              placeholder="Bu rol ne anlama geliyor, AI iceriklerde nasil kullanilacak..."
+              placeholder="Bu rol ne anlama geliyor, AI içeriklerde nasıl kullanılacak..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isSubmitting}
@@ -379,13 +379,13 @@ function RoleDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              {role ? "Kaydet" : "Olustur"}
+              {role ? "Kaydet" : "Oluştur"}
             </Button>
           </DialogFooter>
         </form>
@@ -486,7 +486,7 @@ export default function RolesPage() {
         <div>
           <h1 className="text-2xl font-bold">Roller</h1>
           <p className="text-sm text-muted-foreground">
-            Persona karakterlerini tanimlayin. AI icerik uretiminde bu roller dikkate alinir.
+            Persona karakterlerini tanımlayın. AI içerik üretiminde bu roller dikkate alınır.
           </p>
         </div>
         <div className="flex gap-2">
@@ -516,10 +516,10 @@ export default function RolesPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Shield className="h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">Henuz rol tanimlanmamis</h3>
+            <h3 className="mt-4 text-lg font-semibold">Henüz rol tanımlanmamış</h3>
             <p className="mt-2 text-sm text-muted-foreground text-center max-w-md">
-              Oncelikle kategoriler olusturun (Siyasi, Spor, Teknoloji vb.),
-              sonra bu kategoriler altinda roller tanimlayin.
+              Öncelikle kategoriler oluşturun (Siyasi, Spor, Teknoloji vb.),
+              sonra bu kategoriler altında roller tanımlayın.
             </p>
             <div className="flex gap-2 mt-6">
               <Button
@@ -530,7 +530,7 @@ export default function RolesPage() {
                 }}
               >
                 <FolderOpen className="mr-2 h-4 w-4" />
-                Kategori Olustur
+                Kategori Oluştur
               </Button>
               <Button
                 onClick={() => {
@@ -539,7 +539,7 @@ export default function RolesPage() {
                 }}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Rol Olustur
+                Rol Oluştur
               </Button>
             </div>
           </CardContent>
@@ -594,14 +594,14 @@ export default function RolesPage() {
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              &ldquo;{cat.name}&rdquo; kategorisini silmek istediginize emin misiniz?
+                              &ldquo;{cat.name}&rdquo; kategorisini silmek istediğinize emin misiniz?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Kategori silinir, altindaki roller kategorisiz olur.
+                              Kategori silinir, altındaki roller kategorisiz olur.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Iptal</AlertDialogCancel>
+                            <AlertDialogCancel>İptal</AlertDialogCancel>
                             <AlertDialogAction onClick={() => deleteCategory(cat.id)}>
                               Sil
                             </AlertDialogAction>
@@ -648,14 +648,14 @@ export default function RolesPage() {
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>
-                                    &ldquo;{role.name}&rdquo; rolunu silmek istediginize emin misiniz?
+                                    &ldquo;{role.name}&rdquo; rolunu silmek istediğinize emin misiniz?
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Bu rol tum personalardan kaldirilacaktir.
+                                    Bu rol tüm personalardan kaldırılacaktır.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Iptal</AlertDialogCancel>
+                                  <AlertDialogCancel>İptal</AlertDialogCancel>
                                   <AlertDialogAction onClick={() => deleteRole(role.id)}>
                                     Sil
                                   </AlertDialogAction>
@@ -667,7 +667,7 @@ export default function RolesPage() {
                       </div>
                     ) : (
                       <p className="text-xs text-muted-foreground ml-9">
-                        Bu kategoride henuz rol yok.
+                        Bu kategoride henüz rol yok.
                       </p>
                     )}
                   </CardContent>
@@ -714,14 +714,14 @@ export default function RolesPage() {
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              &ldquo;{role.name}&rdquo; rolunu silmek istediginize emin misiniz?
+                              &ldquo;{role.name}&rdquo; rolunu silmek istediğinize emin misiniz?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Bu rol tum personalardan kaldirilacaktir.
+                              Bu rol tüm personalardan kaldırılacaktır.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Iptal</AlertDialogCancel>
+                            <AlertDialogCancel>İptal</AlertDialogCancel>
                             <AlertDialogAction onClick={() => deleteRole(role.id)}>
                               Sil
                             </AlertDialogAction>

@@ -7,13 +7,13 @@ export interface CountryData {
 export const countries: CountryData[] = [
   {
     code: "TR",
-    name: "Turkiye",
+    name: "Türkiye",
     cities: [
-      "Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Adana", "Konya",
-      "Gaziantep", "Mersin", "Diyarbakir", "Kayseri", "Eskisehir", "Samsun",
-      "Denizli", "Sanliurfa", "Malatya", "Trabzon", "Erzurum", "Van",
-      "Kahramanmaras", "Manisa", "Balikesir", "Sakarya", "Kocaeli", "Mugla",
-      "Aydin", "Tekirdağ", "Elazig", "Hatay",
+      "Istanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya",
+      "Gaziantep", "Mersin", "Diyarbakır", "Kayseri", "Eskişehir", "Samsun",
+      "Denizli", "Şanlıurfa", "Malatya", "Trabzon", "Erzurum", "Van",
+      "Kahramanmaraş", "Manisa", "Balıkesir", "Sakarya", "Kocaeli", "Muğla",
+      "Aydın", "Tekirdağ", "Elazığ", "Hatay",
     ],
   },
   {
@@ -32,10 +32,10 @@ export const countries: CountryData[] = [
     code: "DE",
     name: "Deutschland",
     cities: [
-      "Berlin", "Hamburg", "Munchen", "Koln", "Frankfurt", "Stuttgart",
-      "Dusseldorf", "Leipzig", "Dortmund", "Essen", "Bremen", "Dresden",
-      "Hannover", "Nurnberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld",
-      "Bonn", "Munster",
+      "Berlin", "Hamburg", "München", "Köln", "Frankfurt", "Stuttgart",
+      "Düsseldorf", "Leipzig", "Dortmund", "Essen", "Bremen", "Dresden",
+      "Hannover", "Nürnberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld",
+      "Bonn", "Münster",
     ],
   },
   {
@@ -59,7 +59,7 @@ export const countries: CountryData[] = [
   },
   {
     code: "ES",
-    name: "Espana",
+    name: "España",
     cities: [
       "Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Malaga",
       "Murcia", "Palma", "Las Palmas", "Bilbao", "Alicante", "Cordoba",

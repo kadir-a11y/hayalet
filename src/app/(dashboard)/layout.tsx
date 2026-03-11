@@ -26,7 +26,7 @@ const navItems = [
   { href: "/personas", label: "Personas", icon: Users },
   { href: "/roles", label: "Roller", icon: Shield },
   { href: "/tags", label: "Etiketler", icon: Tags },
-  { href: "/content", label: "Icerik", icon: FileText },
+  { href: "/content", label: "İçerik", icon: FileText },
   { href: "/campaigns", label: "Kampanyalar", icon: Megaphone },
   { href: "/analytics", label: "Analitik", icon: BarChart3 },
 ];

@@ -125,24 +125,92 @@ const languageLabels: Record<string, string> = {
   nl: "NL",
   pl: "PL",
   sv: "SV",
+  hi: "HI",
+  bn: "BN",
+  ur: "UR",
+  fa: "FA",
+  id: "ID",
+  ms: "MS",
+  th: "TH",
+  vi: "VI",
+  tl: "TL",
+  el: "EL",
+  cs: "CS",
+  ro: "RO",
+  hu: "HU",
+  da: "DA",
+  no: "NO",
+  fi: "FI",
+  uk: "UK",
+  he: "HE",
+  sw: "SW",
+  az: "AZ",
+  kk: "KK",
+  uz: "UZ",
+  ka: "KA",
+  sr: "SR",
+  hr: "HR",
+  bg: "BG",
+  sq: "SQ",
+  ca: "CA",
+  sk: "SK",
+  lt: "LT",
+  lv: "LV",
+  et: "ET",
+  sl: "SL",
+  mk: "MK",
 };
 
 const languageNames: Record<string, string> = {
-  tr: "Turkce",
+  tr: "Türkçe",
   en: "English",
   de: "Deutsch",
-  fr: "Francais",
-  es: "Espanol",
-  ar: "Arabic",
-  ru: "Russian",
-  pt: "Portugues",
-  ja: "Japanese",
-  zh: "Chinese",
-  ko: "Korean",
+  fr: "Français",
+  es: "Español",
+  ar: "العربية",
+  ru: "Русский",
+  pt: "Português",
+  ja: "日本語",
+  zh: "中文",
+  ko: "한국어",
   it: "Italiano",
   nl: "Nederlands",
   pl: "Polski",
   sv: "Svenska",
+  hi: "हिन्दी",
+  bn: "বাংলা",
+  ur: "اردو",
+  fa: "فارسی",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  th: "ไทย",
+  vi: "Tiếng Việt",
+  tl: "Filipino",
+  el: "Ελληνικά",
+  cs: "Čeština",
+  ro: "Română",
+  hu: "Magyar",
+  da: "Dansk",
+  no: "Norsk",
+  fi: "Suomi",
+  uk: "Українська",
+  he: "עברית",
+  sw: "Kiswahili",
+  az: "Azərbaycan",
+  kk: "Қазақша",
+  uz: "Oʻzbek",
+  ka: "ქართული",
+  sr: "Српски",
+  hr: "Hrvatski",
+  bg: "Български",
+  sq: "Shqip",
+  ca: "Català",
+  sk: "Slovenčina",
+  lt: "Lietuvių",
+  lv: "Latviešu",
+  et: "Eesti",
+  sl: "Slovenščina",
+  mk: "Македонски",
 };
 
 const defaultFormData: CreateFormData = {
@@ -377,7 +445,7 @@ function CreatePersonaDialog({
         throw new Error(
           data?.error?.fieldErrors
             ? Object.values(data.error.fieldErrors).flat().join(", ")
-            : "Persona olusturulamadi."
+            : "Persona oluşturulamadı."
         );
       }
 
@@ -385,7 +453,7 @@ function CreatePersonaDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -401,18 +469,18 @@ function CreatePersonaDialog({
     >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Yeni Persona Olustur</DialogTitle>
+          <DialogTitle>Yeni Persona Oluştur</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="create-name">
-              Kullanici Adi <span className="text-destructive">*</span>
+              Kullanıcı Adı <span className="text-destructive">*</span>
             </Label>
             <Input
               id="create-name"
-              placeholder="ornek_kullanici"
+              placeholder="ornek_kullanıcı"
               value={formData.name}
               onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
               disabled={isSubmitting}
@@ -421,10 +489,10 @@ function CreatePersonaDialog({
 
           {/* Display Name */}
           <div className="space-y-2">
-            <Label htmlFor="create-displayName">Gorunen Ad</Label>
+            <Label htmlFor="create-displayName">Görünen Ad</Label>
             <Input
               id="create-displayName"
-              placeholder="Ahmet Yilmaz"
+              placeholder="Ahmet Yılmaz"
               value={formData.displayName}
               onChange={(e) =>
                 setFormData((f) => ({ ...f, displayName: e.target.value }))
@@ -438,7 +506,7 @@ function CreatePersonaDialog({
             <Label htmlFor="create-bio">Biyografi</Label>
             <Textarea
               id="create-bio"
-              placeholder="Kisa bir tanim..."
+              placeholder="Kısa bir tanım..."
               rows={2}
               value={formData.bio}
               onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
@@ -449,7 +517,7 @@ function CreatePersonaDialog({
           {/* Country & City */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Ulke</Label>
+              <Label>Ülke</Label>
               <Select
                 value={formData.country}
                 onValueChange={(v) =>
@@ -458,7 +526,7 @@ function CreatePersonaDialog({
                 disabled={isSubmitting}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Ulke secin" />
+                  <SelectValue placeholder="Ülke seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
@@ -468,7 +536,7 @@ function CreatePersonaDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Sehir</Label>
+              <Label>Şehir</Label>
               <Select
                 value={formData.city}
                 onValueChange={(v) =>
@@ -477,7 +545,7 @@ function CreatePersonaDialog({
                 disabled={isSubmitting || !formData.country}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Sehir secin" />
+                  <SelectValue placeholder="Şehir seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {getCitiesByCountry(formData.country).map((city) => (
@@ -537,7 +605,7 @@ function CreatePersonaDialog({
           {/* Active Hours */}
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="create-activeStart">Aktif Baslangic</Label>
+              <Label htmlFor="create-activeStart">Aktif Başlangıç</Label>
               <Input
                 id="create-activeStart"
                 type="number"
@@ -554,7 +622,7 @@ function CreatePersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-activeEnd">Aktif Bitis</Label>
+              <Label htmlFor="create-activeEnd">Aktif Bitiş</Label>
               <Input
                 id="create-activeEnd"
                 type="number"
@@ -571,7 +639,7 @@ function CreatePersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-maxPosts">Maks. Gonderi</Label>
+              <Label htmlFor="create-maxPosts">Maks. Gönderi</Label>
               <Input
                 id="create-maxPosts"
                 type="number"
@@ -603,18 +671,18 @@ function CreatePersonaDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              Iptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Olusturuluyor...
+                  Oluşturuluyor...
                 </>
               ) : (
                 <>
                   <Plus className="mr-2 h-4 w-4" />
-                  Olustur
+                  Oluştur
                 </>
               )}
             </Button>
@@ -709,7 +777,7 @@ function BulkCreateDialog({
       });
 
       if (!res.ok) {
-        throw new Error("Toplu olusturma basarisiz.");
+        throw new Error("Toplu oluşturma başarısız.");
       }
 
       const data = await res.json();
@@ -719,7 +787,7 @@ function BulkCreateDialog({
         onCreated();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -735,9 +803,9 @@ function BulkCreateDialog({
     >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Toplu Persona Olustur</DialogTitle>
+          <DialogTitle>Toplu Persona Oluştur</DialogTitle>
           <DialogDescription>
-            Birden fazla persona ayni anda olusturabilirsiniz. Maks. 50 adet.
+            Birden fazla persona aynı anda oluşturabilirsiniz. Maks. 50 adet.
           </DialogDescription>
         </DialogHeader>
 
@@ -746,11 +814,11 @@ function BulkCreateDialog({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[180px]">Kullanici Adi *</TableHead>
-                  <TableHead className="w-[160px]">Gorunen Ad</TableHead>
+                  <TableHead className="w-[180px]">Kullanıcı Adı *</TableHead>
+                  <TableHead className="w-[160px]">Görünen Ad</TableHead>
                   <TableHead className="w-[200px]">Biyografi</TableHead>
-                  <TableHead className="w-[120px]">Ulke</TableHead>
-                  <TableHead className="w-[100px]">Sehir</TableHead>
+                  <TableHead className="w-[120px]">Ülke</TableHead>
+                  <TableHead className="w-[100px]">Şehir</TableHead>
                   <TableHead className="w-[80px]">Dil</TableHead>
                   <TableHead className="w-[40px]"></TableHead>
                 </TableRow>
@@ -760,7 +828,7 @@ function BulkCreateDialog({
                   <TableRow key={index}>
                     <TableCell className="p-1.5">
                       <Input
-                        placeholder="kullanici_adi"
+                        placeholder="kullanıcı_adı"
                         value={entry.name}
                         onChange={(e) => updateRow(index, "name", e.target.value)}
                         disabled={isSubmitting}
@@ -769,7 +837,7 @@ function BulkCreateDialog({
                     </TableCell>
                     <TableCell className="p-1.5">
                       <Input
-                        placeholder="Gorunen Ad"
+                        placeholder="Görünen Ad"
                         value={entry.displayName}
                         onChange={(e) => updateRow(index, "displayName", e.target.value)}
                         disabled={isSubmitting}
@@ -778,7 +846,7 @@ function BulkCreateDialog({
                     </TableCell>
                     <TableCell className="p-1.5">
                       <Input
-                        placeholder="Kisa bio..."
+                        placeholder="Kısa bio..."
                         value={entry.bio}
                         onChange={(e) => updateRow(index, "bio", e.target.value)}
                         disabled={isSubmitting}
@@ -795,7 +863,7 @@ function BulkCreateDialog({
                         disabled={isSubmitting}
                       >
                         <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Ulke" />
+                          <SelectValue placeholder="Ülke" />
                         </SelectTrigger>
                         <SelectContent>
                           {countries.map((c) => (
@@ -811,7 +879,7 @@ function BulkCreateDialog({
                         disabled={isSubmitting || !entry.country}
                       >
                         <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Sehir" />
+                          <SelectValue placeholder="Şehir" />
                         </SelectTrigger>
                         <SelectContent>
                           {getCitiesByCountry(entry.country).map((city) => (
@@ -864,12 +932,12 @@ function BulkCreateDialog({
             disabled={entries.length >= 50 || isSubmitting}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
-            Satir Ekle
+            Satır Ekle
           </Button>
 
           {result && (
             <div className="rounded-md bg-green-500/10 px-3 py-2 text-sm text-green-600">
-              {result.success}/{result.total} persona basariyla olusturuldu.
+              {result.success}/{result.total} persona başarıyla oluşturuldu.
             </div>
           )}
 
@@ -892,12 +960,12 @@ function BulkCreateDialog({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Olusturuluyor...
+                  Oluşturuluyor...
                 </>
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />
-                  {entries.filter((e) => e.name.trim()).length} Persona Olustur
+                  {entries.filter((e) => e.name.trim()).length} Persona Oluştur
                 </>
               )}
             </Button>
@@ -926,11 +994,11 @@ export default function PersonasPage() {
     try {
       setError("");
       const res = await fetch("/api/personas");
-      if (!res.ok) throw new Error("Personas yuklenemedi.");
+      if (!res.ok) throw new Error("Personas yüklenemedi.");
       const data = await res.json();
       setPersonas(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -968,7 +1036,7 @@ export default function PersonasPage() {
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
-            Toplu Olustur
+            Toplu Oluştur
           </Button>
           <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -984,7 +1052,7 @@ export default function PersonasPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Persona, ulke, sehir veya dil ara..."
+            placeholder="Persona, ülke, şehir veya dil ara..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -1043,14 +1111,14 @@ export default function PersonasPage() {
             <div className="rounded-full bg-muted p-4">
               <Users className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="mt-4 text-lg font-semibold">Henuz persona yok</h3>
+            <h3 className="mt-4 text-lg font-semibold">Henüz persona yok</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ilk personanizi olusturarak baslayabilirsiniz.
+              İlk personanızı oluşturarak başlayabilirsiniz.
             </p>
             <div className="mt-6 flex gap-2">
               <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
                 <Upload className="mr-2 h-4 w-4" />
-                Toplu Olustur
+                Toplu Oluştur
               </Button>
               <Button onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -1066,9 +1134,9 @@ export default function PersonasPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Search className="h-8 w-8 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">Sonuc bulunamadi</h3>
+            <h3 className="mt-4 text-lg font-semibold">Sonuç bulunamadı</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              &ldquo;{search}&rdquo; icin eslesen persona bulunamadi.
+              &ldquo;{search}&rdquo; için eşleşen persona bulunamadı.
             </p>
           </CardContent>
         </Card>
