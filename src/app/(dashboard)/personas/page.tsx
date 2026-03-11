@@ -49,6 +49,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { countries, getCitiesByCountry } from "@/lib/data/countries";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -448,28 +449,42 @@ function CreatePersonaDialog({
           {/* Country & City */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="create-country">Ulke</Label>
-              <Input
-                id="create-country"
-                placeholder="Turkiye"
+              <Label>Ulke</Label>
+              <Select
                 value={formData.country}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, country: e.target.value }))
+                onValueChange={(v) =>
+                  setFormData((f) => ({ ...f, country: v, city: "" }))
                 }
                 disabled={isSubmitting}
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Ulke secin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((c) => (
+                    <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-city">Sehir</Label>
-              <Input
-                id="create-city"
-                placeholder="Istanbul"
+              <Label>Sehir</Label>
+              <Select
                 value={formData.city}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, city: e.target.value }))
+                onValueChange={(v) =>
+                  setFormData((f) => ({ ...f, city: v }))
                 }
-                disabled={isSubmitting}
-              />
+                disabled={isSubmitting || !formData.country}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sehir secin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getCitiesByCountry(formData.country).map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -771,22 +786,39 @@ function BulkCreateDialog({
                       />
                     </TableCell>
                     <TableCell className="p-1.5">
-                      <Input
-                        placeholder="Ulke"
+                      <Select
                         value={entry.country}
-                        onChange={(e) => updateRow(index, "country", e.target.value)}
+                        onValueChange={(v) => {
+                          updateRow(index, "country", v);
+                          updateRow(index, "city", "");
+                        }}
                         disabled={isSubmitting}
-                        className="h-8 text-sm"
-                      />
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Ulke" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((c) => (
+                            <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="p-1.5">
-                      <Input
-                        placeholder="Sehir"
+                      <Select
                         value={entry.city}
-                        onChange={(e) => updateRow(index, "city", e.target.value)}
-                        disabled={isSubmitting}
-                        className="h-8 text-sm"
-                      />
+                        onValueChange={(v) => updateRow(index, "city", v)}
+                        disabled={isSubmitting || !entry.country}
+                      >
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Sehir" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getCitiesByCountry(entry.country).map((city) => (
+                            <SelectItem key={city} value={city}>{city}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="p-1.5">
                       <Select

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { personas, personaTags, tags, socialAccounts } from "@/lib/db/schema";
+import { personas, personaTags, tags, socialAccounts, forumAccounts } from "@/lib/db/schema";
 import { eq, and, desc, ilike, sql, inArray } from "drizzle-orm";
 import type { PersonaCreateInput, PersonaUpdateInput } from "@/lib/validators/persona";
 
@@ -38,10 +38,16 @@ export async function getPersonaById(id: string, userId: string) {
     .from(socialAccounts)
     .where(eq(socialAccounts.personaId, id));
 
+  const forums = await db
+    .select()
+    .from(forumAccounts)
+    .where(eq(forumAccounts.personaId, id));
+
   return {
     ...persona,
     tags: personaTagsList.map((pt) => pt.tag),
     socialAccounts: accounts,
+    forumAccounts: forums,
   };
 }
 

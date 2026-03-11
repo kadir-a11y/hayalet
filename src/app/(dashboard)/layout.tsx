@@ -14,6 +14,7 @@ import {
   LogOut,
   Menu,
   X,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,8 +24,9 @@ import { useState } from "react";
 
 const navItems = [
   { href: "/personas", label: "Personas", icon: Users },
+  { href: "/roles", label: "Roller", icon: Shield },
   { href: "/tags", label: "Etiketler", icon: Tags },
-  { href: "/content", label: "İçerik", icon: FileText },
+  { href: "/content", label: "Icerik", icon: FileText },
   { href: "/campaigns", label: "Kampanyalar", icon: Megaphone },
   { href: "/analytics", label: "Analitik", icon: BarChart3 },
 ];

@@ -3,6 +3,10 @@ import { relations } from "drizzle-orm";
 export { users } from "./users";
 export { personas } from "./personas";
 export { socialAccounts } from "./social-accounts";
+export { forumAccounts } from "./forum-accounts";
+export { roleCategories } from "./role-categories";
+export { roles } from "./roles";
+export { personaRoles } from "./persona-roles";
 export { tags } from "./tags";
 export { personaTags } from "./persona-tags";
 export { campaigns } from "./campaigns";
@@ -12,6 +16,10 @@ export { activityLog } from "./activity-log";
 import { users } from "./users";
 import { personas } from "./personas";
 import { socialAccounts } from "./social-accounts";
+import { forumAccounts } from "./forum-accounts";
+import { roleCategories } from "./role-categories";
+import { roles } from "./roles";
+import { personaRoles } from "./persona-roles";
 import { tags } from "./tags";
 import { personaTags } from "./persona-tags";
 import { campaigns } from "./campaigns";
@@ -22,6 +30,8 @@ import { activityLog } from "./activity-log";
 export const usersRelations = relations(users, ({ many }) => ({
   personas: many(personas),
   tags: many(tags),
+  roleCategories: many(roleCategories),
+  roles: many(roles),
   campaigns: many(campaigns),
   activityLogs: many(activityLog),
 }));
@@ -33,8 +43,10 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     references: [users.id],
   }),
   socialAccounts: many(socialAccounts),
+  forumAccounts: many(forumAccounts),
   contentItems: many(contentItems),
   personaTags: many(personaTags),
+  personaRoles: many(personaRoles),
 }));
 
 // ── Social accounts relations ────────────────────────────────────────
@@ -42,6 +54,48 @@ export const socialAccountsRelations = relations(socialAccounts, ({ one }) => ({
   persona: one(personas, {
     fields: [socialAccounts.personaId],
     references: [personas.id],
+  }),
+}));
+
+// ── Forum accounts relations ────────────────────────────────────────
+export const forumAccountsRelations = relations(forumAccounts, ({ one }) => ({
+  persona: one(personas, {
+    fields: [forumAccounts.personaId],
+    references: [personas.id],
+  }),
+}));
+
+// ── Role categories relations ───────────────────────────────────────
+export const roleCategoriesRelations = relations(roleCategories, ({ one, many }) => ({
+  user: one(users, {
+    fields: [roleCategories.userId],
+    references: [users.id],
+  }),
+  roles: many(roles),
+}));
+
+// ── Roles relations ─────────────────────────────────────────────────
+export const rolesRelations = relations(roles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [roles.userId],
+    references: [users.id],
+  }),
+  category: one(roleCategories, {
+    fields: [roles.categoryId],
+    references: [roleCategories.id],
+  }),
+  personaRoles: many(personaRoles),
+}));
+
+// ── Persona roles (join table) relations ────────────────────────────
+export const personaRolesRelations = relations(personaRoles, ({ one }) => ({
+  persona: one(personas, {
+    fields: [personaRoles.personaId],
+    references: [personas.id],
+  }),
+  role: one(roles, {
+    fields: [personaRoles.roleId],
+    references: [roles.id],
   }),
 }));
 

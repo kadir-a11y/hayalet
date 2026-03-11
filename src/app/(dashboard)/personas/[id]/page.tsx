@@ -24,6 +24,10 @@ import {
   Mail,
   Phone,
   Key,
+  ExternalLink,
+  BookOpen,
+  StickyNote,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +70,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { countries, getCitiesByCountry } from "@/lib/data/countries";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,6 +90,20 @@ interface SocialAccount {
   platformEmail: string | null;
   platformPhone: string | null;
   platformPassword: string | null;
+  isActive: boolean | null;
+  lastUsedAt: string | null;
+  createdAt: string | null;
+}
+
+interface ForumAccount {
+  id: string;
+  portalName: string;
+  portalUrl: string | null;
+  username: string | null;
+  email: string | null;
+  phone: string | null;
+  password: string | null;
+  notes: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
   createdAt: string | null;
@@ -130,6 +149,7 @@ interface Persona {
   updatedAt: string | null;
   tags: Tag[];
   socialAccounts: SocialAccount[];
+  forumAccounts: ForumAccount[];
 }
 
 interface EditFormData {
@@ -447,24 +467,42 @@ function EditPersonaDialog({
           {/* Country & City */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="edit-country">Ulke</Label>
-              <Input
-                id="edit-country"
-                placeholder="Turkiye"
+              <Label>Ulke</Label>
+              <Select
                 value={formData.country}
-                onChange={(e) => setFormData((f) => ({ ...f, country: e.target.value }))}
+                onValueChange={(v) =>
+                  setFormData((f) => ({ ...f, country: v, city: "" }))
+                }
                 disabled={isSubmitting}
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Ulke secin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((c) => (
+                    <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-city">Sehir</Label>
-              <Input
-                id="edit-city"
-                placeholder="Istanbul"
+              <Label>Sehir</Label>
+              <Select
                 value={formData.city}
-                onChange={(e) => setFormData((f) => ({ ...f, city: e.target.value }))}
-                disabled={isSubmitting}
-              />
+                onValueChange={(v) =>
+                  setFormData((f) => ({ ...f, city: v }))
+                }
+                disabled={isSubmitting || !formData.country}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sehir secin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getCitiesByCountry(formData.country).map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -1254,6 +1292,541 @@ function SocialAccountCard({
 }
 
 // ---------------------------------------------------------------------------
+// Add Forum Account Dialog
+// ---------------------------------------------------------------------------
+
+function AddForumAccountDialog({
+  open,
+  onOpenChange,
+  personaId,
+  onCreated,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  personaId: string;
+  onCreated: () => void;
+}) {
+  const [portalName, setPortalName] = useState("");
+  const [portalUrl, setPortalUrl] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [notes, setNotes] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  function resetForm() {
+    setPortalName("");
+    setPortalUrl("");
+    setUsername("");
+    setEmail("");
+    setPhone("");
+    setPassword("");
+    setNotes("");
+    setShowPassword(false);
+    setError("");
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!portalName.trim()) {
+      setError("Portal adi zorunludur.");
+      return;
+    }
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/forum-accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personaId,
+          portalName: portalName.trim(),
+          portalUrl: portalUrl.trim() || undefined,
+          username: username.trim() || undefined,
+          email: email.trim() || undefined,
+          phone: phone.trim() || undefined,
+          password: password || undefined,
+          notes: notes.trim() || undefined,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Hesap eklenemedi.");
+
+      resetForm();
+      onOpenChange(false);
+      onCreated();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) resetForm();
+        onOpenChange(v);
+      }}
+    >
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Forum / Portal Hesabi Ekle</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="forum-name">Portal Adi *</Label>
+            <Input
+              id="forum-name"
+              placeholder="ornek: Technopat, r10.net, Eksi Sozluk"
+              value={portalName}
+              onChange={(e) => setPortalName(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-url">Portal URL</Label>
+            <Input
+              id="forum-url"
+              placeholder="https://forum.example.com"
+              value={portalUrl}
+              onChange={(e) => setPortalUrl(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-username">Kullanici Adi</Label>
+            <Input
+              id="forum-username"
+              placeholder="kullaniciadi"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-email">E-posta</Label>
+            <Input
+              id="forum-email"
+              type="email"
+              placeholder="hesap@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-phone">Telefon</Label>
+            <Input
+              id="forum-phone"
+              placeholder="+90 5xx xxx xx xx"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-password">Sifre</Label>
+            <div className="relative">
+              <Input
+                id="forum-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Hesap sifresi"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-notes">Notlar</Label>
+            <Textarea
+              id="forum-notes"
+              placeholder="Ek notlar..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              disabled={isSubmitting}
+              rows={2}
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              Iptal
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              Ekle
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Forum Account Card with credentials
+// ---------------------------------------------------------------------------
+
+function ForumAccountCard({
+  account,
+  onDelete,
+}: {
+  account: ForumAccount;
+  onDelete: () => void;
+}) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDelete() {
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/forum-accounts/${account.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error();
+      onDelete();
+    } catch {
+      setIsDeleting(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
+            <BookOpen className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="text-sm font-medium">{account.portalName}</p>
+            {account.username && (
+              <p className="text-xs text-muted-foreground">@{account.username}</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {account.portalUrl && (
+            <a
+              href={account.portalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          )}
+          <Badge variant={account.isActive ? "default" : "secondary"}>
+            {account.isActive ? "Aktif" : "Pasif"}
+          </Badge>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hesabi silmek istediginize emin misiniz?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bu forum/portal hesap bilgileri kalici olarak silinecektir.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Iptal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      {/* Credentials */}
+      <div className="grid gap-2 text-sm">
+        {account.email && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Mail className="h-3.5 w-3.5 shrink-0" />
+            <span>{account.email}</span>
+          </div>
+        )}
+        {account.phone && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Phone className="h-3.5 w-3.5 shrink-0" />
+            <span>{account.phone}</span>
+          </div>
+        )}
+        {account.password && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Key className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-mono text-xs">
+              {showPassword ? account.password : "••••••••"}
+            </span>
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            </button>
+          </div>
+        )}
+        {account.notes && (
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <StickyNote className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span className="text-xs">{account.notes}</span>
+          </div>
+        )}
+      </div>
+
+      {account.lastUsedAt && (
+        <p className="text-xs text-muted-foreground">
+          Son kullanim: {formatShortDate(account.lastUsedAt)}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Roles Manager (for persona detail)
+// ---------------------------------------------------------------------------
+
+interface RoleItem {
+  roleId: string;
+  roleName: string;
+  roleColor: string | null;
+  roleDescription: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  categoryColor: string | null;
+}
+
+interface AvailableRole {
+  id: string;
+  name: string;
+  color: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+  categoryColor: string | null;
+}
+
+function RolesManager({
+  personaId,
+  onUpdated,
+}: {
+  personaId: string;
+  onUpdated: () => void;
+}) {
+  const [assignedRoles, setAssignedRoles] = useState<RoleItem[]>([]);
+  const [allRoles, setAllRoles] = useState<AvailableRole[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/personas/${personaId}/roles`).then((r) => r.json()),
+      fetch("/api/roles").then((r) => r.json()),
+    ])
+      .then(([assigned, all]) => {
+        const assignedArr = Array.isArray(assigned) ? assigned : [];
+        setAssignedRoles(assignedArr);
+        setSelectedRoleIds(new Set(assignedArr.map((r: RoleItem) => r.roleId)));
+        setAllRoles(Array.isArray(all) ? all : []);
+      })
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
+  }, [personaId]);
+
+  function toggleRole(roleId: string) {
+    setSelectedRoleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(roleId)) next.delete(roleId);
+      else next.add(roleId);
+      return next;
+    });
+  }
+
+  async function saveRoles() {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/personas/${personaId}/roles`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleIds: Array.from(selectedRoleIds) }),
+      });
+      if (!res.ok) throw new Error();
+      // Refresh assigned roles
+      const updated = await fetch(`/api/personas/${personaId}/roles`).then((r) =>
+        r.json()
+      );
+      setAssignedRoles(Array.isArray(updated) ? updated : []);
+      onUpdated();
+    } catch {
+      console.error("Roller kaydedilemedi.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const hasChanges =
+    selectedRoleIds.size !== assignedRoles.length ||
+    assignedRoles.some((r) => !selectedRoleIds.has(r.roleId));
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (allRoles.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Shield className="h-8 w-8 text-muted-foreground" />
+        <h3 className="mt-4 text-sm font-semibold">Henuz rol tanimlanmamis</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Oncelikle &ldquo;Roller&rdquo; sayfasindan rol ve kategori olusturun.
+        </p>
+      </div>
+    );
+  }
+
+  // Group roles by category for display
+  const grouped = new Map<string, { categoryName: string; categoryColor: string | null; roles: AvailableRole[] }>();
+  const uncategorized: AvailableRole[] = [];
+
+  for (const role of allRoles) {
+    if (role.categoryId && role.categoryName) {
+      const existing = grouped.get(role.categoryId);
+      if (existing) {
+        existing.roles.push(role);
+      } else {
+        grouped.set(role.categoryId, {
+          categoryName: role.categoryName,
+          categoryColor: role.categoryColor,
+          roles: [role],
+        });
+      }
+    } else {
+      uncategorized.push(role);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Bu personaya atamak istediginiz rolleri secin. AI icerik uretiminde bu roller dikkate alinacaktir.
+      </p>
+
+      {Array.from(grouped.entries()).map(([catId, group]) => (
+        <div key={catId} className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: group.categoryColor || "#6B7280" }}
+            />
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {group.categoryName}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {group.roles.map((role) => {
+              const isSelected = selectedRoleIds.has(role.id);
+              return (
+                <Badge
+                  key={role.id}
+                  variant={isSelected ? "default" : "outline"}
+                  className="cursor-pointer select-none transition-colors"
+                  style={
+                    isSelected
+                      ? { backgroundColor: role.color ?? undefined }
+                      : { borderColor: role.color ?? undefined, color: role.color ?? undefined }
+                  }
+                  onClick={() => toggleRole(role.id)}
+                >
+                  {role.name}
+                  {isSelected && <X className="ml-1 h-3 w-3" />}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {uncategorized.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Diger
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {uncategorized.map((role) => {
+              const isSelected = selectedRoleIds.has(role.id);
+              return (
+                <Badge
+                  key={role.id}
+                  variant={isSelected ? "default" : "outline"}
+                  className="cursor-pointer select-none transition-colors"
+                  style={
+                    isSelected
+                      ? { backgroundColor: role.color ?? undefined }
+                      : { borderColor: role.color ?? undefined, color: role.color ?? undefined }
+                  }
+                  onClick={() => toggleRole(role.id)}
+                >
+                  {role.name}
+                  {isSelected && <X className="ml-1 h-3 w-3" />}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {hasChanges && (
+        <Button onClick={saveRoles} disabled={isSaving} size="sm">
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Kaydediliyor...
+            </>
+          ) : (
+            "Degisiklikleri Kaydet"
+          )}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -1267,6 +1840,7 @@ export default function PersonaDetailPage() {
   const [error, setError] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addSocialOpen, setAddSocialOpen] = useState(false);
+  const [addForumOpen, setAddForumOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchPersona = useCallback(async () => {
@@ -1421,6 +1995,8 @@ export default function PersonaDetailPage() {
         <TabsList className="w-full justify-start">
           <TabsTrigger value="profil">Profil</TabsTrigger>
           <TabsTrigger value="sosyal">Sosyal Hesaplar</TabsTrigger>
+          <TabsTrigger value="forumlar">Forum & Portallar</TabsTrigger>
+          <TabsTrigger value="roller">Roller</TabsTrigger>
           <TabsTrigger value="gonderiler">Gonderiler</TabsTrigger>
           <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
@@ -1549,6 +2125,67 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
+        {/* ---- Forum & Portallar Tab ---- */}
+        <TabsContent value="forumlar">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Forum & Portal Uyelikleri</CardTitle>
+                <CardDescription>
+                  Personanin uye oldugu forum ve portallardaki hesap bilgileri.
+                </CardDescription>
+              </div>
+              <Button size="sm" onClick={() => setAddForumOpen(true)}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Hesap Ekle
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {persona.forumAccounts && persona.forumAccounts.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {persona.forumAccounts.map((account) => (
+                    <ForumAccountCard
+                      key={account.id}
+                      account={account}
+                      onDelete={fetchPersona}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <BookOpen className="h-8 w-8 text-muted-foreground" />
+                  <h3 className="mt-4 text-sm font-semibold">Bagli forum/portal hesabi yok</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Bu personaya henuz forum veya portal hesabi eklenmemis.
+                  </p>
+                  <Button size="sm" className="mt-4" onClick={() => setAddForumOpen(true)}>
+                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    Hesap Ekle
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ---- Roller Tab ---- */}
+        <TabsContent value="roller">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Shield className="h-4 w-4" />
+                Roller
+              </CardTitle>
+              <CardDescription>
+                Personanin karakter ozelliklerini belirleyen roller. AI icerik uretiminde kullanilir.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RolesManager personaId={persona.id} onUpdated={fetchPersona} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* ---- Gonderiler Tab ---- */}
         <TabsContent value="gonderiler">
           <Card>
@@ -1651,6 +2288,12 @@ export default function PersonaDetailPage() {
           <AddSocialAccountDialog
             open={addSocialOpen}
             onOpenChange={setAddSocialOpen}
+            personaId={persona.id}
+            onCreated={fetchPersona}
+          />
+          <AddForumAccountDialog
+            open={addForumOpen}
+            onOpenChange={setAddForumOpen}
             personaId={persona.id}
             onCreated={fetchPersona}
           />
