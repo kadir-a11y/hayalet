@@ -200,7 +200,7 @@ async function seed() {
       content:
         "Sabah 06:00 antrenmanı ✅ Bacak günü tamamlandı! 🦵💪 Bugünkü program:\n\n🔹 Squat 4x8\n🔹 Leg Press 3x12\n🔹 Romanian Deadlift 4x10\n🔹 Leg Extension 3x15\n\nBahaneler güçlü insanları durduramaz! 💯\n\n#fitness #legday #motivation #antrenman",
       status: "scheduled",
-      scheduledAt: new Date(Date.now() + 3600000).toISOString(),
+      scheduledAt: new Date(Date.now() + 3600000),
       aiGenerated: false,
     },
   ];

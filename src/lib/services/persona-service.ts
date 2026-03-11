@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { personas, personaTags, tags, socialAccounts } from "@/lib/db/schema";
-import { eq, and, desc, ilike, sql } from "drizzle-orm";
+import { eq, and, desc, ilike, sql, inArray } from "drizzle-orm";
 import type { PersonaCreateInput, PersonaUpdateInput } from "@/lib/validators/persona";
 
 export async function getPersonas(userId: string, search?: string) {
@@ -131,7 +131,7 @@ export async function getPersonasWithTags(userId: string) {
     })
     .from(personaTags)
     .innerJoin(tags, eq(personaTags.tagId, tags.id))
-    .where(sql`${personaTags.personaId} = ANY(${personaIds})`);
+    .where(inArray(personaTags.personaId, personaIds));
 
   const tagsByPersona = new Map<string, typeof tags.$inferSelect[]>();
   for (const pt of allPersonaTags) {
