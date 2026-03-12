@@ -12,6 +12,143 @@ interface PersonaContext {
   language: string;
 }
 
+interface AdvancedPersonaContext extends PersonaContext {
+  gender?: string;
+  country?: string;
+  city?: string;
+}
+
+interface DiscoveredItemContext {
+  title?: string;
+  summary?: string;
+  url?: string;
+  aiMetadata?: {
+    suggested_angle?: string;
+    [key: string]: unknown;
+  };
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  tr: "Türkçe",
+  en: "English",
+  ar: "العربية",
+  de: "Deutsch",
+  fr: "Français",
+  es: "Español",
+  pt: "Português",
+  it: "Italiano",
+  ru: "Русский",
+  ja: "日本語",
+  ko: "한국어",
+  zh: "中文",
+  nl: "Nederlands",
+  pl: "Polski",
+  sv: "Svenska",
+  no: "Norsk",
+  da: "Dansk",
+  fi: "Suomi",
+  el: "Ελληνικά",
+  cs: "Čeština",
+  hu: "Magyar",
+  ro: "Română",
+  bg: "Български",
+  hr: "Hrvatski",
+  sk: "Slovenčina",
+  sl: "Slovenščina",
+  uk: "Українська",
+  he: "עברית",
+  hi: "हिन्दी",
+  th: "ไทย",
+  vi: "Tiếng Việt",
+  id: "Bahasa Indonesia",
+  ms: "Bahasa Melayu",
+  fa: "فارسی",
+  ur: "اردو",
+};
+
+function getLanguageName(code: string): string {
+  return LANGUAGE_NAMES[code] || code;
+}
+
+const PLATFORM_GUIDELINES: Record<string, string> = {
+  twitter: "Twitter/X: 280 character limit. Be concise and impactful. Threads are acceptable for longer content.",
+  instagram: "Instagram: Up to 2200 characters. Visual-centric platform. Use relevant hashtags. Engaging captions.",
+  facebook: "Facebook: Longer format allowed. Storytelling works well. Encourage engagement and sharing.",
+  linkedin: "LinkedIn: Professional tone. Industry-focused. Thought leadership and career-related content.",
+  tiktok: "TikTok: Short, fun, trend-driven. Casual and energetic. Hook the audience in the first line.",
+};
+
+export function buildAdvancedContentPrompt(
+  persona: AdvancedPersonaContext,
+  platform: string,
+  contentType: string,
+  options: {
+    language?: string;
+    topic?: string;
+    additionalInstructions?: string;
+    discoveredItem?: DiscoveredItemContext;
+    toneOverride?: string;
+  } = {}
+): string {
+  const outputLang = options.language || persona.language || "en";
+  const langName = getLanguageName(outputLang);
+  const traits = persona.personalityTraits.join(", ") || "general";
+  const interests = persona.interests.join(", ") || "various topics";
+  const style = persona.behavioralPatterns.writing_style || "natural";
+  const tone = options.toneOverride || persona.behavioralPatterns.tone || "friendly";
+  const emoji = persona.behavioralPatterns.emoji_usage || "minimal";
+  const hashtag = persona.behavioralPatterns.hashtag_style || "minimal";
+
+  const locationParts: string[] = [];
+  if (persona.city) locationParts.push(persona.city);
+  if (persona.country) locationParts.push(persona.country);
+  const locationStr = locationParts.length > 0 ? locationParts.join(", ") : null;
+
+  let discoveredItemSection = "";
+  if (options.discoveredItem) {
+    const item = options.discoveredItem;
+    discoveredItemSection = `
+SOURCE MATERIAL / DISCOVERED ITEM:
+${item.title ? `- Title: ${item.title}` : ""}
+${item.summary ? `- Summary: ${item.summary}` : ""}
+${item.url ? `- Source URL: ${item.url}` : ""}
+${item.aiMetadata?.suggested_angle ? `- Suggested angle: ${item.aiMetadata.suggested_angle}` : ""}
+
+Use this source material as inspiration or reference for the content. Incorporate it naturally into the post, reflecting the persona's perspective and voice. Do not copy verbatim; rewrite and adapt it.`;
+  }
+
+  return `You are "${persona.name}", a social media persona.
+
+PERSONA PROFILE:
+- Personality traits: ${traits}
+- Interests: ${interests}
+- Writing style: ${style}
+- Tone: ${tone}
+- Emoji usage: ${emoji}
+- Hashtag style: ${hashtag}
+${persona.bio ? `- Bio: ${persona.bio}` : ""}
+${persona.gender ? `- Gender: ${persona.gender}` : ""}
+${locationStr ? `- Location: ${locationStr}` : ""}
+
+PLATFORM: ${platform}
+${PLATFORM_GUIDELINES[platform] || ""}
+
+CONTENT TYPE: ${contentType}
+${options.topic ? `TOPIC: ${options.topic}` : ""}
+${discoveredItemSection}
+${options.additionalInstructions ? `ADDITIONAL INSTRUCTIONS: ${options.additionalInstructions}` : ""}
+
+LANGUAGE: Write entirely in ${langName} (${outputLang}). All output must be in this language.
+
+RULES:
+1. Stay fully in character as "${persona.name}".
+2. The content must feel authentic and organic, as if a real person wrote it.
+3. Follow the persona's writing style, tone, and emoji/hashtag preferences exactly.
+4. Respect the platform's conventions and character limits.
+5. Output ONLY the content itself. No explanations, labels, or meta-commentary.
+6. Write in ${langName}.`;
+}
+
 export function buildContentPrompt(
   persona: PersonaContext,
   platform: string,

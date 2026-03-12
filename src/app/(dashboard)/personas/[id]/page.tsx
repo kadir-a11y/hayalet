@@ -33,6 +33,9 @@ import {
   FileIcon,
   Upload,
   Download,
+  Sparkles,
+  Copy,
+  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -3151,6 +3154,45 @@ export default function PersonaDetailPage() {
   const [addEmailOpen, setAddEmailOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // AI Content Generation
+  const [aiPlatform, setAiPlatform] = useState("twitter");
+  const [aiContentType, setAiContentType] = useState("post");
+  const [aiLanguage, setAiLanguage] = useState("");
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiInstructions, setAiInstructions] = useState("");
+  const [aiCount, setAiCount] = useState("1");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResults, setAiResults] = useState<string[]>([]);
+
+  async function handleAiGenerate() {
+    if (!persona) return;
+    setAiLoading(true);
+    setAiResults([]);
+    try {
+      const res = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personaId: persona.id,
+          platform: aiPlatform,
+          contentType: aiContentType,
+          language: aiLanguage || undefined,
+          topic: aiTopic || undefined,
+          additionalInstructions: aiInstructions || undefined,
+          count: parseInt(aiCount),
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAiResults(data.results || []);
+      }
+    } catch (error) {
+      console.error("AI generation failed:", error);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
   const fetchPersona = useCallback(async () => {
     try {
       setError("");
@@ -3319,6 +3361,7 @@ export default function PersonaDetailPage() {
           <TabsTrigger value="roller">Roller</TabsTrigger>
           <TabsTrigger value="medya">Medya</TabsTrigger>
           <TabsTrigger value="gonderiler">Gönderiler</TabsTrigger>
+          <TabsTrigger value="ai-icerik">AI İçerik</TabsTrigger>
           <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
         </TabsList>
@@ -3587,6 +3630,158 @@ export default function PersonaDetailPage() {
               <PostsTab personaId={persona.id} />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ---- AI İçerik Tab ---- */}
+        <TabsContent value="ai-icerik" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Sparkles className="h-4 w-4" />
+                AI İçerik Üretici
+              </CardTitle>
+              <CardDescription>
+                Persona profiline uygun yapay zeka destekli içerik üretin.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Platform</Label>
+                  <Select value={aiPlatform} onValueChange={setAiPlatform}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="twitter">Twitter</SelectItem>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="facebook">Facebook</SelectItem>
+                      <SelectItem value="linkedin">LinkedIn</SelectItem>
+                      <SelectItem value="tiktok">TikTok</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>İçerik Türü</Label>
+                  <Select value={aiContentType} onValueChange={setAiContentType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="post">Gönderi</SelectItem>
+                      <SelectItem value="reply">Yanıt</SelectItem>
+                      <SelectItem value="comment">Yorum</SelectItem>
+                      <SelectItem value="story">Hikaye</SelectItem>
+                      <SelectItem value="reel">Reel</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Dil</Label>
+                  <Select value={aiLanguage} onValueChange={setAiLanguage}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Persona Dili" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value=" ">Persona Dili</SelectItem>
+                      <SelectItem value="tr">Türkçe</SelectItem>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="ar">العربية</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="pt">Português</SelectItem>
+                      <SelectItem value="it">Italiano</SelectItem>
+                      <SelectItem value="ru">Русский</SelectItem>
+                      <SelectItem value="ja">日本語</SelectItem>
+                      <SelectItem value="ko">한국어</SelectItem>
+                      <SelectItem value="zh">中文</SelectItem>
+                      <SelectItem value="nl">Nederlands</SelectItem>
+                      <SelectItem value="pl">Polski</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Konu (Opsiyonel)</Label>
+                <Input
+                  placeholder="İçeriğin konusu veya teması..."
+                  value={aiTopic}
+                  onChange={(e) => setAiTopic(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Ek Talimatlar (Opsiyonel)</Label>
+                <Textarea
+                  placeholder="İçerik üretimi için ek yönergeler..."
+                  value={aiInstructions}
+                  onChange={(e) => setAiInstructions(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex items-end gap-4">
+                <div className="space-y-2">
+                  <Label>Adet</Label>
+                  <Select value={aiCount} onValueChange={setAiCount}>
+                    <SelectTrigger className="w-[80px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="5">5</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={handleAiGenerate} disabled={aiLoading}>
+                  {aiLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                  )}
+                  İçerik Üret
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {aiResults.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium">
+                Üretilen İçerikler ({aiResults.length})
+              </h3>
+              {aiResults.map((result, index) => (
+                <Card key={index}>
+                  <CardContent className="pt-6">
+                    <p className="whitespace-pre-wrap text-sm">{result}</p>
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(result);
+                        }}
+                      >
+                        <Copy className="mr-2 h-3.5 w-3.5" />
+                        Kopyala
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Save className="mr-2 h-3.5 w-3.5" />
+                        Kaydet
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         {/* ---- Etiketler Tab ---- */}
