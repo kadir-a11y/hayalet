@@ -63,7 +63,6 @@ export async function createPersona(userId: string, data: PersonaCreateInput) {
     .values({
       userId,
       name: data.name,
-      displayName: data.displayName,
       bio: data.bio,
       avatarUrl: data.avatarUrl || null,
       personalityTraits: data.personalityTraits,

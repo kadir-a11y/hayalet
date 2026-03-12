@@ -165,7 +165,6 @@ interface BehavioralPatterns {
 interface Persona {
   id: string;
   name: string;
-  displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
   personalityTraits: string[];
@@ -192,7 +191,6 @@ interface Persona {
 
 interface EditFormData {
   name: string;
-  displayName: string;
   bio: string;
   gender: string;
   birthDate: string;
@@ -386,7 +384,6 @@ function EditPersonaDialog({
 }) {
   const [formData, setFormData] = useState<EditFormData>({
     name: persona.name,
-    displayName: persona.displayName || "",
     bio: persona.bio || "",
     gender: persona.gender || "",
     birthDate: persona.birthDate || "",
@@ -410,7 +407,6 @@ function EditPersonaDialog({
   useEffect(() => {
     setFormData({
       name: persona.name,
-      displayName: persona.displayName || "",
       bio: persona.bio || "",
       gender: persona.gender || "",
       birthDate: persona.birthDate || "",
@@ -474,7 +470,6 @@ function EditPersonaDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name.trim(),
-          displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
           gender: formData.gender || undefined,
           birthDate: formData.birthDate || undefined,
@@ -519,29 +514,16 @@ function EditPersonaDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Basic info */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">
-                Kullanıcı Adı <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-displayName">Görünen Ad</Label>
-              <Input
-                id="edit-displayName"
-                value={formData.displayName}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, displayName: e.target.value }))
-                }
-                disabled={isSubmitting}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-name">
+              Kullanıcı Adı <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="edit-name"
+              value={formData.name}
+              onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
+              disabled={isSubmitting}
+            />
           </div>
 
           <div className="space-y-2">
@@ -3282,12 +3264,12 @@ export default function PersonaDetailPage() {
               <AvatarImage src={persona.avatarUrl} alt={persona.name} />
             )}
             <AvatarFallback className="text-xl">
-              {getInitials(persona.displayName || persona.name)}
+              {getInitials(persona.name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold">{persona.displayName || persona.name}</h2>
+              <h2 className="text-2xl font-bold">{persona.name}</h2>
               <Badge variant={persona.isActive ? "default" : "secondary"}>
                 {persona.isActive ? "Aktif" : "Pasif"}
               </Badge>

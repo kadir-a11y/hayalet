@@ -110,7 +110,7 @@ async function seedXAccounts() {
       .values({
         userId: adminUser.id,
         name: account.name,
-        displayName: account.name,
+
         birthDate: account.birthDate,
         language: "tr",
         country: "Türkiye",

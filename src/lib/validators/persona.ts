@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const personaCreateSchema = z.object({
   name: z.string().min(1, "İsim zorunludur").max(255),
-  displayName: z.string().max(255).optional(),
   bio: z.string().max(2000).optional(),
   avatarUrl: z.string().url().optional().or(z.literal("")),
   personalityTraits: z.array(z.string()).default([]),

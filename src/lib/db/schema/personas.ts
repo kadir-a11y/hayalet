@@ -7,7 +7,6 @@ export const personas = pgTable("personas", {
     .notNull()
     .references(() => users.id),
   name: varchar("name", { length: 255 }).notNull(),
-  displayName: varchar("display_name", { length: 255 }),
   bio: text("bio"),
   avatarUrl: text("avatar_url"),
   personalityTraits: jsonb("personality_traits").default([]),

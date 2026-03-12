@@ -54,7 +54,7 @@ async function seed() {
   const personaData = [
     {
       name: "tech_ahmet",
-      displayName: "Ahmet Yılmaz",
+
       bio: "Yazılım geliştirici ve teknoloji meraklısı. AI, web3 ve startup dünyasını yakından takip ediyorum.",
       personalityTraits: ["meraklı", "analitik", "paylaşımcı"],
       interests: ["yapay zeka", "programlama", "startup", "kripto"],
@@ -71,7 +71,7 @@ async function seed() {
     },
     {
       name: "foodie_zeynep",
-      displayName: "Zeynep Kaya",
+
       bio: "Gurme, ev aşçısı ve yemek fotoğrafçısı. Her tabakta bir hikaye var.",
       personalityTraits: ["yaratıcı", "tutkulu", "sosyal"],
       interests: ["yemek", "fotoğrafçılık", "seyahat", "kültür"],
@@ -88,7 +88,7 @@ async function seed() {
     },
     {
       name: "sporcu_can",
-      displayName: "Can Demir",
+
       bio: "Fitness antrenörü ve sağlıklı yaşam savunucusu. Her gün biraz daha iyi ol!",
       personalityTraits: ["enerjik", "motive edici", "disiplinli"],
       interests: ["fitness", "beslenme", "koşu", "yoga"],
@@ -105,7 +105,7 @@ async function seed() {
     },
     {
       name: "artist_elif",
-      displayName: "Elif Sarı",
+
       bio: "Dijital sanatçı ve illüstratör. Renklerin ve formların diliyle konuşuyorum.",
       personalityTraits: ["yaratıcı", "düşünceli", "estetik"],
       interests: ["dijital sanat", "illüstrasyon", "müze", "sinema"],
@@ -122,7 +122,7 @@ async function seed() {
     },
     {
       name: "traveler_mehmet",
-      displayName: "Mehmet Öz",
+
       bio: "Dünya gezgini, fotoğrafçı. 40+ ülke gezdim. Yolculuk bitmez.",
       personalityTraits: ["maceracı", "açık fikirli", "hikayeci"],
       interests: ["seyahat", "fotoğrafçılık", "kültür", "doğa"],

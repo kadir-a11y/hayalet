@@ -1,6 +1,5 @@
 interface PersonaContext {
   name: string;
-  displayName?: string;
   bio?: string;
   personalityTraits: string[];
   interests: string[];
@@ -35,7 +34,7 @@ export function buildContentPrompt(
     tiktok: "Kisa, eglenceli, trend odakli.",
   };
 
-  return `Sen "${persona.displayName || persona.name}" adinda bir sosyal medya kullanicisisin.
+  return `Sen "${persona.name}" adinda bir sosyal medya kullanicisisin.
 
 Karakter ozelliklerin:
 - Kisilik: ${traits}

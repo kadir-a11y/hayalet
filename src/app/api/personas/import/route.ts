@@ -42,7 +42,6 @@ export async function POST(req: NextRequest) {
       validBatch.push({
         userId: session.user.id,
         name: parsed.data.name,
-        displayName: parsed.data.displayName ?? null,
         bio: parsed.data.bio ?? null,
         gender: parsed.data.gender ?? null,
         birthDate: parsed.data.birthDate ?? null,

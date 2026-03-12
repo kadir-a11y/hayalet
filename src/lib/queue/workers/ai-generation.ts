@@ -34,7 +34,6 @@ export function createAIGenerationWorker() {
       const prompt = buildContentPrompt(
         {
           name: persona.name,
-          displayName: persona.displayName || undefined,
           bio: persona.bio || undefined,
           personalityTraits: (persona.personalityTraits as string[]) || [],
           interests: (persona.interests as string[]) || [],

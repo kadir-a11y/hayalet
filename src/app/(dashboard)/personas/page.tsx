@@ -75,7 +75,6 @@ interface Role {
 interface Persona {
   id: string;
   name: string;
-  displayName: string | null;
   bio: string | null;
   avatarUrl: string | null;
   personalityTraits: string[];
@@ -103,7 +102,6 @@ interface Persona {
 
 interface CreateFormData {
   name: string;
-  displayName: string;
   bio: string;
   gender: string;
   birthDate: string;
@@ -235,7 +233,6 @@ const languageNames: Record<string, string> = {
 
 const defaultFormData: CreateFormData = {
   name: "",
-  displayName: "",
   bio: "",
   gender: "",
   birthDate: "",
@@ -271,12 +268,12 @@ function PersonaRow({
               <AvatarImage src={persona.avatarUrl} alt={persona.name} />
             )}
             <AvatarFallback className="text-xs">
-              {getInitials(persona.displayName || persona.name)}
+              {getInitials(persona.name)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium flex items-center gap-1">
-              {persona.displayName || persona.name}
+              {persona.name}
               {persona.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
             </p>
             <p className="truncate text-xs text-muted-foreground">@{persona.name}</p>
@@ -369,13 +366,13 @@ function PersonaCard({
               <AvatarImage src={persona.avatarUrl} alt={persona.name} />
             )}
             <AvatarFallback className="text-xs">
-              {getInitials(persona.displayName || persona.name)}
+              {getInitials(persona.name)}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <p className="truncate text-sm font-medium flex items-center gap-1">
-                {persona.displayName || persona.name}
+                {persona.name}
                 {persona.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
               </p>
               <Badge
@@ -467,7 +464,6 @@ function CreatePersonaDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name.trim(),
-          displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
           gender: formData.gender || undefined,
           birthDate: formData.birthDate || undefined,
@@ -524,20 +520,6 @@ function CreatePersonaDialog({
               placeholder="ornek_kullanıcı"
               value={formData.name}
               onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Display Name */}
-          <div className="space-y-2">
-            <Label htmlFor="create-displayName">Görünen Ad</Label>
-            <Input
-              id="create-displayName"
-              placeholder="Ahmet Yılmaz"
-              value={formData.displayName}
-              onChange={(e) =>
-                setFormData((f) => ({ ...f, displayName: e.target.value }))
-              }
               disabled={isSubmitting}
             />
           </div>
@@ -770,7 +752,6 @@ function CreatePersonaDialog({
 
 interface BulkPersonaEntry {
   name: string;
-  displayName: string;
   bio: string;
   country: string;
   city: string;
@@ -787,14 +768,14 @@ function BulkCreateDialog({
   onCreated: () => void;
 }) {
   const [entries, setEntries] = useState<BulkPersonaEntry[]>([
-    { name: "", displayName: "", bio: "", country: "", city: "", language: "tr" },
+    { name: "", bio: "", country: "", city: "", language: "tr" },
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<{ success: number; total: number } | null>(null);
 
   function resetForm() {
-    setEntries([{ name: "", displayName: "", bio: "", country: "", city: "", language: "tr" }]);
+    setEntries([{ name: "", bio: "", country: "", city: "", language: "tr" }]);
     setError("");
     setResult(null);
   }
@@ -802,7 +783,7 @@ function BulkCreateDialog({
   function addRow() {
     setEntries((prev) => [
       ...prev,
-      { name: "", displayName: "", bio: "", country: "", city: "", language: "tr" },
+      { name: "", bio: "", country: "", city: "", language: "tr" },
     ]);
   }
 
@@ -838,7 +819,6 @@ function BulkCreateDialog({
         body: JSON.stringify({
           personas: validEntries.map((e) => ({
             name: e.name.trim(),
-            displayName: e.displayName.trim() || undefined,
             bio: e.bio.trim() || undefined,
             country: e.country.trim() || undefined,
             city: e.city.trim() || undefined,
@@ -886,7 +866,7 @@ function BulkCreateDialog({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[180px]">Kullanıcı Adı *</TableHead>
-                  <TableHead className="w-[160px]">Görünen Ad</TableHead>
+
                   <TableHead className="w-[200px]">Biyografi</TableHead>
                   <TableHead className="w-[120px]">Ülke</TableHead>
                   <TableHead className="w-[100px]">Şehir</TableHead>
@@ -902,15 +882,6 @@ function BulkCreateDialog({
                         placeholder="kullanıcı_adı"
                         value={entry.name}
                         onChange={(e) => updateRow(index, "name", e.target.value)}
-                        disabled={isSubmitting}
-                        className="h-8 text-sm"
-                      />
-                    </TableCell>
-                    <TableCell className="p-1.5">
-                      <Input
-                        placeholder="Görünen Ad"
-                        value={entry.displayName}
-                        onChange={(e) => updateRow(index, "displayName", e.target.value)}
                         disabled={isSubmitting}
                         className="h-8 text-sm"
                       />
@@ -1104,7 +1075,6 @@ export default function PersonasPage() {
         const q = search.toLowerCase();
         const matches =
           p.name.toLowerCase().includes(q) ||
-          (p.displayName && p.displayName.toLowerCase().includes(q)) ||
           (p.country && p.country.toLowerCase().includes(q)) ||
           (p.city && p.city.toLowerCase().includes(q)) ||
           (p.language && p.language.toLowerCase().includes(q)) ||
@@ -1145,9 +1115,9 @@ export default function PersonasPage() {
         case "oldest":
           return (a.createdAt || "").localeCompare(b.createdAt || "");
         case "name_asc":
-          return (a.displayName || a.name).localeCompare(b.displayName || b.name, "tr");
+          return a.name.localeCompare(b.name, "tr");
         case "name_desc":
-          return (b.displayName || b.name).localeCompare(a.displayName || a.name, "tr");
+          return b.name.localeCompare(a.name, "tr");
         default:
           return 0;
       }

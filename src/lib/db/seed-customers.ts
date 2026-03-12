@@ -13,7 +13,7 @@ const JSON_PATH = "C:/Users/kadir/Downloads/musteriler.json";
 
 interface PersonaInput {
   name: string;
-  displayName?: string;
+
   gender?: string;
   birthDate?: string;
   country?: string;
@@ -62,7 +62,7 @@ async function seedCustomers() {
     const values = batch.map((p) => ({
       userId,
       name: p.name,
-      displayName: p.displayName ?? null,
+
       bio: p.bio ?? null,
       gender: p.gender ?? null,
       birthDate: p.birthDate ?? null,

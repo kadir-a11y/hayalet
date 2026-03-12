@@ -33,7 +33,7 @@ export async function getProjectTeam(projectId: string) {
     assignments.map(async (a) => {
       if (a.assignmentType === "persona" && a.personaId) {
         const [persona] = await db
-          .select({ id: personas.id, name: personas.name, displayName: personas.displayName, avatarUrl: personas.avatarUrl, language: personas.language })
+          .select({ id: personas.id, name: personas.name, avatarUrl: personas.avatarUrl, language: personas.language })
           .from(personas)
           .where(eq(personas.id, a.personaId))
           .limit(1);
@@ -154,7 +154,7 @@ async function resolvePersonasByRole(roleId: string, languages?: string[]) {
   }
 
   return db
-    .select({ id: personas.id, name: personas.name, displayName: personas.displayName, avatarUrl: personas.avatarUrl, language: personas.language })
+    .select({ id: personas.id, name: personas.name, avatarUrl: personas.avatarUrl, language: personas.language })
     .from(personas)
     .where(and(...conditions));
 }
@@ -184,7 +184,7 @@ async function resolvePersonasByCategory(categoryId: string, languages?: string[
   }
 
   return db
-    .select({ id: personas.id, name: personas.name, displayName: personas.displayName, avatarUrl: personas.avatarUrl, language: personas.language })
+    .select({ id: personas.id, name: personas.name, avatarUrl: personas.avatarUrl, language: personas.language })
     .from(personas)
     .where(and(...conditions));
 }
@@ -224,7 +224,7 @@ export async function resolveAllPersonas(projectId: string) {
   if (allPersonaIds.size === 0) return [];
 
   const allPersonas = await db
-    .select({ id: personas.id, name: personas.name, displayName: personas.displayName, avatarUrl: personas.avatarUrl, language: personas.language })
+    .select({ id: personas.id, name: personas.name, avatarUrl: personas.avatarUrl, language: personas.language })
     .from(personas)
     .where(inArray(personas.id, [...allPersonaIds]));
 

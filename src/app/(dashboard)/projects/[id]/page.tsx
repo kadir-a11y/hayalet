@@ -149,7 +149,6 @@ interface TeamAssignment {
   persona?: {
     id: string;
     name: string;
-    displayName: string | null;
     avatarUrl: string | null;
   } | null;
   role?: { id: string; name: string; color: string | null } | null;
@@ -157,7 +156,6 @@ interface TeamAssignment {
   resolvedPersonas?: {
     id: string;
     name: string;
-    displayName: string | null;
     avatarUrl: string | null;
   }[];
   resolvedCount: number;
@@ -222,7 +220,6 @@ interface MentionStats {
 interface PersonaItem {
   id: string;
   name: string;
-  displayName: string | null;
   avatarUrl: string | null;
 }
 
@@ -1389,7 +1386,7 @@ export default function ProjectDetailPage({
                           <div>
                             <p className="font-medium">
                               {assignment.assignmentType === "persona"
-                                ? assignment.persona?.displayName || assignment.persona?.name || "Bilinmeyen Persona"
+                                ? assignment.persona?.name || "Bilinmeyen Persona"
                                 : assignment.assignmentType === "role"
                                 ? assignment.role?.name || "Bilinmeyen Rol"
                                 : assignment.roleCategory?.name || "Bilinmeyen Kategori"}
@@ -1460,7 +1457,7 @@ export default function ProjectDetailPage({
                                   </div>
                                 )}
                                 <span className="text-sm truncate">
-                                  {p.displayName || p.name}
+                                  {p.name}
                                 </span>
                               </div>
                             ))}
@@ -1919,7 +1916,7 @@ export default function ProjectDetailPage({
                   {teamDialogMode === "persona" &&
                     personas.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
-                        {p.displayName || p.name}
+                        {p.name}
                       </SelectItem>
                     ))}
                   {teamDialogMode === "role" &&
