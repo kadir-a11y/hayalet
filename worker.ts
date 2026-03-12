@@ -3,7 +3,7 @@ import { createContentDeliveryWorker } from "./src/lib/queue/workers/content-del
 import { createAIGenerationWorker } from "./src/lib/queue/workers/ai-generation";
 import { createCampaignExecutionWorker } from "./src/lib/queue/workers/campaign-execution";
 
-console.log("Starting Hayalet workers...");
+console.log("Starting Persona workers...");
 
 const contentWorker = createContentDeliveryWorker();
 const aiWorker = createAIGenerationWorker();

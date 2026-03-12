@@ -34,7 +34,7 @@ export async function GET() {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename=hayalet-export-${new Date().toISOString().split("T")[0]}.csv`,
+      "Content-Disposition": `attachment; filename=persona-export-${new Date().toISOString().split("T")[0]}.csv`,
     },
   });
 }

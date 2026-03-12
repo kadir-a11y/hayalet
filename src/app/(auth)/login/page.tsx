@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Ghost, Loader2 } from "lucide-react";
+import { Users, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,11 +52,11 @@ export default function LoginPage() {
       <CardHeader className="space-y-2 text-center">
         <div className="flex justify-center">
           <div className="rounded-full bg-primary/10 p-3">
-            <Ghost className="h-8 w-8 text-primary" />
+            <Users className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold">Hayalet</CardTitle>
-        <CardDescription>Sign in to your account to continue</CardDescription>
+        <CardTitle className="text-2xl font-bold">Persona</CardTitle>
+        <CardDescription>Hesabınıza giriş yapın</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">

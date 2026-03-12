@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Ghost,
   Users,
   Tags,
   FileText,
@@ -40,8 +39,8 @@ function Sidebar({ className }: { className?: string }) {
     <div className={cn("flex h-full flex-col", className)}>
       <div className="flex h-14 items-center px-4">
         <Link href="/personas" className="flex items-center gap-2 font-semibold">
-          <Ghost className="h-6 w-6" />
-          <span className="text-lg">Hayalet</span>
+          <Users className="h-6 w-6" />
+          <span className="text-lg">Persona</span>
         </Link>
       </div>
       <Separator />
@@ -126,8 +125,8 @@ export default function DashboardLayout({
             )}
           </Button>
           <div className="flex items-center gap-2 font-semibold">
-            <Ghost className="h-5 w-5" />
-            Hayalet
+            <Users className="h-5 w-5" />
+            Persona
           </div>
         </header>
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "=== Hayalet Startup ==="
+echo "=== Persona Startup ==="
 
 # Wait for database to be ready
 echo "Waiting for database..."

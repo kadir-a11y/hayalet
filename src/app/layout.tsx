@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hayalet - Persona Management",
-  description: "Social media persona management platform",
+  title: "Persona - Sosyal Medya Yönetim Platformu",
+  description: "Sosyal medya persona yönetim platformu",
 };
 
 export default function RootLayout({
