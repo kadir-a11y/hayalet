@@ -21,6 +21,10 @@ export { projectTasks } from "./project-tasks";
 export { projectTimeline } from "./project-timeline";
 export { projectPlaybooks } from "./project-playbooks";
 export { bugReports } from "./bug-reports";
+export { monitoredTopics } from "./monitored-topics";
+export { monitoringSources } from "./monitoring-sources";
+export { discoveredItems } from "./discovered-items";
+export { autoPostRules } from "./auto-post-rules";
 
 import { users } from "./users";
 import { personas } from "./personas";
@@ -43,6 +47,10 @@ import { projectTasks } from "./project-tasks";
 import { projectTimeline } from "./project-timeline";
 import { projectPlaybooks } from "./project-playbooks";
 import { bugReports } from "./bug-reports";
+import { monitoredTopics } from "./monitored-topics";
+import { monitoringSources } from "./monitoring-sources";
+import { discoveredItems } from "./discovered-items";
+import { autoPostRules } from "./auto-post-rules";
 
 // ── Users relations ──────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
@@ -55,6 +63,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   projects: many(projects),
   playbooks: many(projectPlaybooks),
   bugReports: many(bugReports),
+  monitoredTopics: many(monitoredTopics),
 }));
 
 // ── Personas relations ───────────────────────────────────────────────
@@ -288,6 +297,46 @@ export const bugReportsRelations = relations(bugReports, ({ one }) => ({
   user: one(users, {
     fields: [bugReports.userId],
     references: [users.id],
+  }),
+}));
+
+// ── Monitored topics relations ─────────────────────────────────────
+export const monitoredTopicsRelations = relations(monitoredTopics, ({ one, many }) => ({
+  user: one(users, {
+    fields: [monitoredTopics.userId],
+    references: [users.id],
+  }),
+  sources: many(monitoringSources),
+  discoveredItems: many(discoveredItems),
+  autoPostRules: many(autoPostRules),
+}));
+
+// ── Monitoring sources relations ───────────────────────────────────
+export const monitoringSourcesRelations = relations(monitoringSources, ({ one, many }) => ({
+  topic: one(monitoredTopics, {
+    fields: [monitoringSources.topicId],
+    references: [monitoredTopics.id],
+  }),
+  discoveredItems: many(discoveredItems),
+}));
+
+// ── Discovered items relations ─────────────────────────────────────
+export const discoveredItemsRelations = relations(discoveredItems, ({ one }) => ({
+  topic: one(monitoredTopics, {
+    fields: [discoveredItems.topicId],
+    references: [monitoredTopics.id],
+  }),
+  source: one(monitoringSources, {
+    fields: [discoveredItems.sourceId],
+    references: [monitoringSources.id],
+  }),
+}));
+
+// ── Auto post rules relations ──────────────────────────────────────
+export const autoPostRulesRelations = relations(autoPostRules, ({ one }) => ({
+  topic: one(monitoredTopics, {
+    fields: [autoPostRules.topicId],
+    references: [monitoredTopics.id],
   }),
 }));
 
