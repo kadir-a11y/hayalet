@@ -63,6 +63,8 @@ export async function createPersona(userId: string, data: PersonaCreateInput) {
       personalityTraits: data.personalityTraits,
       interests: data.interests,
       behavioralPatterns: data.behavioralPatterns,
+      gender: data.gender || null,
+      birthDate: data.birthDate || null,
       country: data.country || null,
       city: data.city || null,
       language: data.language,

@@ -95,6 +95,12 @@ interface SocialAccount {
   platformEmail: string | null;
   platformPhone: string | null;
   platformPassword: string | null;
+  emailPassword: string | null;
+  apiEndpoint: string | null;
+  apiKey: string | null;
+  apiSecretKey: string | null;
+  accessToken: string | null;
+  accessTokenSecret: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
   createdAt: string | null;
@@ -108,6 +114,12 @@ interface ForumAccount {
   email: string | null;
   phone: string | null;
   password: string | null;
+  emailPassword: string | null;
+  apiEndpoint: string | null;
+  apiKey: string | null;
+  apiSecretKey: string | null;
+  accessToken: string | null;
+  accessTokenSecret: string | null;
   notes: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
@@ -142,6 +154,8 @@ interface Persona {
   personalityTraits: string[];
   interests: string[];
   behavioralPatterns: BehavioralPatterns;
+  gender: string | null;
+  birthDate: string | null;
   country: string | null;
   city: string | null;
   language: string | null;
@@ -161,6 +175,8 @@ interface EditFormData {
   name: string;
   displayName: string;
   bio: string;
+  gender: string;
+  birthDate: string;
   country: string;
   city: string;
   language: string;
@@ -353,6 +369,8 @@ function EditPersonaDialog({
     name: persona.name,
     displayName: persona.displayName || "",
     bio: persona.bio || "",
+    gender: persona.gender || "",
+    birthDate: persona.birthDate || "",
     country: persona.country || "",
     city: persona.city || "",
     language: persona.language || "tr",
@@ -375,6 +393,8 @@ function EditPersonaDialog({
       name: persona.name,
       displayName: persona.displayName || "",
       bio: persona.bio || "",
+      gender: persona.gender || "",
+      birthDate: persona.birthDate || "",
       country: persona.country || "",
       city: persona.city || "",
       language: persona.language || "tr",
@@ -437,6 +457,8 @@ function EditPersonaDialog({
           name: formData.name.trim(),
           displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
+          gender: formData.gender || undefined,
+          birthDate: formData.birthDate || undefined,
           country: formData.country.trim() || undefined,
           city: formData.city.trim() || undefined,
           language: formData.language,
@@ -512,6 +534,36 @@ function EditPersonaDialog({
               onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
               disabled={isSubmitting}
             />
+          </div>
+
+          {/* Gender & Birth Date */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label>Cinsiyet</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={(v) => setFormData((f) => ({ ...f, gender: v }))}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="erkek">Erkek</SelectItem>
+                  <SelectItem value="kadın">Kadın</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-birthdate">Doğum Tarihi</Label>
+              <Input
+                id="edit-birthdate"
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => setFormData((f) => ({ ...f, birthDate: e.target.value }))}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Country & City */}
@@ -880,6 +932,12 @@ function AddSocialAccountDialog({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
+  const [apiEndpoint, setApiEndpoint] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [apiSecretKey, setApiSecretKey] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [accessTokenSecret, setAccessTokenSecret] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -890,6 +948,12 @@ function AddSocialAccountDialog({
     setEmail("");
     setPhone("");
     setPassword("");
+    setEmailPassword("");
+    setApiEndpoint("");
+    setApiKey("");
+    setApiSecretKey("");
+    setAccessToken("");
+    setAccessTokenSecret("");
     setShowPassword(false);
     setError("");
   }
@@ -910,6 +974,12 @@ function AddSocialAccountDialog({
           platformEmail: email.trim() || undefined,
           platformPhone: phone.trim() || undefined,
           platformPassword: password || undefined,
+          emailPassword: emailPassword || undefined,
+          apiEndpoint: apiEndpoint.trim() || undefined,
+          apiKey: apiKey.trim() || undefined,
+          apiSecretKey: apiSecretKey.trim() || undefined,
+          accessToken: accessToken.trim() || undefined,
+          accessTokenSecret: accessTokenSecret.trim() || undefined,
         }),
       });
 
@@ -1006,6 +1076,78 @@ function AddSocialAccountDialog({
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-email-password">E-posta Şifresi</Label>
+            <Input
+              id="social-email-password"
+              type={showPassword ? "text" : "password"}
+              placeholder="E-posta hesap şifresi"
+              value={emailPassword}
+              onChange={(e) => setEmailPassword(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri (opsiyonel)</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="social-api-endpoint">API Endpoint</Label>
+            <Input
+              id="social-api-endpoint"
+              placeholder="https://api.twitter.com/2"
+              value={apiEndpoint}
+              onChange={(e) => setApiEndpoint(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="social-api-key">API Key</Label>
+              <Input
+                id="social-api-key"
+                placeholder="API Key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="social-api-secret">API Secret Key</Label>
+              <Input
+                id="social-api-secret"
+                placeholder="API Secret Key"
+                value={apiSecretKey}
+                onChange={(e) => setApiSecretKey(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="social-access-token">Access Token</Label>
+              <Input
+                id="social-access-token"
+                placeholder="Access Token"
+                value={accessToken}
+                onChange={(e) => setAccessToken(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="social-access-secret">Access Token Secret</Label>
+              <Input
+                id="social-access-secret"
+                placeholder="Access Token Secret"
+                value={accessTokenSecret}
+                onChange={(e) => setAccessTokenSecret(e.target.value)}
+                disabled={isSubmitting}
+              />
             </div>
           </div>
 
@@ -1238,12 +1380,28 @@ function PostsTab({ personaId }: { personaId: string }) {
 function SocialAccountCard({
   account,
   onDelete,
+  onUpdated,
 }: {
   account: SocialAccount;
   onDelete: () => void;
+  onUpdated: () => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editData, setEditData] = useState({
+    platformUsername: account.platformUsername || "",
+    platformEmail: account.platformEmail || "",
+    platformPhone: account.platformPhone || "",
+    platformPassword: account.platformPassword || "",
+    emailPassword: account.emailPassword || "",
+    apiEndpoint: account.apiEndpoint || "",
+    apiKey: account.apiKey || "",
+    apiSecretKey: account.apiSecretKey || "",
+    accessToken: account.accessToken || "",
+    accessTokenSecret: account.accessTokenSecret || "",
+  });
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -1256,6 +1414,115 @@ function SocialAccountCard({
     } catch {
       setIsDeleting(false);
     }
+  }
+
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/social-accounts/${account.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platformUsername: editData.platformUsername || undefined,
+          platformEmail: editData.platformEmail || undefined,
+          platformPhone: editData.platformPhone || undefined,
+          platformPassword: editData.platformPassword || undefined,
+          emailPassword: editData.emailPassword || undefined,
+          apiEndpoint: editData.apiEndpoint || undefined,
+          apiKey: editData.apiKey || undefined,
+          apiSecretKey: editData.apiSecretKey || undefined,
+          accessToken: editData.accessToken || undefined,
+          accessTokenSecret: editData.accessTokenSecret || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setIsEditing(false);
+      onUpdated();
+    } catch {
+      // ignore
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <div className="rounded-lg border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
+              {platformIcon(account.platform)}
+            </div>
+            <p className="text-sm font-medium">
+              {platformNames[account.platform] || account.platform} — Düzenle
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Kullanıcı Adı</Label>
+              <Input className="h-8 text-sm" value={editData.platformUsername} onChange={(e) => setEditData((d) => ({ ...d, platformUsername: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Şifre</Label>
+              <Input className="h-8 text-sm" value={editData.platformPassword} onChange={(e) => setEditData((d) => ({ ...d, platformPassword: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">E-posta</Label>
+              <Input className="h-8 text-sm" value={editData.platformEmail} onChange={(e) => setEditData((d) => ({ ...d, platformEmail: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">E-posta Şifresi</Label>
+              <Input className="h-8 text-sm" value={editData.emailPassword} onChange={(e) => setEditData((d) => ({ ...d, emailPassword: e.target.value }))} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Telefon</Label>
+            <Input className="h-8 text-sm" value={editData.platformPhone} onChange={(e) => setEditData((d) => ({ ...d, platformPhone: e.target.value }))} />
+          </div>
+
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
+
+          <div className="space-y-1">
+            <Label className="text-xs">API Endpoint</Label>
+            <Input className="h-8 text-sm" value={editData.apiEndpoint} onChange={(e) => setEditData((d) => ({ ...d, apiEndpoint: e.target.value }))} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">API Key</Label>
+              <Input className="h-8 text-sm" value={editData.apiKey} onChange={(e) => setEditData((d) => ({ ...d, apiKey: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">API Secret Key</Label>
+              <Input className="h-8 text-sm" value={editData.apiSecretKey} onChange={(e) => setEditData((d) => ({ ...d, apiSecretKey: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Access Token</Label>
+              <Input className="h-8 text-sm" value={editData.accessToken} onChange={(e) => setEditData((d) => ({ ...d, accessToken: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Access Token Secret</Label>
+              <Input className="h-8 text-sm" value={editData.accessTokenSecret} onChange={(e) => setEditData((d) => ({ ...d, accessTokenSecret: e.target.value }))} />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
+            Kaydet
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -1280,6 +1547,9 @@ function SocialAccountCard({
           <Badge variant={account.isActive ? "default" : "secondary"}>
             {account.isActive ? "Aktif" : "Pasif"}
           </Badge>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
+            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
@@ -1319,6 +1589,7 @@ function SocialAccountCard({
         {account.platformPassword && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Key className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-xs">Şifre: </span>
             <span className="font-mono text-xs">
               {showPassword ? account.platformPassword : "••••••••"}
             </span>
@@ -1330,7 +1601,57 @@ function SocialAccountCard({
             </button>
           </div>
         )}
+        {account.emailPassword && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Key className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-xs">E-posta Şifresi: </span>
+            <span className="font-mono text-xs">
+              {showPassword ? account.emailPassword : "••••••••"}
+            </span>
+          </div>
+        )}
       </div>
+
+      {/* API Credentials */}
+      {(account.apiKey || account.accessToken) && (
+        <div className="grid gap-1.5 text-sm border-t pt-2">
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
+          {account.apiEndpoint && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Globe className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-mono text-xs truncate">{account.apiEndpoint}</span>
+            </div>
+          )}
+          {account.apiKey && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Key className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">API Key: </span>
+              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
+            </div>
+          )}
+          {account.apiSecretKey && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Key className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">API Secret: </span>
+              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
+            </div>
+          )}
+          {account.accessToken && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">Access Token: </span>
+              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
+            </div>
+          )}
+          {account.accessTokenSecret && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">Token Secret: </span>
+              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
@@ -1362,6 +1683,12 @@ function AddForumAccountDialog({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [forumEmailPassword, setForumEmailPassword] = useState("");
+  const [forumApiEndpoint, setForumApiEndpoint] = useState("");
+  const [forumApiKey, setForumApiKey] = useState("");
+  const [forumApiSecretKey, setForumApiSecretKey] = useState("");
+  const [forumAccessToken, setForumAccessToken] = useState("");
+  const [forumAccessTokenSecret, setForumAccessTokenSecret] = useState("");
   const [notes, setNotes] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1374,6 +1701,12 @@ function AddForumAccountDialog({
     setEmail("");
     setPhone("");
     setPassword("");
+    setForumEmailPassword("");
+    setForumApiEndpoint("");
+    setForumApiKey("");
+    setForumApiSecretKey("");
+    setForumAccessToken("");
+    setForumAccessTokenSecret("");
     setNotes("");
     setShowPassword(false);
     setError("");
@@ -1400,6 +1733,12 @@ function AddForumAccountDialog({
           email: email.trim() || undefined,
           phone: phone.trim() || undefined,
           password: password || undefined,
+          emailPassword: forumEmailPassword || undefined,
+          apiEndpoint: forumApiEndpoint.trim() || undefined,
+          apiKey: forumApiKey.trim() || undefined,
+          apiSecretKey: forumApiSecretKey.trim() || undefined,
+          accessToken: forumAccessToken.trim() || undefined,
+          accessTokenSecret: forumAccessTokenSecret.trim() || undefined,
           notes: notes.trim() || undefined,
         }),
       });
@@ -1509,6 +1848,78 @@ function AddForumAccountDialog({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="forum-email-password">E-posta Şifresi</Label>
+            <Input
+              id="forum-email-password"
+              type="password"
+              placeholder="E-posta hesap şifresi"
+              value={forumEmailPassword}
+              onChange={(e) => setForumEmailPassword(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri (opsiyonel)</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="forum-api-endpoint">API Endpoint</Label>
+            <Input
+              id="forum-api-endpoint"
+              placeholder="https://api.example.com"
+              value={forumApiEndpoint}
+              onChange={(e) => setForumApiEndpoint(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="forum-api-key">API Key</Label>
+              <Input
+                id="forum-api-key"
+                placeholder="API Key"
+                value={forumApiKey}
+                onChange={(e) => setForumApiKey(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="forum-api-secret">API Secret Key</Label>
+              <Input
+                id="forum-api-secret"
+                placeholder="API Secret Key"
+                value={forumApiSecretKey}
+                onChange={(e) => setForumApiSecretKey(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="forum-access-token">Access Token</Label>
+              <Input
+                id="forum-access-token"
+                placeholder="Access Token"
+                value={forumAccessToken}
+                onChange={(e) => setForumAccessToken(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="forum-access-secret">Access Token Secret</Label>
+              <Input
+                id="forum-access-secret"
+                placeholder="Access Token Secret"
+                value={forumAccessTokenSecret}
+                onChange={(e) => setForumAccessTokenSecret(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="forum-notes">Notlar</Label>
             <Textarea
               id="forum-notes"
@@ -1548,12 +1959,31 @@ function AddForumAccountDialog({
 function ForumAccountCard({
   account,
   onDelete,
+  onUpdated,
 }: {
   account: ForumAccount;
   onDelete: () => void;
+  onUpdated: () => void;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editData, setEditData] = useState({
+    portalName: account.portalName || "",
+    portalUrl: account.portalUrl || "",
+    username: account.username || "",
+    email: account.email || "",
+    phone: account.phone || "",
+    password: account.password || "",
+    emailPassword: account.emailPassword || "",
+    apiEndpoint: account.apiEndpoint || "",
+    apiKey: account.apiKey || "",
+    apiSecretKey: account.apiSecretKey || "",
+    accessToken: account.accessToken || "",
+    accessTokenSecret: account.accessTokenSecret || "",
+    notes: account.notes || "",
+  });
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -1566,6 +1996,115 @@ function ForumAccountCard({
     } catch {
       setIsDeleting(false);
     }
+  }
+
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/forum-accounts/${account.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          portalName: editData.portalName.trim(),
+          portalUrl: editData.portalUrl.trim() || undefined,
+          username: editData.username.trim() || undefined,
+          email: editData.email.trim() || undefined,
+          phone: editData.phone.trim() || undefined,
+          password: editData.password || undefined,
+          emailPassword: editData.emailPassword || undefined,
+          apiEndpoint: editData.apiEndpoint.trim() || undefined,
+          apiKey: editData.apiKey.trim() || undefined,
+          apiSecretKey: editData.apiSecretKey.trim() || undefined,
+          accessToken: editData.accessToken.trim() || undefined,
+          accessTokenSecret: editData.accessTokenSecret.trim() || undefined,
+          notes: editData.notes.trim() || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setIsEditing(false);
+      onUpdated();
+    } catch {
+      // ignore
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <div className="rounded-lg border p-4 space-y-3">
+        <p className="text-sm font-medium">Forum / Portal — Düzenle</p>
+        <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Portal Adı</Label>
+              <Input className="h-8 text-sm" value={editData.portalName} onChange={(e) => setEditData((d) => ({ ...d, portalName: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Portal URL</Label>
+              <Input className="h-8 text-sm" value={editData.portalUrl} onChange={(e) => setEditData((d) => ({ ...d, portalUrl: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Kullanıcı Adı</Label>
+              <Input className="h-8 text-sm" value={editData.username} onChange={(e) => setEditData((d) => ({ ...d, username: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Şifre</Label>
+              <Input className="h-8 text-sm" value={editData.password} onChange={(e) => setEditData((d) => ({ ...d, password: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">E-posta</Label>
+              <Input className="h-8 text-sm" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">E-posta Şifresi</Label>
+              <Input className="h-8 text-sm" value={editData.emailPassword} onChange={(e) => setEditData((d) => ({ ...d, emailPassword: e.target.value }))} />
+            </div>
+          </div>
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
+          <div className="space-y-1">
+            <Label className="text-xs">API Endpoint</Label>
+            <Input className="h-8 text-sm" value={editData.apiEndpoint} onChange={(e) => setEditData((d) => ({ ...d, apiEndpoint: e.target.value }))} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">API Key</Label>
+              <Input className="h-8 text-sm" value={editData.apiKey} onChange={(e) => setEditData((d) => ({ ...d, apiKey: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">API Secret Key</Label>
+              <Input className="h-8 text-sm" value={editData.apiSecretKey} onChange={(e) => setEditData((d) => ({ ...d, apiSecretKey: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Access Token</Label>
+              <Input className="h-8 text-sm" value={editData.accessToken} onChange={(e) => setEditData((d) => ({ ...d, accessToken: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Access Token Secret</Label>
+              <Input className="h-8 text-sm" value={editData.accessTokenSecret} onChange={(e) => setEditData((d) => ({ ...d, accessTokenSecret: e.target.value }))} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Notlar</Label>
+            <Input className="h-8 text-sm" value={editData.notes} onChange={(e) => setEditData((d) => ({ ...d, notes: e.target.value }))} />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
+            Kaydet
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -1596,6 +2135,9 @@ function ForumAccountCard({
           <Badge variant={account.isActive ? "default" : "secondary"}>
             {account.isActive ? "Aktif" : "Pasif"}
           </Badge>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
+            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
@@ -1646,6 +2188,15 @@ function ForumAccountCard({
             </button>
           </div>
         )}
+        {account.emailPassword && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Key className="h-3.5 w-3.5 shrink-0" />
+            <span className="text-xs">E-posta Şifresi: </span>
+            <span className="font-mono text-xs">
+              {showPassword ? account.emailPassword : "••••••••"}
+            </span>
+          </div>
+        )}
         {account.notes && (
           <div className="flex items-start gap-2 text-muted-foreground">
             <StickyNote className="h-3.5 w-3.5 shrink-0 mt-0.5" />
@@ -1653,6 +2204,47 @@ function ForumAccountCard({
           </div>
         )}
       </div>
+
+      {/* API Credentials */}
+      {(account.apiKey || account.accessToken) && (
+        <div className="grid gap-1.5 text-sm border-t pt-2">
+          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
+          {account.apiEndpoint && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Globe className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-mono text-xs truncate">{account.apiEndpoint}</span>
+            </div>
+          )}
+          {account.apiKey && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Key className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">API Key: </span>
+              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
+            </div>
+          )}
+          {account.apiSecretKey && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Key className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">API Secret: </span>
+              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
+            </div>
+          )}
+          {account.accessToken && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">Access Token: </span>
+              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
+            </div>
+          )}
+          {account.accessTokenSecret && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs">Token Secret: </span>
+              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
@@ -2284,6 +2876,17 @@ export default function PersonaDetailPage() {
                 <Globe className="h-3.5 w-3.5" />
                 {languageNames[persona.language || "tr"] || persona.language}
               </span>
+              {persona.gender && (
+                <span className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  {persona.gender === "erkek" ? "Erkek" : "Kadın"}
+                </span>
+              )}
+              {persona.birthDate && (
+                <span className="flex items-center gap-1">
+                  {persona.birthDate}
+                </span>
+              )}
               {(persona.country || persona.city) && (
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" />
@@ -2415,6 +3018,7 @@ export default function PersonaDetailPage() {
                       key={account.id}
                       account={account}
                       onDelete={fetchPersona}
+                      onUpdated={fetchPersona}
                     />
                   ))}
                 </div>
@@ -2458,6 +3062,7 @@ export default function PersonaDetailPage() {
                       key={account.id}
                       account={account}
                       onDelete={fetchPersona}
+                      onUpdated={fetchPersona}
                     />
                   ))}
                 </div>
@@ -2563,6 +3168,14 @@ export default function PersonaDetailPage() {
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-muted-foreground">Dil</p>
                   <p className="text-sm">{languageNames[persona.language || "tr"] || persona.language}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">Cinsiyet</p>
+                  <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">Doğum Tarihi</p>
+                  <p className="text-sm">{persona.birthDate || "-"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-muted-foreground">Konum</p>

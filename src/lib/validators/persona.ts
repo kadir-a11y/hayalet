@@ -15,6 +15,8 @@ export const personaCreateSchema = z.object({
       hashtag_style: z.enum(["none", "minimal", "moderate", "heavy"]).optional(),
     })
     .default({}),
+  gender: z.enum(["erkek", "kadın"]).optional(),
+  birthDate: z.string().max(20).optional(),
   country: z.string().max(100).optional(),
   city: z.string().max(100).optional(),
   language: z.string().default("tr"),

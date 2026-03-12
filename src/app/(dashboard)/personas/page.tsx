@@ -70,6 +70,8 @@ interface Persona {
   personalityTraits: string[];
   interests: string[];
   behavioralPatterns: Record<string, string>;
+  gender: string | null;
+  birthDate: string | null;
   language: string | null;
   country: string | null;
   city: string | null;
@@ -87,6 +89,8 @@ interface CreateFormData {
   name: string;
   displayName: string;
   bio: string;
+  gender: string;
+  birthDate: string;
   country: string;
   city: string;
   language: string;
@@ -217,6 +221,8 @@ const defaultFormData: CreateFormData = {
   name: "",
   displayName: "",
   bio: "",
+  gender: "",
+  birthDate: "",
   country: "",
   city: "",
   language: "tr",
@@ -257,6 +263,16 @@ function PersonaRow({
             <p className="truncate text-xs text-muted-foreground">@{persona.name}</p>
           </div>
         </div>
+      </TableCell>
+      <TableCell>
+        <span className="text-xs">
+          {persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span className="text-xs text-muted-foreground">
+          {persona.birthDate || "-"}
+        </span>
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1.5">
@@ -351,6 +367,9 @@ function PersonaCard({
             </div>
             <p className="text-xs text-muted-foreground">@{persona.name}</p>
             <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+              {persona.gender && (
+                <span>{persona.gender === "erkek" ? "Erkek" : "Kadın"}</span>
+              )}
               <span className="font-medium">
                 {languageLabels[persona.language || "tr"] || persona.language}
               </span>
@@ -430,6 +449,8 @@ function CreatePersonaDialog({
           name: formData.name.trim(),
           displayName: formData.displayName.trim() || undefined,
           bio: formData.bio.trim() || undefined,
+          gender: formData.gender || undefined,
+          birthDate: formData.birthDate || undefined,
           country: formData.country.trim() || undefined,
           city: formData.city.trim() || undefined,
           language: formData.language,
@@ -512,6 +533,36 @@ function CreatePersonaDialog({
               onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
               disabled={isSubmitting}
             />
+          </div>
+
+          {/* Gender & Birth Date */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Cinsiyet</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={(v) => setFormData((f) => ({ ...f, gender: v }))}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="erkek">Erkek</SelectItem>
+                  <SelectItem value="kadın">Kadın</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-birthdate">Doğum Tarihi</Label>
+              <Input
+                id="create-birthdate"
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => setFormData((f) => ({ ...f, birthDate: e.target.value }))}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           {/* Country & City */}
@@ -986,6 +1037,9 @@ export default function PersonasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [filterGender, setFilterGender] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("newest");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -1008,18 +1062,41 @@ export default function PersonasPage() {
     fetchPersonas();
   }, [fetchPersonas]);
 
-  // Client-side search filtering
-  const filteredPersonas = personas.filter((p) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(q) ||
-      (p.displayName && p.displayName.toLowerCase().includes(q)) ||
-      (p.country && p.country.toLowerCase().includes(q)) ||
-      (p.city && p.city.toLowerCase().includes(q)) ||
-      (p.language && p.language.toLowerCase().includes(q))
-    );
-  });
+  // Client-side filtering and sorting
+  const filteredPersonas = personas
+    .filter((p) => {
+      // Search filter
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matches =
+          p.name.toLowerCase().includes(q) ||
+          (p.displayName && p.displayName.toLowerCase().includes(q)) ||
+          (p.country && p.country.toLowerCase().includes(q)) ||
+          (p.city && p.city.toLowerCase().includes(q)) ||
+          (p.language && p.language.toLowerCase().includes(q));
+        if (!matches) return false;
+      }
+      // Gender filter
+      if (filterGender !== "all" && p.gender !== filterGender) return false;
+      // Status filter
+      if (filterStatus === "active" && !p.isActive) return false;
+      if (filterStatus === "inactive" && p.isActive) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return (b.createdAt || "").localeCompare(a.createdAt || "");
+        case "oldest":
+          return (a.createdAt || "").localeCompare(b.createdAt || "");
+        case "name_asc":
+          return (a.displayName || a.name).localeCompare(b.displayName || b.name, "tr");
+        case "name_desc":
+          return (b.displayName || b.name).localeCompare(a.displayName || a.name, "tr");
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="space-y-4">
@@ -1047,9 +1124,9 @@ export default function PersonasPage() {
 
       <Separator />
 
-      {/* Search + View Toggle */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+      {/* Search + Filters + View Toggle */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Persona, ülke, şehir veya dil ara..."
@@ -1058,6 +1135,41 @@ export default function PersonasPage() {
             className="pl-9"
           />
         </div>
+
+        <Select value={filterGender} onValueChange={setFilterGender}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Cinsiyet" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tümü</SelectItem>
+            <SelectItem value="erkek">Erkek</SelectItem>
+            <SelectItem value="kadın">Kadın</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[110px]">
+            <SelectValue placeholder="Durum" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tümü</SelectItem>
+            <SelectItem value="active">Aktif</SelectItem>
+            <SelectItem value="inactive">Pasif</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Sıralama" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">En Yeni</SelectItem>
+            <SelectItem value="oldest">En Eski</SelectItem>
+            <SelectItem value="name_asc">İsim (A-Z)</SelectItem>
+            <SelectItem value="name_desc">İsim (Z-A)</SelectItem>
+          </SelectContent>
+        </Select>
+
         <div className="flex rounded-lg border">
           <Button
             variant={viewMode === "table" ? "secondary" : "ghost"}
@@ -1149,8 +1261,10 @@ export default function PersonasPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Persona</TableHead>
+                <TableHead className="w-[70px]">Cinsiyet</TableHead>
+                <TableHead className="w-[100px]">Doğum Tarihi</TableHead>
                 <TableHead className="w-[60px]">Dil</TableHead>
-                <TableHead className="w-[180px]">Konum</TableHead>
+                <TableHead className="w-[160px]">Konum</TableHead>
                 <TableHead className="w-[80px]">Durum</TableHead>
                 <TableHead className="w-[200px]">Etiketler</TableHead>
               </TableRow>
