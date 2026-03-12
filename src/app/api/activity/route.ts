@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "50");
   const offset = parseInt(searchParams.get("offset") || "0");
 
-  const logs = await getActivityLogs(session.user.id, limit, offset);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const logs = await getActivityLogs(session.user.id, limit, offset, isAdmin);
   return NextResponse.json(logs);
 }

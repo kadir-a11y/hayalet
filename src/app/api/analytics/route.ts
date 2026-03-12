@@ -13,18 +13,19 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [personaCount, contentStats, recentActivity, activityStats, campaignStats] = await Promise.all([
-    getPersonaCount(session.user.id),
-    getContentStats(session.user.id),
-    getActivityLogs(session.user.id, 20),
-    getActivityStats(session.user.id),
+    getPersonaCount(session.user.id, isAdmin),
+    getContentStats(session.user.id, isAdmin),
+    getActivityLogs(session.user.id, 20, 0, isAdmin),
+    getActivityStats(session.user.id, 30, isAdmin),
     db
       .select({
         status: campaigns.status,
         count: sql<number>`count(*)::int`,
       })
       .from(campaigns)
-      .where(eq(campaigns.userId, session.user.id))
+      .where(isAdmin ? undefined : eq(campaigns.userId, session.user.id))
       .groupBy(campaigns.status),
   ]);
 

@@ -5,7 +5,8 @@ import type { ContentItemCreateInput, ContentItemUpdateInput } from "@/lib/valid
 
 export async function getContentItems(
   userId: string,
-  filters?: { status?: string; personaId?: string; platform?: string }
+  filters?: { status?: string; personaId?: string; platform?: string },
+  isAdmin = false
 ) {
   const result = await db
     .select({
@@ -17,7 +18,7 @@ export async function getContentItems(
     .innerJoin(personas, eq(contentItems.personaId, personas.id))
     .where(
       and(
-        eq(personas.userId, userId),
+        isAdmin ? undefined : eq(personas.userId, userId),
         filters?.status ? eq(contentItems.status, filters.status) : undefined,
         filters?.personaId ? eq(contentItems.personaId, filters.personaId) : undefined,
         filters?.platform ? eq(contentItems.platform, filters.platform) : undefined
@@ -28,7 +29,7 @@ export async function getContentItems(
   return result;
 }
 
-export async function getContentItemById(id: string, userId: string) {
+export async function getContentItemById(id: string, userId: string, isAdmin = false) {
   const [item] = await db
     .select({
       contentItem: contentItems,
@@ -36,7 +37,7 @@ export async function getContentItemById(id: string, userId: string) {
     })
     .from(contentItems)
     .innerJoin(personas, eq(contentItems.personaId, personas.id))
-    .where(and(eq(contentItems.id, id), eq(personas.userId, userId)))
+    .where(isAdmin ? eq(contentItems.id, id) : and(eq(contentItems.id, id), eq(personas.userId, userId)))
     .limit(1);
 
   return item || null;
@@ -114,7 +115,7 @@ export async function deleteContentItem(id: string) {
   return item;
 }
 
-export async function getContentStats(userId: string) {
+export async function getContentStats(userId: string, isAdmin = false) {
   const stats = await db
     .select({
       status: contentItems.status,
@@ -122,7 +123,7 @@ export async function getContentStats(userId: string) {
     })
     .from(contentItems)
     .innerJoin(personas, eq(contentItems.personaId, personas.id))
-    .where(eq(personas.userId, userId))
+    .where(isAdmin ? undefined : eq(personas.userId, userId))
     .groupBy(contentItems.status);
 
   return stats;

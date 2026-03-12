@@ -9,7 +9,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const tags = await getTagsWithCount(session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const tags = await getTagsWithCount(session.user.id, isAdmin);
   return NextResponse.json(tags);
 }
 

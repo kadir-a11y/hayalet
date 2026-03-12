@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
     search: searchParams.get("search") || undefined,
   };
 
-  const projects = await getProjects(session.user.id, filters);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const projects = await getProjects(session.user.id, filters, isAdmin);
   return NextResponse.json(projects);
 }
 

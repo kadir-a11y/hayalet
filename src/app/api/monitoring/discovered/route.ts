@@ -19,18 +19,23 @@ export async function GET(req: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "50");
 
-  // Get user's topic IDs for authorization
-  const userTopics = await db
-    .select({ id: monitoredTopics.id })
-    .from(monitoredTopics)
-    .where(eq(monitoredTopics.userId, session.user.id));
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
 
-  const userTopicIds = userTopics.map((t) => t.id);
-  if (userTopicIds.length === 0) {
-    return NextResponse.json({ items: [], total: 0, page, pageSize });
+  // Get user's topic IDs for authorization (skip for admins)
+  let userTopicIds: string[] | null = null;
+  if (!isAdmin) {
+    const userTopics = await db
+      .select({ id: monitoredTopics.id })
+      .from(monitoredTopics)
+      .where(eq(monitoredTopics.userId, session.user.id));
+
+    userTopicIds = userTopics.map((t) => t.id);
+    if (userTopicIds.length === 0) {
+      return NextResponse.json({ items: [], total: 0, page, pageSize });
+    }
   }
 
-  const conditions = [inArray(discoveredItems.topicId, userTopicIds)];
+  const conditions = userTopicIds ? [inArray(discoveredItems.topicId, userTopicIds)] : [];
 
   if (topicId) conditions.push(eq(discoveredItems.topicId, topicId));
   if (sourceId) conditions.push(eq(discoveredItems.sourceId, sourceId));

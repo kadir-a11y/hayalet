@@ -24,7 +24,8 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const project = await changeProjectStatus(id, session.user.id, parsed.data.status);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const project = await changeProjectStatus(id, session.user.id, parsed.data.status, isAdmin);
   if (!project) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

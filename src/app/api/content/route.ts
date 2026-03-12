@@ -11,11 +11,12 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const items = await getContentItems(session.user.id, {
     status: searchParams.get("status") || undefined,
     personaId: searchParams.get("personaId") || undefined,
     platform: searchParams.get("platform") || undefined,
-  });
+  }, isAdmin);
 
   return NextResponse.json(items);
 }

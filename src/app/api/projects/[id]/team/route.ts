@@ -14,7 +14,8 @@ export async function GET(
   }
 
   const { id } = await params;
-  const project = await getProjectById(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const project = await getProjectById(id, session.user.id, isAdmin);
   if (!project) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -33,7 +34,8 @@ export async function POST(
   }
 
   const { id } = await params;
-  const project = await getProjectById(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const project = await getProjectById(id, session.user.id, isAdmin);
   if (!project) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

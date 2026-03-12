@@ -26,18 +26,27 @@ export async function logActivity(
 export async function getActivityLogs(
   userId: string,
   limit = 50,
-  offset = 0
+  offset = 0,
+  isAdmin = false
 ) {
-  return db
+  const query = db
     .select()
-    .from(activityLog)
-    .where(eq(activityLog.userId, userId))
+    .from(activityLog);
+
+  if (!isAdmin) {
+    return query
+      .where(eq(activityLog.userId, userId))
+      .orderBy(desc(activityLog.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+  return query
     .orderBy(desc(activityLog.createdAt))
     .limit(limit)
     .offset(offset);
 }
 
-export async function getActivityStats(userId: string, days = 30) {
+export async function getActivityStats(userId: string, days = 30, isAdmin = false) {
   const result = await db
     .select({
       date: sql<string>`DATE(${activityLog.createdAt})`,
@@ -47,7 +56,7 @@ export async function getActivityStats(userId: string, days = 30) {
     .from(activityLog)
     .where(
       and(
-        eq(activityLog.userId, userId),
+        isAdmin ? undefined : eq(activityLog.userId, userId),
         sql`${activityLog.createdAt} >= NOW() - INTERVAL '${sql.raw(String(days))} days'`
       )
     )

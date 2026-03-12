@@ -21,10 +21,11 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [category] = await db
     .update(roleCategories)
     .set(parsed.data)
-    .where(and(eq(roleCategories.id, id), eq(roleCategories.userId, session.user.id)))
+    .where(isAdmin ? eq(roleCategories.id, id) : and(eq(roleCategories.id, id), eq(roleCategories.userId, session.user.id)))
     .returning();
 
   if (!category) {
@@ -44,9 +45,10 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [category] = await db
     .delete(roleCategories)
-    .where(and(eq(roleCategories.id, id), eq(roleCategories.userId, session.user.id)))
+    .where(isAdmin ? eq(roleCategories.id, id) : and(eq(roleCategories.id, id), eq(roleCategories.userId, session.user.id)))
     .returning();
 
   if (!category) {

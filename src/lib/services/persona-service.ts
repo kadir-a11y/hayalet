@@ -125,11 +125,11 @@ export async function deletePersona(id: string, userId: string, isAdmin = false)
   return persona;
 }
 
-export async function getPersonaCount(userId: string) {
+export async function getPersonaCount(userId: string, isAdmin = false) {
   const [result] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(personas)
-    .where(eq(personas.userId, userId));
+    .where(isAdmin ? undefined : eq(personas.userId, userId));
 
   return result.count;
 }

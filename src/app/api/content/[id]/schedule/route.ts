@@ -19,7 +19,8 @@ export async function POST(
   }
 
   const { id } = await params;
-  const item = await getContentItemById(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const item = await getContentItemById(id, session.user.id, isAdmin);
   if (!item) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

@@ -14,7 +14,8 @@ export async function POST(
   }
 
   const { id } = await params;
-  const campaign = await getCampaignById(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const campaign = await getCampaignById(id, session.user.id, isAdmin);
   if (!campaign) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

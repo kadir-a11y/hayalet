@@ -15,10 +15,11 @@ export async function GET(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [playbook] = await db
     .select()
     .from(projectPlaybooks)
-    .where(and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
+    .where(isAdmin ? eq(projectPlaybooks.id, id) : and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
     .limit(1);
 
   return playbook ? NextResponse.json(playbook) : NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -40,10 +41,11 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [playbook] = await db
     .update(projectPlaybooks)
     .set({ ...parsed.data, updatedAt: new Date() })
-    .where(and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
+    .where(isAdmin ? eq(projectPlaybooks.id, id) : and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
     .returning();
 
   return playbook ? NextResponse.json(playbook) : NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -59,9 +61,10 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [playbook] = await db
     .delete(projectPlaybooks)
-    .where(and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
+    .where(isAdmin ? eq(projectPlaybooks.id, id) : and(eq(projectPlaybooks.id, id), eq(projectPlaybooks.userId, session.user.id)))
     .returning();
 
   return playbook ? NextResponse.json({ success: true }) : NextResponse.json({ error: "Not found" }, { status: 404 });

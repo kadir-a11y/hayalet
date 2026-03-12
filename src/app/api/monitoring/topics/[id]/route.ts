@@ -15,10 +15,11 @@ export async function GET(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [topic] = await db
     .select()
     .from(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
+    .where(isAdmin ? eq(monitoredTopics.id, id) : and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
     .limit(1);
 
   if (!topic) {
@@ -61,10 +62,11 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [topic] = await db
     .update(monitoredTopics)
     .set({ ...parsed.data, updatedAt: new Date() })
-    .where(and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
+    .where(isAdmin ? eq(monitoredTopics.id, id) : and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
     .returning();
 
   if (!topic) {
@@ -84,9 +86,10 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [topic] = await db
     .delete(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
+    .where(isAdmin ? eq(monitoredTopics.id, id) : and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
     .returning();
 
   if (!topic) {

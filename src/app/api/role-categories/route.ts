@@ -11,10 +11,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const categories = await db
     .select()
     .from(roleCategories)
-    .where(eq(roleCategories.userId, session.user.id))
+    .where(isAdmin ? undefined : eq(roleCategories.userId, session.user.id))
     .orderBy(desc(roleCategories.createdAt));
 
   return NextResponse.json(categories);

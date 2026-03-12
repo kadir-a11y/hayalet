@@ -11,6 +11,7 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const allRoles = await db
     .select({
       id: roles.id,
@@ -24,7 +25,7 @@ export async function GET() {
     })
     .from(roles)
     .leftJoin(roleCategories, eq(roles.categoryId, roleCategories.id))
-    .where(eq(roles.userId, session.user.id))
+    .where(isAdmin ? undefined : eq(roles.userId, session.user.id))
     .orderBy(desc(roles.createdAt));
 
   return NextResponse.json(allRoles);

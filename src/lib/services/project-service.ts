@@ -12,9 +12,10 @@ import * as timelineService from "./project-timeline-service";
 
 export async function getProjects(
   userId: string,
-  filters?: { type?: string; status?: string; severity?: string; search?: string }
+  filters?: { type?: string; status?: string; severity?: string; search?: string },
+  isAdmin = false
 ) {
-  const conditions = [eq(projects.userId, userId)];
+  const conditions = isAdmin ? [] : [eq(projects.userId, userId)];
 
   if (filters?.type) conditions.push(eq(projects.type, filters.type));
   if (filters?.status) conditions.push(eq(projects.status, filters.status));
@@ -69,11 +70,11 @@ export async function getProjects(
   return enriched;
 }
 
-export async function getProjectById(projectId: string, userId: string) {
+export async function getProjectById(projectId: string, userId: string, isAdmin = false) {
   const [project] = await db
     .select()
     .from(projects)
-    .where(and(eq(projects.id, projectId), eq(projects.userId, userId)))
+    .where(isAdmin ? eq(projects.id, projectId) : and(eq(projects.id, projectId), eq(projects.userId, userId)))
     .limit(1);
 
   return project ?? null;
@@ -111,7 +112,8 @@ export async function createProject(userId: string, data: ProjectCreateInput) {
 export async function updateProject(
   projectId: string,
   userId: string,
-  data: ProjectUpdateInput
+  data: ProjectUpdateInput,
+  isAdmin = false
 ) {
   const { startedAt, ...rest } = data;
   const updateData: Record<string, unknown> = { ...rest, updatedAt: new Date() };
@@ -120,16 +122,16 @@ export async function updateProject(
   const [project] = await db
     .update(projects)
     .set(updateData)
-    .where(and(eq(projects.id, projectId), eq(projects.userId, userId)))
+    .where(isAdmin ? eq(projects.id, projectId) : and(eq(projects.id, projectId), eq(projects.userId, userId)))
     .returning();
 
   return project ?? null;
 }
 
-export async function deleteProject(projectId: string, userId: string) {
+export async function deleteProject(projectId: string, userId: string, isAdmin = false) {
   const [project] = await db
     .delete(projects)
-    .where(and(eq(projects.id, projectId), eq(projects.userId, userId)))
+    .where(isAdmin ? eq(projects.id, projectId) : and(eq(projects.id, projectId), eq(projects.userId, userId)))
     .returning();
 
   return project ?? null;
@@ -138,9 +140,10 @@ export async function deleteProject(projectId: string, userId: string) {
 export async function changeProjectStatus(
   projectId: string,
   userId: string,
-  newStatus: string
+  newStatus: string,
+  isAdmin = false
 ) {
-  const existing = await getProjectById(projectId, userId);
+  const existing = await getProjectById(projectId, userId, isAdmin);
   if (!existing) return null;
 
   const oldStatus = existing.status;
@@ -166,9 +169,10 @@ export async function changeProjectStatus(
 export async function changeProjectSeverity(
   projectId: string,
   userId: string,
-  newSeverity: string
+  newSeverity: string,
+  isAdmin = false
 ) {
-  const existing = await getProjectById(projectId, userId);
+  const existing = await getProjectById(projectId, userId, isAdmin);
   if (!existing) return null;
 
   const oldSeverity = existing.severity;

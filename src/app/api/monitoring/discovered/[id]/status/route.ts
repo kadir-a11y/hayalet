@@ -25,7 +25,23 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  // Verify ownership through topic
+  // Verify ownership through topic (skip for admins)
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+
+  if (isAdmin) {
+    const [updated] = await db
+      .update(discoveredItems)
+      .set({ status: parsed.data.status })
+      .where(eq(discoveredItems.id, id))
+      .returning();
+
+    if (!updated) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(updated);
+  }
+
   const userTopics = await db
     .select({ id: monitoredTopics.id })
     .from(monitoredTopics)

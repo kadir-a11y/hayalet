@@ -14,7 +14,8 @@ export async function GET(
   }
 
   const { id } = await params;
-  const campaign = await getCampaignById(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const campaign = await getCampaignById(id, session.user.id, isAdmin);
   if (!campaign) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -38,7 +39,8 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const campaign = await updateCampaign(id, session.user.id, parsed.data);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const campaign = await updateCampaign(id, session.user.id, parsed.data, isAdmin);
   if (!campaign) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -57,7 +59,8 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const campaign = await deleteCampaign(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const campaign = await deleteCampaign(id, session.user.id, isAdmin);
   if (!campaign) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

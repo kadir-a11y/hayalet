@@ -16,11 +16,12 @@ export async function GET(
 
   const { id } = await params;
 
-  // Verify topic ownership
+  // Verify topic ownership (skip for admins)
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [topic] = await db
     .select()
     .from(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
+    .where(isAdmin ? eq(monitoredTopics.id, id) : and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
     .limit(1);
 
   if (!topic) {
@@ -46,11 +47,12 @@ export async function POST(
 
   const { id } = await params;
 
-  // Verify topic ownership
+  // Verify topic ownership (skip for admins)
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [topic] = await db
     .select()
     .from(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
+    .where(isAdmin ? eq(monitoredTopics.id, id) : and(eq(monitoredTopics.id, id), eq(monitoredTopics.userId, session.user.id)))
     .limit(1);
 
   if (!topic) {

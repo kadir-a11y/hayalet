@@ -19,7 +19,8 @@ export async function PATCH(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const tag = await updateTag(id, session.user.id, parsed.data);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const tag = await updateTag(id, session.user.id, parsed.data, isAdmin);
   if (!tag) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -37,7 +38,8 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const tag = await deleteTag(id, session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const tag = await deleteTag(id, session.user.id, isAdmin);
   if (!tag) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

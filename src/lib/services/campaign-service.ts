@@ -3,19 +3,22 @@ import { campaigns, contentItems, personas, personaTags } from "@/lib/db/schema"
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import type { CampaignCreateInput, CampaignUpdateInput } from "@/lib/validators/campaign";
 
-export async function getCampaigns(userId: string) {
-  return db
+export async function getCampaigns(userId: string, isAdmin = false) {
+  const query = db
     .select()
-    .from(campaigns)
-    .where(eq(campaigns.userId, userId))
-    .orderBy(desc(campaigns.createdAt));
+    .from(campaigns);
+
+  if (!isAdmin) {
+    return query.where(eq(campaigns.userId, userId)).orderBy(desc(campaigns.createdAt));
+  }
+  return query.orderBy(desc(campaigns.createdAt));
 }
 
-export async function getCampaignById(id: string, userId: string) {
+export async function getCampaignById(id: string, userId: string, isAdmin = false) {
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
+    .where(isAdmin ? eq(campaigns.id, id) : and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
     .limit(1);
 
   if (!campaign) return null;
@@ -54,7 +57,8 @@ export async function createCampaign(userId: string, data: CampaignCreateInput) 
 export async function updateCampaign(
   id: string,
   userId: string,
-  data: CampaignUpdateInput
+  data: CampaignUpdateInput,
+  isAdmin = false
 ) {
   const [campaign] = await db
     .update(campaigns)
@@ -64,16 +68,16 @@ export async function updateCampaign(
       scheduledEnd: data.scheduledEnd ? new Date(data.scheduledEnd) : undefined,
       updatedAt: new Date(),
     })
-    .where(and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
+    .where(isAdmin ? eq(campaigns.id, id) : and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
     .returning();
 
   return campaign;
 }
 
-export async function deleteCampaign(id: string, userId: string) {
+export async function deleteCampaign(id: string, userId: string, isAdmin = false) {
   const [campaign] = await db
     .delete(campaigns)
-    .where(and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
+    .where(isAdmin ? eq(campaigns.id, id) : and(eq(campaigns.id, id), eq(campaigns.userId, userId)))
     .returning();
 
   return campaign;

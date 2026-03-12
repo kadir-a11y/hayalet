@@ -8,7 +8,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const items = await getContentItems(session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const items = await getContentItems(session.user.id, undefined, isAdmin);
 
   const csvHeader = "ID,Persona,Platform,Content Type,Status,Content,Scheduled At,Published At,AI Generated,Created At\n";
   const csvRows = items

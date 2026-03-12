@@ -21,6 +21,7 @@ export async function PUT(
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [rule] = await db
     .select()
     .from(autoPostRules)
@@ -31,14 +32,16 @@ export async function PUT(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const [topic] = await db
-    .select()
-    .from(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, rule.topicId), eq(monitoredTopics.userId, session.user.id)))
-    .limit(1);
+  if (!isAdmin) {
+    const [topic] = await db
+      .select()
+      .from(monitoredTopics)
+      .where(and(eq(monitoredTopics.id, rule.topicId), eq(monitoredTopics.userId, session.user.id)))
+      .limit(1);
 
-  if (!topic) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!topic) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
   }
 
   const [updated] = await db
@@ -61,6 +64,7 @@ export async function DELETE(
 
   const { id } = await params;
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const [rule] = await db
     .select()
     .from(autoPostRules)
@@ -71,14 +75,16 @@ export async function DELETE(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const [topic] = await db
-    .select()
-    .from(monitoredTopics)
-    .where(and(eq(monitoredTopics.id, rule.topicId), eq(monitoredTopics.userId, session.user.id)))
-    .limit(1);
+  if (!isAdmin) {
+    const [topic] = await db
+      .select()
+      .from(monitoredTopics)
+      .where(and(eq(monitoredTopics.id, rule.topicId), eq(monitoredTopics.userId, session.user.id)))
+      .limit(1);
 
-  if (!topic) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!topic) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
   }
 
   await db.delete(autoPostRules).where(eq(autoPostRules.id, id));

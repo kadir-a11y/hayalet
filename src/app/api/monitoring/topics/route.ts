@@ -11,10 +11,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
   const topics = await db
     .select()
     .from(monitoredTopics)
-    .where(eq(monitoredTopics.userId, session.user.id))
+    .where(isAdmin ? undefined : eq(monitoredTopics.userId, session.user.id))
     .orderBy(desc(monitoredTopics.createdAt));
 
   if (topics.length === 0) return NextResponse.json([]);

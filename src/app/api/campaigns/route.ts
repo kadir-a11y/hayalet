@@ -10,7 +10,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const campaigns = await getCampaigns(session.user.id);
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const campaigns = await getCampaigns(session.user.id, isAdmin);
   return NextResponse.json(campaigns);
 }
 
