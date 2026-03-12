@@ -7,7 +7,7 @@ export const contentItems = pgTable("content_items", {
   id: uuid("id").defaultRandom().primaryKey(),
   personaId: uuid("persona_id")
     .notNull()
-    .references(() => personas.id),
+    .references(() => personas.id, { onDelete: "cascade" }),
   campaignId: uuid("campaign_id").references(() => campaigns.id),
   projectId: uuid("project_id").references(() => projects.id, { onDelete: "set null" }),
   platform: varchar("platform", { length: 50 }).notNull(),
