@@ -27,7 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Radar, Clock, Rss, Search, Eye } from "lucide-react";
+import Link from "next/link";
+import { Plus, Radar, Clock, Rss, Search, Eye, BarChart3 } from "lucide-react";
 
 interface Topic {
   id: string;
@@ -137,13 +138,20 @@ export default function MonitoringPage() {
             Konulari tanimlayin, kaynaklari ekleyin ve otomatik icerik kesfini baslatin.
           </p>
         </div>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Yeni Konu
+        <div className="flex items-center gap-2">
+          <Link href="/monitoring/dashboard">
+            <Button variant="outline">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Dashboard
             </Button>
-          </DialogTrigger>
+          </Link>
+          <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Yeni Konu
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Yeni Izleme Konusu</DialogTitle>
@@ -215,6 +223,7 @@ export default function MonitoringPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Stats */}

@@ -5,7 +5,7 @@ import {
   campaigns,
   monitoredTopics,
 } from "@/lib/db/schema";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, gte, sql, inArray } from "drizzle-orm";
 import { campaignQueue } from "@/lib/queue/queues";
 
 interface AutoPostRule {
@@ -180,7 +180,6 @@ export async function getPendingApprovals(userId: string, isAdmin: boolean) {
     const topicIds = userTopics.map((t) => t.id);
     if (topicIds.length === 0) return [];
 
-    const { inArray } = await import("drizzle-orm");
     conditions.push(inArray(discoveredItems.topicId, topicIds));
   }
 
