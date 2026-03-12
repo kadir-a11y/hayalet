@@ -15,12 +15,14 @@ import {
   X,
   Shield,
   FolderKanban,
+  Bug,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { BugReporter } from "@/components/bug-reporter";
 
 const navItems = [
   { href: "/personas", label: "Personas", icon: Users },
@@ -30,6 +32,7 @@ const navItems = [
   { href: "/campaigns", label: "Kampanyalar", icon: Megaphone },
   { href: "/projects", label: "Projeler", icon: FolderKanban },
   { href: "/analytics", label: "Analitik", icon: BarChart3 },
+  { href: "/bug-reports", label: "Bug Bildirimleri", icon: Bug },
 ];
 
 function Sidebar({ className }: { className?: string }) {
@@ -134,6 +137,8 @@ export default function DashboardLayout({
           <div className="container mx-auto p-6">{children}</div>
         </main>
       </div>
+
+      <BugReporter />
     </div>
   );
 }

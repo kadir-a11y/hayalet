@@ -3,8 +3,11 @@ import { personas, personaTags, tags, personaRoles, roles, socialAccounts, forum
 import { eq, and, desc, ilike, sql, inArray } from "drizzle-orm";
 import type { PersonaCreateInput, PersonaUpdateInput } from "@/lib/validators/persona";
 
-export async function getPersonas(userId: string, search?: string) {
-  const conditions = [eq(personas.userId, userId)];
+export async function getPersonas(userId: string, search?: string, isAdmin = false) {
+  const conditions = [];
+  if (!isAdmin) {
+    conditions.push(eq(personas.userId, userId));
+  }
   if (search) {
     conditions.push(ilike(personas.name, `%${search}%`));
   }
@@ -12,17 +15,20 @@ export async function getPersonas(userId: string, search?: string) {
   const result = await db
     .select()
     .from(personas)
-    .where(and(...conditions))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(personas.createdAt));
 
   return result;
 }
 
-export async function getPersonaById(id: string, userId: string) {
+export async function getPersonaById(id: string, userId: string, isAdmin = false) {
+  const condition = isAdmin
+    ? eq(personas.id, id)
+    : and(eq(personas.id, id), eq(personas.userId, userId));
   const [persona] = await db
     .select()
     .from(personas)
-    .where(and(eq(personas.id, id), eq(personas.userId, userId)))
+    .where(condition)
     .limit(1);
 
   if (!persona) return null;
@@ -88,8 +94,12 @@ export async function createPersona(userId: string, data: PersonaCreateInput) {
 export async function updatePersona(
   id: string,
   userId: string,
-  data: PersonaUpdateInput
+  data: PersonaUpdateInput,
+  isAdmin = false
 ) {
+  const condition = isAdmin
+    ? eq(personas.id, id)
+    : and(eq(personas.id, id), eq(personas.userId, userId));
   const [persona] = await db
     .update(personas)
     .set({
@@ -97,16 +107,19 @@ export async function updatePersona(
       avatarUrl: data.avatarUrl || null,
       updatedAt: new Date(),
     })
-    .where(and(eq(personas.id, id), eq(personas.userId, userId)))
+    .where(condition)
     .returning();
 
   return persona;
 }
 
-export async function deletePersona(id: string, userId: string) {
+export async function deletePersona(id: string, userId: string, isAdmin = false) {
+  const condition = isAdmin
+    ? eq(personas.id, id)
+    : and(eq(personas.id, id), eq(personas.userId, userId));
   const [persona] = await db
     .delete(personas)
-    .where(and(eq(personas.id, id), eq(personas.userId, userId)))
+    .where(condition)
     .returning();
 
   return persona;
@@ -134,8 +147,8 @@ export async function setPersonaTags(personaId: string, tagIds: string[]) {
   }
 }
 
-export async function getPersonasWithTags(userId: string) {
-  const allPersonas = await getPersonas(userId);
+export async function getPersonasWithTags(userId: string, isAdmin = false) {
+  const allPersonas = await getPersonas(userId, undefined, isAdmin);
 
   const personaIds = allPersonas.map((p) => p.id);
   if (personaIds.length === 0) return [];

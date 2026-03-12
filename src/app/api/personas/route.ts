@@ -10,7 +10,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const personas = await getPersonasWithTags(session.user.id);
+  const isAdmin = (session.user as Record<string, unknown>).isAdmin === true;
+  const personas = await getPersonasWithTags(session.user.id, isAdmin);
   return NextResponse.json(personas);
 }
 

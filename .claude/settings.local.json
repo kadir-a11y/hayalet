@@ -5,7 +5,8 @@
       "mcp__claude_ai_Notion__notion-fetch",
       "mcp__claude_ai_Notion__notion-query-database-view",
       "mcp__claude_ai_Notion__notion-update-page",
-      "mcp__postgres__query"
+      "mcp__postgres__query",
+      "mcp__claude_ai_Notion__notion-create-pages"
     ]
   }
 }

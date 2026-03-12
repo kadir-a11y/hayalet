@@ -20,6 +20,7 @@ export { projectMentions } from "./project-mentions";
 export { projectTasks } from "./project-tasks";
 export { projectTimeline } from "./project-timeline";
 export { projectPlaybooks } from "./project-playbooks";
+export { bugReports } from "./bug-reports";
 
 import { users } from "./users";
 import { personas } from "./personas";
@@ -41,6 +42,7 @@ import { projectMentions } from "./project-mentions";
 import { projectTasks } from "./project-tasks";
 import { projectTimeline } from "./project-timeline";
 import { projectPlaybooks } from "./project-playbooks";
+import { bugReports } from "./bug-reports";
 
 // ── Users relations ──────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
@@ -52,6 +54,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   activityLogs: many(activityLog),
   projects: many(projects),
   playbooks: many(projectPlaybooks),
+  bugReports: many(bugReports),
 }));
 
 // ── Personas relations ───────────────────────────────────────────────
@@ -277,6 +280,14 @@ export const projectTimelineRelations = relations(projectTimeline, ({ one }) => 
   project: one(projects, {
     fields: [projectTimeline.projectId],
     references: [projects.id],
+  }),
+}));
+
+// ── Bug reports relations ───────────────────────────────────────────
+export const bugReportsRelations = relations(bugReports, ({ one }) => ({
+  user: one(users, {
+    fields: [bugReports.userId],
+    references: [users.id],
   }),
 }));
 
