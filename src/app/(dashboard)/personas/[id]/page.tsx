@@ -3021,7 +3021,7 @@ function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdated: () =
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
