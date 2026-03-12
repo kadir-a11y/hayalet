@@ -10,14 +10,14 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isAdmin = (user as Record<string, unknown>).isAdmin ?? false;
+        token.isAdmin = (user as unknown as Record<string, unknown>).isAdmin ?? false;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        (session.user as Record<string, unknown>).isAdmin = token.isAdmin ?? false;
+        (session.user as unknown as Record<string, unknown>).isAdmin = token.isAdmin ?? false;
       }
       return session;
     },
