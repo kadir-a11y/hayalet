@@ -40,6 +40,7 @@ COPY --from=builder /app/src/lib/queue ./src/lib/queue
 COPY --from=builder /app/src/lib/ai ./src/lib/ai
 COPY --from=builder /app/src/lib/db ./src/lib/db
 COPY --from=builder /app/src/lib/services ./src/lib/services
+COPY --from=builder /app/src/lib/validators ./src/lib/validators
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
