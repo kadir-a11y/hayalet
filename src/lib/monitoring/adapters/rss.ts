@@ -1,31 +1,20 @@
 import type { MonitoringAdapter, MonitoredTopicData, MonitoringSourceData, DiscoveredItemInput } from "../types";
 import crypto from "crypto";
-
-function parseRssXml(xml: string): Array<{ title: string; link: string; description: string }> {
-  const items: Array<{ title: string; link: string; description: string }> = [];
-  const itemRegex = /<item>([\s\S]*?)<\/item>/g;
-  let match;
-
-  while ((match = itemRegex.exec(xml)) !== null) {
-    const itemXml = match[1];
-    const title = itemXml.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1") || "";
-    const link = itemXml.match(/<link>([\s\S]*?)<\/link>/)?.[1] || "";
-    const description = itemXml.match(/<description>([\s\S]*?)<\/description>/)?.[1]?.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")?.replace(/<[^>]*>/g, "") || "";
-    items.push({ title, link, description });
-  }
-
-  return items;
-}
+import { parseFeedXml, matchesKeywords } from "../utils";
 
 export const rssAdapter: MonitoringAdapter = {
   type: "rss",
 
-  async fetch(_topic: MonitoredTopicData, source: MonitoringSourceData): Promise<DiscoveredItemInput[]> {
-    const feedUrl = (source.config as { url?: string }).url;
+  async fetch(topic: MonitoredTopicData, source: MonitoringSourceData): Promise<DiscoveredItemInput[]> {
+    const config = source.config as { url?: string; feed_url?: string; keyword_filter?: boolean; max_items?: number };
+    const feedUrl = config.feed_url || config.url;
     if (!feedUrl) {
       console.error("RSS adapter: no URL in config");
       return [];
     }
+
+    const keywordFilter = config.keyword_filter !== false;
+    const maxItems = config.max_items || 30;
 
     const response = await fetch(feedUrl, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; HayaletBot/1.0)" },
@@ -37,9 +26,16 @@ export const rssAdapter: MonitoringAdapter = {
     }
 
     const xml = await response.text();
-    const items = parseRssXml(xml);
+    let items = parseFeedXml(xml);
 
-    return items.map((item) => ({
+    // Apply keyword filter if enabled
+    if (keywordFilter && topic.keywords.length > 0) {
+      items = items.filter((item) =>
+        matchesKeywords(`${item.title} ${item.description}`, topic.keywords)
+      );
+    }
+
+    return items.slice(0, maxItems).map((item) => ({
       externalId: crypto.createHash("md5").update(item.link || item.title).digest("hex"),
       title: item.title,
       summary: item.description.slice(0, 500),
