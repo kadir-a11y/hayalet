@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { personas, personaTags, tags, socialAccounts, forumAccounts, emailAccounts } from "@/lib/db/schema";
+import { personas, personaTags, tags, personaRoles, roles, socialAccounts, forumAccounts, emailAccounts } from "@/lib/db/schema";
 import { eq, and, desc, ilike, sql, inArray } from "drizzle-orm";
 import type { PersonaCreateInput, PersonaUpdateInput } from "@/lib/validators/persona";
 
@@ -79,6 +79,7 @@ export async function createPersona(userId: string, data: PersonaCreateInput) {
       activeHoursEnd: data.activeHoursEnd,
       maxPostsPerDay: data.maxPostsPerDay,
       isActive: data.isActive,
+      isVerified: data.isVerified,
     })
     .returning();
 
@@ -156,8 +157,61 @@ export async function getPersonasWithTags(userId: string) {
     tagsByPersona.set(pt.personaId, existing);
   }
 
+  // Fetch roles for all personas
+  const allPersonaRoles = await db
+    .select({
+      personaId: personaRoles.personaId,
+      role: roles,
+    })
+    .from(personaRoles)
+    .innerJoin(roles, eq(personaRoles.roleId, roles.id))
+    .where(inArray(personaRoles.personaId, personaIds));
+
+  const rolesByPersona = new Map<string, typeof roles.$inferSelect[]>();
+  for (const pr of allPersonaRoles) {
+    const existing = rolesByPersona.get(pr.personaId) || [];
+    existing.push(pr.role);
+    rolesByPersona.set(pr.personaId, existing);
+  }
+
+  // Fetch account counts for all personas
+  const socialCounts = await db
+    .select({
+      personaId: socialAccounts.personaId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(socialAccounts)
+    .where(inArray(socialAccounts.personaId, personaIds))
+    .groupBy(socialAccounts.personaId);
+
+  const forumCounts = await db
+    .select({
+      personaId: forumAccounts.personaId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(forumAccounts)
+    .where(inArray(forumAccounts.personaId, personaIds))
+    .groupBy(forumAccounts.personaId);
+
+  const emailCounts = await db
+    .select({
+      personaId: emailAccounts.personaId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(emailAccounts)
+    .where(inArray(emailAccounts.personaId, personaIds))
+    .groupBy(emailAccounts.personaId);
+
+  const socialCountMap = new Map(socialCounts.map((s) => [s.personaId, s.count]));
+  const forumCountMap = new Map(forumCounts.map((f) => [f.personaId, f.count]));
+  const emailCountMap = new Map(emailCounts.map((e) => [e.personaId, e.count]));
+
   return allPersonas.map((p) => ({
     ...p,
     tags: tagsByPersona.get(p.id) || [],
+    roles: rolesByPersona.get(p.id) || [],
+    socialAccountCount: socialCountMap.get(p.id) || 0,
+    forumAccountCount: forumCountMap.get(p.id) || 0,
+    emailAccountCount: emailCountMap.get(p.id) || 0,
   }));
 }

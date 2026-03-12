@@ -8,12 +8,7 @@ export const personaCreateSchema = z.object({
   personalityTraits: z.array(z.string()).default([]),
   interests: z.array(z.string()).default([]),
   behavioralPatterns: z
-    .object({
-      writing_style: z.string().optional(),
-      tone: z.string().optional(),
-      emoji_usage: z.enum(["none", "minimal", "moderate", "heavy"]).optional(),
-      hashtag_style: z.enum(["none", "minimal", "moderate", "heavy"]).optional(),
-    })
+    .record(z.string(), z.unknown())
     .default({}),
   gender: z.enum(["erkek", "kadın"]).optional(),
   birthDate: z.string().max(20).optional(),
@@ -25,6 +20,7 @@ export const personaCreateSchema = z.object({
   activeHoursEnd: z.number().min(0).max(23).default(23),
   maxPostsPerDay: z.number().min(1).max(100).default(5),
   isActive: z.boolean().default(true),
+  isVerified: z.boolean().default(false),
 });
 
 export const personaUpdateSchema = personaCreateSchema.partial();

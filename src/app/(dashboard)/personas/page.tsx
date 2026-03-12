@@ -14,6 +14,11 @@ import {
   Upload,
   X,
   ChevronDown,
+  Filter,
+  Mail,
+  MessageSquare,
+  Share2,
+  BadgeCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +66,12 @@ interface Tag {
   color: string | null;
 }
 
+interface Role {
+  id: string;
+  name: string;
+  color: string | null;
+}
+
 interface Persona {
   id: string;
   name: string;
@@ -80,9 +91,14 @@ interface Persona {
   activeHoursEnd: number | null;
   maxPostsPerDay: number | null;
   isActive: boolean | null;
+  isVerified: boolean | null;
   createdAt: string | null;
   updatedAt: string | null;
   tags: Tag[];
+  roles: Role[];
+  socialAccountCount: number;
+  forumAccountCount: number;
+  emailAccountCount: number;
 }
 
 interface CreateFormData {
@@ -259,7 +275,10 @@ function PersonaRow({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{persona.displayName || persona.name}</p>
+            <p className="truncate text-sm font-medium flex items-center gap-1">
+              {persona.displayName || persona.name}
+              {persona.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
+            </p>
             <p className="truncate text-xs text-muted-foreground">@{persona.name}</p>
           </div>
         </div>
@@ -355,8 +374,9 @@ function PersonaCard({
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="truncate text-sm font-medium">
+              <p className="truncate text-sm font-medium flex items-center gap-1">
                 {persona.displayName || persona.name}
+                {persona.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
               </p>
               <Badge
                 variant={persona.isActive ? "default" : "secondary"}
@@ -1039,6 +1059,12 @@ export default function PersonasPage() {
   const [search, setSearch] = useState("");
   const [filterGender, setFilterGender] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterLanguage, setFilterLanguage] = useState<string>("all");
+  const [filterTag, setFilterTag] = useState<string>("all");
+  const [filterRole, setFilterRole] = useState<string>("all");
+  const [filterAccount, setFilterAccount] = useState<string>("all");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [sortBy, setSortBy] = useState<string>("newest");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
@@ -1062,6 +1088,14 @@ export default function PersonasPage() {
     fetchPersonas();
   }, [fetchPersonas]);
 
+  // Derive unique values for filter dropdowns
+  const uniqueCountries = [...new Set(personas.map((p) => p.country).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, "tr"));
+  const uniqueLanguages = [...new Set(personas.map((p) => p.language).filter(Boolean) as string[])].sort();
+  const uniqueTags = [...new Map(personas.flatMap((p) => p.tags).map((t) => [t.id, t])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
+  const uniqueRoles = [...new Map(personas.flatMap((p) => p.roles || []).map((r) => [r.id, r])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
+
+  const activeFilterCount = [filterCountry, filterLanguage, filterTag, filterRole, filterAccount].filter((f) => f !== "all").length;
+
   // Client-side filtering and sorting
   const filteredPersonas = personas
     .filter((p) => {
@@ -1073,7 +1107,10 @@ export default function PersonasPage() {
           (p.displayName && p.displayName.toLowerCase().includes(q)) ||
           (p.country && p.country.toLowerCase().includes(q)) ||
           (p.city && p.city.toLowerCase().includes(q)) ||
-          (p.language && p.language.toLowerCase().includes(q));
+          (p.language && p.language.toLowerCase().includes(q)) ||
+          (p.bio && p.bio.toLowerCase().includes(q)) ||
+          p.tags.some((t) => t.name.toLowerCase().includes(q)) ||
+          (p.roles || []).some((r) => r.name.toLowerCase().includes(q));
         if (!matches) return false;
       }
       // Gender filter
@@ -1081,6 +1118,24 @@ export default function PersonasPage() {
       // Status filter
       if (filterStatus === "active" && !p.isActive) return false;
       if (filterStatus === "inactive" && p.isActive) return false;
+      if (filterStatus === "verified" && !p.isVerified) return false;
+      if (filterStatus === "unverified" && p.isVerified) return false;
+      // Country filter
+      if (filterCountry !== "all" && p.country !== filterCountry) return false;
+      // Language filter
+      if (filterLanguage !== "all" && p.language !== filterLanguage) return false;
+      // Tag filter
+      if (filterTag !== "all" && !p.tags.some((t) => t.id === filterTag)) return false;
+      // Role filter
+      if (filterRole !== "all" && !(p.roles || []).some((r) => r.id === filterRole)) return false;
+      // Account filter
+      if (filterAccount === "has_email" && p.emailAccountCount === 0) return false;
+      if (filterAccount === "no_email" && p.emailAccountCount > 0) return false;
+      if (filterAccount === "has_social" && p.socialAccountCount === 0) return false;
+      if (filterAccount === "no_social" && p.socialAccountCount > 0) return false;
+      if (filterAccount === "has_forum" && p.forumAccountCount === 0) return false;
+      if (filterAccount === "no_forum" && p.forumAccountCount > 0) return false;
+      if (filterAccount === "no_accounts" && (p.emailAccountCount + p.socialAccountCount + p.forumAccountCount) > 0) return false;
       return true;
     })
     .sort((a, b) => {
@@ -1125,70 +1180,188 @@ export default function PersonasPage() {
       <Separator />
 
       {/* Search + Filters + View Toggle */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Persona, ülke, şehir veya dil ara..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Persona, ülke, şehir, etiket veya rol ara..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <Select value={filterGender} onValueChange={setFilterGender}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Cinsiyet" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tümü</SelectItem>
+              <SelectItem value="erkek">Erkek</SelectItem>
+              <SelectItem value="kadın">Kadın</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[130px]">
+              <SelectValue placeholder="Durum" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tümü</SelectItem>
+              <SelectItem value="active">Aktif</SelectItem>
+              <SelectItem value="inactive">Pasif</SelectItem>
+              <SelectItem value="verified">Onaylı</SelectItem>
+              <SelectItem value="unverified">Onaysız</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sıralama" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">En Yeni</SelectItem>
+              <SelectItem value="oldest">En Eski</SelectItem>
+              <SelectItem value="name_asc">İsim (A-Z)</SelectItem>
+              <SelectItem value="name_desc">İsim (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant={showAdvancedFilters ? "secondary" : "outline"}
+            size="sm"
+            onClick={() => setShowAdvancedFilters((v) => !v)}
+            className="gap-1.5"
+          >
+            <Filter className="h-3.5 w-3.5" />
+            Filtreler
+            {activeFilterCount > 0 && (
+              <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center">
+                {activeFilterCount}
+              </Badge>
+            )}
+          </Button>
+
+          <div className="flex rounded-lg border">
+            <Button
+              variant={viewMode === "table" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-9 w-9 rounded-r-none"
+              onClick={() => setViewMode("table")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-9 w-9 rounded-l-none"
+              onClick={() => setViewMode("grid")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        <Select value={filterGender} onValueChange={setFilterGender}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Cinsiyet" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tümü</SelectItem>
-            <SelectItem value="erkek">Erkek</SelectItem>
-            <SelectItem value="kadın">Kadın</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Advanced Filters */}
+        {showAdvancedFilters && (
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+            <Select value={filterCountry} onValueChange={setFilterCountry}>
+              <SelectTrigger className="w-[150px] h-8 text-sm">
+                <Globe className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue placeholder="Ülke" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Ülkeler</SelectItem>
+                {uniqueCountries.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[110px]">
-            <SelectValue placeholder="Durum" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tümü</SelectItem>
-            <SelectItem value="active">Aktif</SelectItem>
-            <SelectItem value="inactive">Pasif</SelectItem>
-          </SelectContent>
-        </Select>
+            <Select value={filterLanguage} onValueChange={setFilterLanguage}>
+              <SelectTrigger className="w-[140px] h-8 text-sm">
+                <SelectValue placeholder="Dil" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Diller</SelectItem>
+                {uniqueLanguages.map((lang) => (
+                  <SelectItem key={lang} value={lang}>
+                    {languageNames[lang] || lang.toUpperCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Sıralama" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">En Yeni</SelectItem>
-            <SelectItem value="oldest">En Eski</SelectItem>
-            <SelectItem value="name_asc">İsim (A-Z)</SelectItem>
-            <SelectItem value="name_desc">İsim (Z-A)</SelectItem>
-          </SelectContent>
-        </Select>
+            <Select value={filterTag} onValueChange={setFilterTag}>
+              <SelectTrigger className="w-[150px] h-8 text-sm">
+                <SelectValue placeholder="Etiket" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Etiketler</SelectItem>
+                {uniqueTags.map((tag) => (
+                  <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        <div className="flex rounded-lg border">
-          <Button
-            variant={viewMode === "table" ? "secondary" : "ghost"}
-            size="icon"
-            className="h-9 w-9 rounded-r-none"
-            onClick={() => setViewMode("table")}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === "grid" ? "secondary" : "ghost"}
-            size="icon"
-            className="h-9 w-9 rounded-l-none"
-            onClick={() => setViewMode("grid")}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-        </div>
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger className="w-[160px] h-8 text-sm">
+                <SelectValue placeholder="Rol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Roller</SelectItem>
+                {uniqueRoles.map((role) => (
+                  <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={filterAccount} onValueChange={setFilterAccount}>
+              <SelectTrigger className="w-[180px] h-8 text-sm">
+                <SelectValue placeholder="Hesap Durumu" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Hesaplar</SelectItem>
+                <SelectItem value="has_email">E-posta Var</SelectItem>
+                <SelectItem value="no_email">E-posta Yok</SelectItem>
+                <SelectItem value="has_social">Sosyal Medya Var</SelectItem>
+                <SelectItem value="no_social">Sosyal Medya Yok</SelectItem>
+                <SelectItem value="has_forum">Forum Hesabı Var</SelectItem>
+                <SelectItem value="no_forum">Forum Hesabı Yok</SelectItem>
+                <SelectItem value="no_accounts">Hiç Hesap Yok</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {activeFilterCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs text-muted-foreground"
+                onClick={() => {
+                  setFilterCountry("all");
+                  setFilterLanguage("all");
+                  setFilterTag("all");
+                  setFilterRole("all");
+                  setFilterAccount("all");
+                }}
+              >
+                <X className="mr-1 h-3 w-3" />
+                Temizle
+              </Button>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Filter summary */}
+      {!isLoading && !error && (
+        <p className="text-xs text-muted-foreground">
+          {filteredPersonas.length === personas.length
+            ? `${personas.length} persona`
+            : `${filteredPersonas.length} / ${personas.length} persona gösteriliyor`}
+        </p>
+      )}
 
       {/* Error state */}
       {error && (
@@ -1245,11 +1418,28 @@ export default function PersonasPage() {
       {!isLoading && !error && personas.length > 0 && filteredPersonas.length === 0 && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Search className="h-8 w-8 text-muted-foreground" />
+            <Filter className="h-8 w-8 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">Sonuç bulunamadı</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              &ldquo;{search}&rdquo; için eşleşen persona bulunamadı.
+              Seçili filtreler için eşleşen persona bulunamadı.
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setSearch("");
+                setFilterGender("all");
+                setFilterStatus("all");
+                setFilterCountry("all");
+                setFilterLanguage("all");
+                setFilterTag("all");
+                setFilterRole("all");
+                setFilterAccount("all");
+              }}
+            >
+              Filtreleri Temizle
+            </Button>
           </CardContent>
         </Card>
       )}

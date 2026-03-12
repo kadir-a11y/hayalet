@@ -48,6 +48,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -180,6 +181,7 @@ interface Persona {
   activeHoursEnd: number | null;
   maxPostsPerDay: number | null;
   isActive: boolean | null;
+  isVerified: boolean | null;
   createdAt: string | null;
   updatedAt: string | null;
   tags: Tag[];
@@ -1017,35 +1019,35 @@ function AddSocialAccountDialog({
         onOpenChange(v);
       }}
     >
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Sosyal Medya Hesabı Ekle</DialogTitle>
+          <DialogDescription>Platform hesap bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 overflow-y-auto pr-1 flex-1">
-          <div className="space-y-1">
-            <Label className="text-xs">Platform</Label>
-            <Select value={platform} onValueChange={setPlatform} disabled={isSubmitting}>
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(platformNames).map(([key, name]) => (
-                  <SelectItem key={key} value={key}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Kullanıcı Adı</Label>
-              <Input className="h-8 text-sm" placeholder="@kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Platform</Label>
+              <Select value={platform} onValueChange={setPlatform} disabled={isSubmitting}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(platformNames).map(([key, name]) => (
+                    <SelectItem key={key} value={key}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
+              <Input className="h-9 text-sm" placeholder="@kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
-                <Input className="h-8 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -1053,44 +1055,44 @@ function AddSocialAccountDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta</Label>
-              <Input className="h-8 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">E-posta</Label>
+              <Input className="h-9 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Telefon</Label>
+              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
           <Separator />
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri (opsiyonel)</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">API Bilgileri (opsiyonel)</p>
 
-          <div className="space-y-1">
-            <Label className="text-xs">API Endpoint</Label>
-            <Input className="h-8 text-sm" placeholder="https://api.twitter.com/2" value={apiEndpoint} onChange={(e) => setApiEndpoint(e.target.value)} disabled={isSubmitting} />
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">API Endpoint</Label>
+            <Input className="h-9 text-sm" placeholder="https://api.example.com" value={apiEndpoint} onChange={(e) => setApiEndpoint(e.target.value)} disabled={isSubmitting} />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">API Key</Label>
-              <Input className="h-8 text-sm" placeholder="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">API Key</Label>
+              <Input className="h-9 text-sm" placeholder="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">API Secret Key</Label>
-              <Input className="h-8 text-sm" placeholder="API Secret Key" value={apiSecretKey} onChange={(e) => setApiSecretKey(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">API Secret Key</Label>
+              <Input className="h-9 text-sm" placeholder="API Secret Key" value={apiSecretKey} onChange={(e) => setApiSecretKey(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token</Label>
-              <Input className="h-8 text-sm" placeholder="Access Token" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Access Token</Label>
+              <Input className="h-9 text-sm" placeholder="Access Token" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token Secret</Label>
-              <Input className="h-8 text-sm" placeholder="Access Token Secret" value={accessTokenSecret} onChange={(e) => setAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Access Token Secret</Label>
+              <Input className="h-9 text-sm" placeholder="Access Token Secret" value={accessTokenSecret} onChange={(e) => setAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
@@ -1687,32 +1689,33 @@ function AddForumAccountDialog({
         onOpenChange(v);
       }}
     >
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Forum / Portal Hesabı Ekle</DialogTitle>
+          <DialogDescription>Forum veya portal üyelik bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 overflow-y-auto pr-1 flex-1">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Portal Adı *</Label>
-              <Input className="h-8 text-sm" placeholder="Technopat, r10.net" value={portalName} onChange={(e) => setPortalName(e.target.value)} disabled={isSubmitting} />
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Portal Adı *</Label>
+              <Input className="h-9 text-sm" placeholder="Technopat, r10.net" value={portalName} onChange={(e) => setPortalName(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Portal URL</Label>
-              <Input className="h-8 text-sm" placeholder="https://forum.example.com" value={portalUrl} onChange={(e) => setPortalUrl(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Portal URL</Label>
+              <Input className="h-9 text-sm" placeholder="https://forum.example.com" value={portalUrl} onChange={(e) => setPortalUrl(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Kullanıcı Adı</Label>
-              <Input className="h-8 text-sm" placeholder="kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
+              <Input className="h-9 text-sm" placeholder="kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
-                <Input className="h-8 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -1720,50 +1723,52 @@ function AddForumAccountDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta</Label>
-              <Input className="h-8 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">E-posta</Label>
+              <Input className="h-9 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Telefon</Label>
+              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
           <Separator />
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri (opsiyonel)</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">API Bilgileri (opsiyonel)</p>
 
-          <div className="space-y-1">
-            <Label className="text-xs">API Endpoint</Label>
-            <Input className="h-8 text-sm" placeholder="https://api.example.com" value={forumApiEndpoint} onChange={(e) => setForumApiEndpoint(e.target.value)} disabled={isSubmitting} />
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">API Endpoint</Label>
+            <Input className="h-9 text-sm" placeholder="https://api.example.com" value={forumApiEndpoint} onChange={(e) => setForumApiEndpoint(e.target.value)} disabled={isSubmitting} />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">API Key</Label>
-              <Input className="h-8 text-sm" placeholder="API Key" value={forumApiKey} onChange={(e) => setForumApiKey(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">API Key</Label>
+              <Input className="h-9 text-sm" placeholder="API Key" value={forumApiKey} onChange={(e) => setForumApiKey(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">API Secret Key</Label>
-              <Input className="h-8 text-sm" placeholder="API Secret Key" value={forumApiSecretKey} onChange={(e) => setForumApiSecretKey(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token</Label>
-              <Input className="h-8 text-sm" placeholder="Access Token" value={forumAccessToken} onChange={(e) => setForumAccessToken(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token Secret</Label>
-              <Input className="h-8 text-sm" placeholder="Access Token Secret" value={forumAccessTokenSecret} onChange={(e) => setForumAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">API Secret Key</Label>
+              <Input className="h-9 text-sm" placeholder="API Secret Key" value={forumApiSecretKey} onChange={(e) => setForumApiSecretKey(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs">Notlar</Label>
-            <Textarea className="text-sm" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} rows={2} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Access Token</Label>
+              <Input className="h-9 text-sm" placeholder="Access Token" value={forumAccessToken} onChange={(e) => setForumAccessToken(e.target.value)} disabled={isSubmitting} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Access Token Secret</Label>
+              <Input className="h-9 text-sm" placeholder="Access Token Secret" value={forumAccessTokenSecret} onChange={(e) => setForumAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Notlar</Label>
+            <Textarea className="text-sm min-h-[60px]" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} />
           </div>
 
           {error && (
@@ -1867,38 +1872,38 @@ function AddEmailAccountDialog({
         onOpenChange(v);
       }}
     >
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>E-posta Hesabı Ekle</DialogTitle>
+          <DialogDescription>E-posta hesap bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3 overflow-y-auto pr-1 flex-1">
-          <div className="space-y-1">
-            <Label className="text-xs">Sağlayıcı</Label>
-            <Select value={provider} onValueChange={setProvider} disabled={isSubmitting}>
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hotmail">Hotmail / Outlook</SelectItem>
-                <SelectItem value="gmail">Gmail</SelectItem>
-                <SelectItem value="yandex">Yandex</SelectItem>
-                <SelectItem value="protonmail">ProtonMail</SelectItem>
-                <SelectItem value="icloud">iCloud</SelectItem>
-                <SelectItem value="other">Diğer</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta Adresi *</Label>
-              <Input className="h-8 text-sm" type="email" placeholder="hesap@hotmail.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
+        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Sağlayıcı</Label>
+              <Select value={provider} onValueChange={setProvider} disabled={isSubmitting}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hotmail">Hotmail / Outlook</SelectItem>
+                  <SelectItem value="gmail">Gmail</SelectItem>
+                  <SelectItem value="yandex">Yandex</SelectItem>
+                  <SelectItem value="protonmail">ProtonMail</SelectItem>
+                  <SelectItem value="icloud">iCloud</SelectItem>
+                  <SelectItem value="other">Diğer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">E-posta Adresi *</Label>
+              <Input className="h-9 text-sm" type="email" placeholder="hesap@hotmail.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
-                <Input className="h-8 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -1906,20 +1911,22 @@ function AddEmailAccountDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Telefon</Label>
+              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Kurtarma E-postası</Label>
-              <Input className="h-8 text-sm" type="email" placeholder="recovery@email.com" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} disabled={isSubmitting} />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Kurtarma E-postası</Label>
+              <Input className="h-9 text-sm" type="email" placeholder="recovery@email.com" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs">Notlar</Label>
-            <Textarea className="text-sm" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} rows={2} />
+          <Separator />
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Notlar</Label>
+            <Textarea className="text-sm min-h-[60px]" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} />
           </div>
 
           {error && (
@@ -1929,10 +1936,10 @@ function AddEmailAccountDialog({
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               İptal
             </Button>
-            <Button type="submit" size="sm" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
               Ekle
             </Button>
@@ -2916,6 +2923,235 @@ function RolesManager({
 }
 
 // ---------------------------------------------------------------------------
+// Settings Tab (editable)
+// ---------------------------------------------------------------------------
+
+function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdated: () => void }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [data, setData] = useState({
+    language: persona.language || "tr",
+    gender: persona.gender || "",
+    birthDate: persona.birthDate || "",
+    country: persona.country || "",
+    city: persona.city || "",
+    timezone: persona.timezone || "Europe/Istanbul",
+    activeHoursStart: persona.activeHoursStart ?? 9,
+    activeHoursEnd: persona.activeHoursEnd ?? 23,
+    maxPostsPerDay: persona.maxPostsPerDay ?? 5,
+    isActive: persona.isActive ?? true,
+    isVerified: persona.isVerified ?? false,
+  });
+
+  useEffect(() => {
+    setData({
+      language: persona.language || "tr",
+      gender: persona.gender || "",
+      birthDate: persona.birthDate || "",
+      country: persona.country || "",
+      city: persona.city || "",
+      timezone: persona.timezone || "Europe/Istanbul",
+      activeHoursStart: persona.activeHoursStart ?? 9,
+      activeHoursEnd: persona.activeHoursEnd ?? 23,
+      maxPostsPerDay: persona.maxPostsPerDay ?? 5,
+      isActive: persona.isActive ?? true,
+      isVerified: persona.isVerified ?? false,
+    });
+  }, [persona]);
+
+  async function handleSave() {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/personas/${persona.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error();
+      setIsEditing(false);
+      onUpdated();
+    } catch {
+      // ignore
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const cityList = data.country ? getCitiesByCountry(data.country) : [];
+
+  if (isEditing) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Settings2 className="h-4 w-4" />
+            Ayarlar — Düzenle
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label className="text-xs">Dil</Label>
+              <Select value={data.language} onValueChange={(v) => setData((d) => ({ ...d, language: v }))}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(languageNames).map(([code, name]) => (
+                    <SelectItem key={code} value={code}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Cinsiyet</Label>
+              <Select value={data.gender} onValueChange={(v) => setData((d) => ({ ...d, gender: v }))}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="erkek">Erkek</SelectItem>
+                  <SelectItem value="kadın">Kadın</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Doğum Tarihi</Label>
+              <Input className="h-8 text-sm" type="date" value={data.birthDate} onChange={(e) => setData((d) => ({ ...d, birthDate: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Ülke</Label>
+              <Select value={data.country} onValueChange={(v) => setData((d) => ({ ...d, country: v, city: "" }))}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
+                <SelectContent>
+                  {countries.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Şehir</Label>
+              {cityList.length > 0 ? (
+                <Select value={data.city} onValueChange={(v) => setData((d) => ({ ...d, city: v }))}>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
+                  <SelectContent>
+                    {cityList.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input className="h-8 text-sm" value={data.city} onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))} placeholder="Şehir" />
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Saat Dilimi</Label>
+              <Input className="h-8 text-sm" value={data.timezone} onChange={(e) => setData((d) => ({ ...d, timezone: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Aktif Saat Başlangıç</Label>
+              <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursStart} onChange={(e) => setData((d) => ({ ...d, activeHoursStart: parseInt(e.target.value) || 0 }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Aktif Saat Bitiş</Label>
+              <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursEnd} onChange={(e) => setData((d) => ({ ...d, activeHoursEnd: parseInt(e.target.value) || 0 }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Günlük Maks. Gönderi</Label>
+              <Input className="h-8 text-sm" type="number" min={1} max={50} value={data.maxPostsPerDay} onChange={(e) => setData((d) => ({ ...d, maxPostsPerDay: parseInt(e.target.value) || 1 }))} />
+            </div>
+            <div className="flex items-center gap-3 pt-4">
+              <Switch checked={data.isActive} onCheckedChange={(v) => setData((d) => ({ ...d, isActive: v }))} />
+              <Label className="text-xs">{data.isActive ? "Aktif" : "Pasif"}</Label>
+            </div>
+            <div className="flex items-center gap-3 pt-4">
+              <Switch checked={data.isVerified} onCheckedChange={(v) => setData((d) => ({ ...d, isVerified: v }))} />
+              <Label className="text-xs">{data.isVerified ? "Onaylı ✓" : "Onaysız"}</Label>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
+            <Button size="sm" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
+              Kaydet
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Settings2 className="h-4 w-4" />
+          Ayarlar
+        </CardTitle>
+        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
+          <Edit className="mr-1.5 h-3.5 w-3.5" />
+          Düzenle
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Dil</p>
+            <p className="text-sm">{languageNames[persona.language || "tr"] || persona.language}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Cinsiyet</p>
+            <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Doğum Tarihi</p>
+            <p className="text-sm">{persona.birthDate || "-"}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Konum</p>
+            <p className="text-sm">
+              {[persona.city, persona.country].filter(Boolean).join(", ") || "-"}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Saat Dilimi</p>
+            <p className="text-sm">{persona.timezone || "Europe/Istanbul"}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Aktif Saatler</p>
+            <p className="text-sm">
+              {persona.activeHoursStart ?? 9}:00 - {persona.activeHoursEnd ?? 23}:00
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Günlük Maks. Gönderi</p>
+            <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Durum</p>
+            <div className="flex items-center gap-2">
+              <Badge variant={persona.isActive ? "default" : "secondary"}>
+                {persona.isActive ? "Aktif" : "Pasif"}
+              </Badge>
+              {persona.isVerified && (
+                <Badge variant="outline" className="text-blue-500 border-blue-500">
+                  ✓ Onaylı
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Son Güncelleme</p>
+            <p className="text-sm">{formatDate(persona.updatedAt)}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Oluşturulma</p>
+            <p className="text-sm">{formatDate(persona.createdAt)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 
@@ -3390,64 +3626,7 @@ export default function PersonaDetailPage() {
 
         {/* ---- Ayarlar Tab ---- */}
         <TabsContent value="ayarlar">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Settings2 className="h-4 w-4" />
-                Ayarlar
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Dil</p>
-                  <p className="text-sm">{languageNames[persona.language || "tr"] || persona.language}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Cinsiyet</p>
-                  <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Doğum Tarihi</p>
-                  <p className="text-sm">{persona.birthDate || "-"}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Konum</p>
-                  <p className="text-sm">
-                    {[persona.city, persona.country].filter(Boolean).join(", ") || "-"}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Saat Dilimi</p>
-                  <p className="text-sm">{persona.timezone || "Europe/Istanbul"}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Aktif Saatler</p>
-                  <p className="text-sm">
-                    {persona.activeHoursStart ?? 9}:00 - {persona.activeHoursEnd ?? 23}:00
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Günlük Maks. Gönderi</p>
-                  <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Durum</p>
-                  <Badge variant={persona.isActive ? "default" : "secondary"}>
-                    {persona.isActive ? "Aktif" : "Pasif"}
-                  </Badge>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Son Güncelleme</p>
-                  <p className="text-sm">{formatDate(persona.updatedAt)}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Oluşturulma</p>
-                  <p className="text-sm">{formatDate(persona.createdAt)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsTab persona={persona} onUpdated={fetchPersona} />
         </TabsContent>
       </Tabs>
 
