@@ -105,6 +105,8 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import WorkspaceTab from "@/components/workspace/WorkspaceTab";
+import OrganicTab from "@/components/organic/OrganicTab";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -1003,7 +1005,7 @@ export default function ProjectDetailPage({
 
       {/* ── Tabs ─────────────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Genel Bakış</span>
@@ -1019,6 +1021,14 @@ export default function ProjectDetailPage({
           <TabsTrigger value="mentions" className="gap-2">
             <MessageSquare className="h-4 w-4" />
             <span className="hidden sm:inline">Bahsetmeler</span>
+          </TabsTrigger>
+          <TabsTrigger value="workspace" className="gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">Çalışma Alanı</span>
+          </TabsTrigger>
+          <TabsTrigger value="organic" className="gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Organik</span>
           </TabsTrigger>
           <TabsTrigger value="timeline" className="gap-2">
             <Clock className="h-4 w-4" />
@@ -1742,7 +1752,21 @@ export default function ProjectDetailPage({
         </TabsContent>
 
         {/* ════════════════════════════════════════════════════════════ */}
-        {/* TAB 5: ZAMAN ÇİZELGESİ (Timeline)                          */}
+        {/* TAB 5: ÇALIŞMA ALANI (Workspace)                            */}
+        {/* ════════════════════════════════════════════════════════════ */}
+        <TabsContent value="workspace" className="space-y-6">
+          <WorkspaceTab projectId={id} />
+        </TabsContent>
+
+        {/* ════════════════════════════════════════════════════════════ */}
+        {/* TAB 6: ORGANİK AKTİVİTE                                    */}
+        {/* ════════════════════════════════════════════════════════════ */}
+        <TabsContent value="organic" className="space-y-6">
+          <OrganicTab projectId={id} />
+        </TabsContent>
+
+        {/* ════════════════════════════════════════════════════════════ */}
+        {/* TAB 7: ZAMAN ÇİZELGESİ (Timeline)                          */}
         {/* ════════════════════════════════════════════════════════════ */}
         <TabsContent value="timeline" className="space-y-6">
           <div className="flex items-center justify-between">

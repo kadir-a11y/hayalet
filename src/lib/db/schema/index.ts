@@ -26,6 +26,9 @@ export { monitoringSources } from "./monitoring-sources";
 export { discoveredItems } from "./discovered-items";
 export { autoPostRules } from "./auto-post-rules";
 export { engagementMetrics } from "./engagement-metrics";
+export { workspaceSessions } from "./workspace-sessions";
+export { workspaceResponses } from "./workspace-responses";
+export { organicActivityConfig, organicActivityLog } from "./organic-activity";
 
 import { users } from "./users";
 import { personas } from "./personas";
@@ -53,6 +56,9 @@ import { monitoringSources } from "./monitoring-sources";
 import { discoveredItems } from "./discovered-items";
 import { autoPostRules } from "./auto-post-rules";
 import { engagementMetrics } from "./engagement-metrics";
+import { workspaceSessions } from "./workspace-sessions";
+import { workspaceResponses } from "./workspace-responses";
+import { organicActivityConfig, organicActivityLog } from "./organic-activity";
 
 // ── Users relations ──────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
@@ -192,6 +198,10 @@ export const contentItemsRelations = relations(contentItems, ({ one, many }) => 
     fields: [contentItems.projectId],
     references: [projects.id],
   }),
+  workspaceResponse: one(workspaceResponses, {
+    fields: [contentItems.workspaceResponseId],
+    references: [workspaceResponses.id],
+  }),
   engagementMetrics: many(engagementMetrics),
 }));
 
@@ -229,6 +239,9 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   mentions: many(projectMentions),
   tasks: many(projectTasks),
   timeline: many(projectTimeline),
+  workspaceSessions: many(workspaceSessions),
+  workspaceResponses: many(workspaceResponses),
+  organicActivityConfigs: many(organicActivityConfig),
 }));
 
 // ── Project team relations ───────────────────────────────────────────
@@ -356,5 +369,75 @@ export const projectPlaybooksRelations = relations(projectPlaybooks, ({ one }) =
   user: one(users, {
     fields: [projectPlaybooks.userId],
     references: [users.id],
+  }),
+}));
+
+// ── Workspace sessions relations ─────────────────────────────────────
+export const workspaceSessionsRelations = relations(workspaceSessions, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [workspaceSessions.projectId],
+    references: [projects.id],
+  }),
+  user: one(users, {
+    fields: [workspaceSessions.userId],
+    references: [users.id],
+  }),
+  sourceContent: one(projectMentions, {
+    fields: [workspaceSessions.sourceContentId],
+    references: [projectMentions.id],
+  }),
+  responses: many(workspaceResponses),
+}));
+
+// ── Workspace responses relations ────────────────────────────────────
+export const workspaceResponsesRelations = relations(workspaceResponses, ({ one }) => ({
+  session: one(workspaceSessions, {
+    fields: [workspaceResponses.sessionId],
+    references: [workspaceSessions.id],
+  }),
+  project: one(projects, {
+    fields: [workspaceResponses.projectId],
+    references: [projects.id],
+  }),
+  persona: one(personas, {
+    fields: [workspaceResponses.personaId],
+    references: [personas.id],
+  }),
+  sourceContent: one(projectMentions, {
+    fields: [workspaceResponses.sourceContentId],
+    references: [projectMentions.id],
+  }),
+  contentItem: one(contentItems, {
+    fields: [workspaceResponses.contentItemId],
+    references: [contentItems.id],
+  }),
+}));
+
+// ── Organic activity config relations ────────────────────────────────
+export const organicActivityConfigRelations = relations(organicActivityConfig, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [organicActivityConfig.projectId],
+    references: [projects.id],
+  }),
+  persona: one(personas, {
+    fields: [organicActivityConfig.personaId],
+    references: [personas.id],
+  }),
+  logs: many(organicActivityLog),
+}));
+
+// ── Organic activity log relations ───────────────────────────────────
+export const organicActivityLogRelations = relations(organicActivityLog, ({ one }) => ({
+  config: one(organicActivityConfig, {
+    fields: [organicActivityLog.configId],
+    references: [organicActivityConfig.id],
+  }),
+  project: one(projects, {
+    fields: [organicActivityLog.projectId],
+    references: [projects.id],
+  }),
+  persona: one(personas, {
+    fields: [organicActivityLog.personaId],
+    references: [personas.id],
   }),
 }));

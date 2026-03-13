@@ -208,6 +208,127 @@ export function buildCampaignPrompt(
   );
 }
 
+interface SourceContentContext {
+  content: string;
+  author?: string;
+  platform: string;
+  url?: string;
+}
+
+export function buildWorkspaceResponsePrompt(
+  persona: AdvancedPersonaContext,
+  platform: string,
+  contentType: string,
+  options: {
+    sourceContent?: SourceContentContext;
+    aiCommand: string;
+    sentimentDirection?: string;
+  }
+): string {
+  const outputLang = persona.language || "tr";
+  const langName = getLanguageName(outputLang);
+  const traits = persona.personalityTraits.join(", ") || "general";
+  const interests = persona.interests.join(", ") || "various topics";
+  const style = persona.behavioralPatterns.writing_style || "natural";
+  const tone = persona.behavioralPatterns.tone || "friendly";
+  const emoji = persona.behavioralPatterns.emoji_usage || "minimal";
+  const hashtag = persona.behavioralPatterns.hashtag_style || "minimal";
+
+  const locationParts: string[] = [];
+  if (persona.city) locationParts.push(persona.city);
+  if (persona.country) locationParts.push(persona.country);
+  const locationStr = locationParts.length > 0 ? locationParts.join(", ") : null;
+
+  let sourceSection = "";
+  if (options.sourceContent) {
+    const src = options.sourceContent;
+    sourceSection = `
+SOURCE CONTENT (the content you are replying/responding to):
+- Author: ${src.author || "unknown"}
+- Platform: ${src.platform}
+${src.url ? `- URL: ${src.url}` : ""}
+- Content: "${src.content}"
+
+You must respond to this content naturally, as if you organically encountered it on social media.`;
+  }
+
+  const sentimentSection = options.sentimentDirection
+    ? `\nSENTIMENT DIRECTION: Your response should have a ${options.sentimentDirection} tone/sentiment.`
+    : "";
+
+  return `You are "${persona.name}", a social media persona.
+
+PERSONA PROFILE:
+- Personality traits: ${traits}
+- Interests: ${interests}
+- Writing style: ${style}
+- Tone: ${tone}
+- Emoji usage: ${emoji}
+- Hashtag style: ${hashtag}
+${persona.bio ? `- Bio: ${persona.bio}` : ""}
+${persona.gender ? `- Gender: ${persona.gender}` : ""}
+${locationStr ? `- Location: ${locationStr}` : ""}
+
+PLATFORM: ${platform}
+${PLATFORM_GUIDELINES[platform] || ""}
+
+CONTENT TYPE: ${contentType}
+${sourceSection}
+
+USER COMMAND: ${options.aiCommand}
+${sentimentSection}
+
+LANGUAGE: Write entirely in ${langName} (${outputLang}). All output must be in this language.
+
+RULES:
+1. Stay fully in character as "${persona.name}".
+2. The response must feel authentic and organic, as if a real person wrote it.
+3. Follow the persona's writing style, tone, and emoji/hashtag preferences exactly.
+4. Respect the platform's conventions and character limits.
+5. Output ONLY the response content itself. No explanations, labels, or meta-commentary.
+6. Write in ${langName}.
+7. Each persona's response should be unique — do not produce generic or template-like content.`;
+}
+
+export function buildOrganicActivityPrompt(
+  persona: AdvancedPersonaContext,
+  platform: string,
+  activityType: string,
+  targetContent?: string
+): string {
+  const outputLang = persona.language || "tr";
+  const langName = getLanguageName(outputLang);
+  const traits = persona.personalityTraits.join(", ") || "general";
+  const tone = persona.behavioralPatterns.tone || "friendly";
+  const emoji = persona.behavioralPatterns.emoji_usage || "minimal";
+
+  if (activityType !== "positive_comment") {
+    return ""; // like, retweet, share don't need generated content
+  }
+
+  return `You are "${persona.name}", a social media persona.
+
+PERSONALITY: ${traits}
+TONE: ${tone}
+EMOJI USAGE: ${emoji}
+${persona.bio ? `BIO: ${persona.bio}` : ""}
+
+PLATFORM: ${platform}
+${PLATFORM_GUIDELINES[platform] || ""}
+
+TASK: Write a short, positive comment on this content:
+"${targetContent || ""}"
+
+LANGUAGE: Write in ${langName} (${outputLang}).
+
+RULES:
+1. Keep it brief (1-2 sentences max).
+2. Be genuine and natural — avoid sounding like a bot.
+3. Stay in character as "${persona.name}".
+4. Be positive and supportive.
+5. Output ONLY the comment. No explanations.`;
+}
+
 interface ProjectDefenseContext {
   projectName: string;
   projectDescription?: string;

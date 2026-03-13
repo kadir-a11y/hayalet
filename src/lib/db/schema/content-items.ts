@@ -21,6 +21,8 @@ export const contentItems = pgTable("content_items", {
   aiGenerated: boolean("ai_generated").default(false),
   aiPrompt: text("ai_prompt"),
   aiModel: varchar("ai_model", { length: 100 }),
+  workspaceResponseId: uuid("workspace_response_id"),
+  sourceContentUrl: text("source_content_url"),
   metadata: jsonb("metadata").default({}),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

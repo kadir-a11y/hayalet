@@ -36,6 +36,26 @@ export const monitoringQueue = new Queue("monitoring", {
   },
 });
 
+export const workspacePublishingQueue = new Queue("workspace-publishing", {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+    removeOnComplete: { count: 1000 },
+    removeOnFail: { count: 2000 },
+  },
+});
+
+export const organicActivityQueue = new Queue("organic-activity", {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 5000 },
+    removeOnComplete: { count: 500 },
+    removeOnFail: { count: 1000 },
+  },
+});
+
 export const relevanceScoringQueue = new Queue("relevance-scoring", {
   connection: redisConnection,
   defaultJobOptions: {
