@@ -1322,6 +1322,7 @@ function SocialAccountCard({
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editData, setEditData] = useState({
+    platform: account.platform,
     platformUsername: account.platformUsername || "",
     platformEmail: account.platformEmail || "",
     platformPhone: account.platformPhone || "",
@@ -1353,6 +1354,7 @@ function SocialAccountCard({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          platform: editData.platform,
           platformUsername: editData.platformUsername || undefined,
           platformEmail: editData.platformEmail || undefined,
           platformPhone: editData.platformPhone || undefined,
@@ -1380,15 +1382,26 @@ function SocialAccountCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-              {platformIcon(account.platform)}
+              {platformIcon(editData.platform)}
             </div>
-            <p className="text-sm font-medium">
-              {platformNames[account.platform] || account.platform} — Düzenle
-            </p>
+            <p className="text-sm font-medium">Düzenle</p>
           </div>
         </div>
 
         <div className="grid gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Platform</Label>
+            <Select value={editData.platform} onValueChange={(v) => setEditData((d) => ({ ...d, platform: v }))}>
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(platformNames).map(([key, name]) => (
+                  <SelectItem key={key} value={key}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Kullanıcı Adı</Label>

@@ -57,6 +57,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { countries, getCitiesByCountry } from "@/lib/data/countries";
 
 // ---------------------------------------------------------------------------
@@ -1045,7 +1051,8 @@ function PersonasPage() {
   const filterLanguage = searchParams.get("lang") || "all";
   const filterTag = searchParams.get("tag") || "all";
   const filterRole = searchParams.get("role") || "all";
-  const filterAccount = searchParams.get("account") || "all";
+  const filterAccountParam = searchParams.get("account") || "all";
+  const filterAccounts = filterAccountParam === "all" ? [] : filterAccountParam.split(",");
   const sortBy = searchParams.get("sort") || "newest";
   const viewMode = (searchParams.get("view") || "table") as "table" | "grid";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -1087,7 +1094,13 @@ function PersonasPage() {
   const setFilterLanguage = (v: string) => updateParams({ lang: v, page: "1" });
   const setFilterTag = (v: string) => updateParams({ tag: v, page: "1" });
   const setFilterRole = (v: string) => updateParams({ role: v, page: "1" });
-  const setFilterAccount = (v: string) => updateParams({ account: v, page: "1" });
+  const toggleFilterAccount = (v: string) => {
+    const next = filterAccounts.includes(v)
+      ? filterAccounts.filter((a) => a !== v)
+      : [...filterAccounts, v];
+    updateParams({ account: next.length > 0 ? next.join(",") : "all", page: "1" });
+  };
+  const clearFilterAccounts = () => updateParams({ account: "all", page: "1" });
   const setSortBy = (v: string) => updateParams({ sort: v, page: "1" });
   const setViewMode = (v: string) => updateParams({ view: v });
   const setCurrentPage = (v: number) => updateParams({ page: String(v) });
@@ -1117,7 +1130,7 @@ function PersonasPage() {
   const uniqueTags = [...new Map(personas.flatMap((p) => p.tags).map((t) => [t.id, t])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
   const uniqueRoles = [...new Map(personas.flatMap((p) => p.roles || []).map((r) => [r.id, r])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
 
-  const activeFilterCount = [filterCountry, filterLanguage, filterTag, filterRole, filterAccount].filter((f) => f !== "all").length;
+  const activeFilterCount = [filterCountry, filterLanguage, filterTag, filterRole].filter((f) => f !== "all").length + filterAccounts.length;
 
   // Filters now use URL search params - page reset happens in updateParams
 
@@ -1152,14 +1165,16 @@ function PersonasPage() {
       if (filterTag !== "all" && !p.tags.some((t) => t.id === filterTag)) return false;
       // Role filter
       if (filterRole !== "all" && !(p.roles || []).some((r) => r.id === filterRole)) return false;
-      // Account filter
-      if (filterAccount === "has_email" && p.emailAccountCount === 0) return false;
-      if (filterAccount === "no_email" && p.emailAccountCount > 0) return false;
-      if (filterAccount === "has_social" && p.socialAccountCount === 0) return false;
-      if (filterAccount === "no_social" && p.socialAccountCount > 0) return false;
-      if (filterAccount === "has_forum" && p.forumAccountCount === 0) return false;
-      if (filterAccount === "no_forum" && p.forumAccountCount > 0) return false;
-      if (filterAccount === "no_accounts" && (p.emailAccountCount + p.socialAccountCount + p.forumAccountCount) > 0) return false;
+      // Account filters (multi-select)
+      for (const af of filterAccounts) {
+        if (af === "has_email" && p.emailAccountCount === 0) return false;
+        if (af === "no_email" && p.emailAccountCount > 0) return false;
+        if (af === "has_social" && p.socialAccountCount === 0) return false;
+        if (af === "no_social" && p.socialAccountCount > 0) return false;
+        if (af === "has_forum" && p.forumAccountCount === 0) return false;
+        if (af === "no_forum" && p.forumAccountCount > 0) return false;
+        if (af === "no_accounts" && (p.emailAccountCount + p.socialAccountCount + p.forumAccountCount) > 0) return false;
+      }
       return true;
     })
     .sort((a, b) => {
@@ -1349,21 +1364,55 @@ function PersonasPage() {
               </SelectContent>
             </Select>
 
-            <Select value={filterAccount} onValueChange={setFilterAccount}>
-              <SelectTrigger className="w-[180px] h-8 text-sm">
-                <SelectValue placeholder="Hesap Durumu" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tüm Hesaplar</SelectItem>
-                <SelectItem value="has_email">E-posta Var</SelectItem>
-                <SelectItem value="no_email">E-posta Yok</SelectItem>
-                <SelectItem value="has_social">Sosyal Medya Var</SelectItem>
-                <SelectItem value="no_social">Sosyal Medya Yok</SelectItem>
-                <SelectItem value="has_forum">Forum Hesabı Var</SelectItem>
-                <SelectItem value="no_forum">Forum Hesabı Yok</SelectItem>
-                <SelectItem value="no_accounts">Hiç Hesap Yok</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-[180px] h-8 text-sm justify-between">
+                  <span className="truncate">
+                    {filterAccounts.length === 0
+                      ? "Hesap Durumu"
+                      : `${filterAccounts.length} filtre`}
+                  </span>
+                  <ChevronDown className="ml-1 h-3.5 w-3.5 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-2" align="start">
+                <div className="space-y-1">
+                  {[
+                    { value: "has_email", label: "E-posta Var" },
+                    { value: "no_email", label: "E-posta Yok" },
+                    { value: "has_social", label: "Sosyal Medya Var" },
+                    { value: "no_social", label: "Sosyal Medya Yok" },
+                    { value: "has_forum", label: "Forum Hesabı Var" },
+                    { value: "no_forum", label: "Forum Hesabı Yok" },
+                    { value: "no_accounts", label: "Hiç Hesap Yok" },
+                  ].map((opt) => (
+                    <label
+                      key={opt.value}
+                      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer hover:bg-muted"
+                    >
+                      <Checkbox
+                        checked={filterAccounts.includes(opt.value)}
+                        onCheckedChange={() => toggleFilterAccount(opt.value)}
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                  {filterAccounts.length > 0 && (
+                    <>
+                      <Separator className="my-1" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-7 text-xs"
+                        onClick={clearFilterAccounts}
+                      >
+                        Temizle
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
 
             {activeFilterCount > 0 && (
               <Button
@@ -1375,7 +1424,7 @@ function PersonasPage() {
                   setFilterLanguage("all");
                   setFilterTag("all");
                   setFilterRole("all");
-                  setFilterAccount("all");
+                  clearFilterAccounts();
                 }}
               >
                 <X className="mr-1 h-3 w-3" />
