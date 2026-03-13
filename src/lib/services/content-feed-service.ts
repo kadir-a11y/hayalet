@@ -78,7 +78,7 @@ export async function addManualContent(
 }
 
 export async function addMockFeedData(projectId: string) {
-  const platforms = ["twitter", "instagram", "facebook", "linkedin"];
+  const platforms = ["twitter", "instagram", "facebook", "linkedin", "reddit"];
   const sentiments = ["positive", "negative", "neutral"];
   const authors = [
     "social_user_42", "news_bot", "influencer_x", "critic_99",

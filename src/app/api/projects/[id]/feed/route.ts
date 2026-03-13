@@ -4,7 +4,7 @@ import { getFeed, getPlatformCounts, addManualContent } from "@/lib/services/con
 import { z } from "zod";
 
 const addContentSchema = z.object({
-  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok"]),
+  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"]),
   content: z.string().min(1).max(10000),
   sourceUrl: z.string().url().optional(),
   sourceAuthor: z.string().max(255).optional(),

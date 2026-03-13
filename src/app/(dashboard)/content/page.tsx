@@ -122,7 +122,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   tiktok: "TikTok",
 };
 
-const PLATFORMS = ["twitter", "instagram", "facebook", "linkedin", "tiktok"] as const;
+const PLATFORMS = ["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"] as const;
 
 const CONTENT_TYPES = [
   { value: "post", label: "Post" },

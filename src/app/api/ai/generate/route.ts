@@ -10,7 +10,7 @@ import { z } from "zod";
 
 const generateSchema = z.object({
   personaId: z.string().uuid(),
-  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok"]),
+  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"]),
   contentType: z.enum(["post", "reply", "comment", "story", "reel"]).default("post"),
   topic: z.string().optional(),
   additionalInstructions: z.string().optional(),

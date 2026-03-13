@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const organicActivityTypes = ["like", "retweet", "positive_comment", "share", "follow", "bookmark"] as const;
-export const organicPlatforms = ["twitter", "instagram", "facebook", "linkedin", "tiktok"] as const;
+export const organicPlatforms = ["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"] as const;
 export const organicSentimentRanges = ["positive", "neutral", "mixed"] as const;
 
 export const organicConfigCreateSchema = z.object({

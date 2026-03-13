@@ -1,0 +1,112 @@
+SOSYAL MEDYA API ENTEGRASYONU ARAŞTIRMASI
+==========================================
+Tarih: 13.03.2026
+Proje: Persona (Hayalet)
+
+NOT: Her kullanıcının ayrı API key almasına GEREK YOK.
+Tek bir developer app oluşturulur, kullanıcılar OAuth ile kendi hesaplarını bağlar.
+Token'lar social_accounts tablosunda saklanır.
+
+====================================================
+1. TWITTER / X API
+====================================================
+- Ücretsiz Tier: Ayda 1.500 tweet okuma, 500 tweet yazma (sadece v2)
+- Basic ($100/ay): 10.000 okuma, 3.000 yazma
+- Pro ($5.000/ay): 1M okuma, 300K yazma
+- Node.js: twitter-api-v2 (en popüler)
+- OAuth: OAuth 2.0 PKCE veya OAuth 1.0a
+- Zorluk: Ücretsiz tier çok kısıtlı, rate limit sıkı
+- Erişim: Hemen alınabilir (developer.twitter.com)
+
+====================================================
+2. INSTAGRAM API (Meta Graph API)
+====================================================
+- Ücretsiz: Evet (rate limit: 200 istek/saat/kullanıcı)
+- İçerik yayınlama: Instagram Graph API ile mümkün (Business/Creator hesap gerekli)
+- Node.js: instagram-graph-api veya doğrudan axios/fetch
+- OAuth: Facebook Login + Instagram izinleri
+- Zorluk: Business hesap zorunlu, App Review süreci uzun (2-4 hafta)
+- DM okuma: Yok (sadece Messenger API üzerinden sınırlı)
+
+====================================================
+3. FACEBOOK API (Meta Graph API)
+====================================================
+- Ücretsiz: Evet (rate limit: 200 istek/saat/kullanıcı)
+- Sayfa yönetimi: Page Publishing API
+- Node.js: fb-sdk veya doğrudan fetch
+- OAuth: Facebook Login
+- Zorluk: App Review zorunlu, kişisel profil paylaşımı API ile mümkün değil
+- Not: Sadece Facebook Pages yönetilebilir
+
+====================================================
+4. LINKEDIN API
+====================================================
+- Ücretsiz: Evet (Community Management API)
+- İçerik paylaşma: Posts API (UGC Posts)
+- Rate limit: 100 istek/gün (uygulama bazlı)
+- Node.js: linkedin-api-client veya doğrudan fetch
+- OAuth: OAuth 2.0 (3-legged)
+- Zorluk: Çok sıkı erişim onay süreci, Marketing Developer Platform başvurusu gerekebilir
+- Not: Kişisel paylaşım için "Share on LinkedIn" scope yeterli
+
+====================================================
+5. TIKTOK API
+====================================================
+- Ücretsiz: Evet (Content Posting API, Login Kit)
+- İçerik yayınlama: Content Posting API (video yükleme)
+- Rate limit: 60 istek/dakika
+- Node.js: Resmi SDK yok, doğrudan REST API
+- OAuth: OAuth 2.0
+- Zorluk: Sadece video içerik, metin gönderi yok. App Review gerekli.
+- Not: TikTok for Developers portalından başvuru
+
+====================================================
+6. YOUTUBE API (Google)
+====================================================
+- Ücretsiz: 10.000 birim/gün (video upload = 1.600 birim)
+- Video yükleme: YouTube Data API v3
+- Yorum yazma/okuma: Evet
+- Node.js: googleapis (resmi Google SDK)
+- OAuth: Google OAuth 2.0
+- Zorluk: Düşük, Google Cloud Console'dan hemen alınabilir
+- Avantaj: En kolay erişilen API'lerden biri
+- Rate limit: Günlük kota bazlı, genelde yeterli
+
+====================================================
+7. REDDIT API
+====================================================
+- Ücretsiz: Evet (60 istek/dakika OAuth ile)
+- Post/yorum: Evet, tam CRUD
+- Node.js: snoowrap (en popüler)
+- OAuth: OAuth 2.0
+- Zorluk: Çok düşük, anında erişim
+- Avantaj: En kolay ve en hızlı alınabilen API
+- Not: reddit.com/prefs/apps adresinden uygulama oluşturulur
+
+====================================================
+HIZLI ERİŞİM SIRALAMASI (Kolay → Zor)
+====================================================
+1. Reddit      — Anında, ücretsiz, sınırsıza yakın
+2. YouTube     — Google Console'dan hemen, ücretsiz kota yeterli
+3. Twitter/X   — Hemen alınır ama ücretsiz tier çok kısıtlı
+4. TikTok      — Başvuru gerekli, sadece video
+5. Facebook    — App Review gerekli (1-2 hafta)
+6. Instagram   — Business hesap + App Review (2-4 hafta)
+7. LinkedIn    — En sıkı onay süreci
+
+====================================================
+ÖNERİLEN BAŞLANGIÇ PLANI
+====================================================
+İlk Faz: Reddit + YouTube (ücretsiz, hızlı erişim)
+İkinci Faz: Twitter/X (Basic plan gerekebilir)
+Üçüncü Faz: Facebook + Instagram (Meta ekosistemi birlikte)
+Son Faz: LinkedIn + TikTok (onay süreçleri uzun)
+
+====================================================
+TEKNİK MİMARİ
+====================================================
+- Her platform için bir OAuth bağlantı akışı
+- Token'lar social_accounts tablosunda (access_token, refresh_token)
+- Token yenileme (refresh) işlemi otomatik
+- Rate limit yönetimi için Redis + BullMQ kuyruk sistemi
+- Platform-specific adapter pattern (her platform için ayrı servis)

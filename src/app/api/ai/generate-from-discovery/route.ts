@@ -11,7 +11,7 @@ import { z } from "zod";
 const generateFromDiscoverySchema = z.object({
   discoveredItemId: z.string().uuid(),
   personaId: z.string().uuid(),
-  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok"]),
+  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"]),
   language: z.string().optional(),
   additionalInstructions: z.string().optional(),
 });

@@ -306,12 +306,13 @@ const platformNames: Record<string, string> = {
   youtube: "YouTube",
   threads: "Threads",
   pinterest: "Pinterest",
+  reddit: "Reddit",
 };
 
 function platformIcon(platform: string): string {
   const icons: Record<string, string> = {
     twitter: "X", instagram: "IG", facebook: "FB", linkedin: "LI",
-    tiktok: "TT", youtube: "YT", threads: "TH", pinterest: "PI",
+    tiktok: "TT", youtube: "YT", threads: "TH", pinterest: "PI", reddit: "RD",
   };
   return icons[platform.toLowerCase()] || platform.slice(0, 2).toUpperCase();
 }
@@ -3679,6 +3680,7 @@ export default function PersonaDetailPage() {
                       <SelectItem value="facebook">Facebook</SelectItem>
                       <SelectItem value="linkedin">LinkedIn</SelectItem>
                       <SelectItem value="tiktok">TikTok</SelectItem>
+                      <SelectItem value="reddit">Reddit</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

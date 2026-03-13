@@ -5,7 +5,7 @@ export const campaignCreateSchema = z.object({
   description: z.string().max(2000).optional(),
   targetTagIds: z.array(z.string().uuid()).min(1, "En az bir etiket seçmelisiniz"),
   contentTemplate: z.string().min(1, "İçerik şablonu zorunludur"),
-  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok"]),
+  platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"]),
   scheduledStart: z.string().datetime().optional(),
   scheduledEnd: z.string().datetime().optional(),
   settings: z
