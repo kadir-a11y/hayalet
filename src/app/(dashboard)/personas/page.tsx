@@ -1284,22 +1284,6 @@ function PersonasPage() {
     setPref("visibleColumns", next);
   };
 
-  // Toggle favorite
-  const toggleFavorite = useCallback(async (personaId: string) => {
-    // Optimistic update
-    setPersonas((prev) =>
-      prev.map((p) => p.id === personaId ? { ...p, isFavorite: !p.isFavorite } : p)
-    );
-    try {
-      await fetch(`/api/personas/${personaId}/favorite`, { method: "PATCH" });
-    } catch {
-      // Revert on error
-      setPersonas((prev) =>
-        prev.map((p) => p.id === personaId ? { ...p, isFavorite: !p.isFavorite } : p)
-      );
-    }
-  }, []);
-
   // Debounce search input to URL
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1363,6 +1347,21 @@ function PersonasPage() {
     fetchPersonas();
   }, [fetchPersonas]);
 
+  // Toggle favorite
+  const toggleFavorite = useCallback(async (personaId: string) => {
+    // Optimistic update
+    setPersonas((prev) =>
+      prev.map((p) => p.id === personaId ? { ...p, isFavorite: !p.isFavorite } : p)
+    );
+    try {
+      const res = await fetch(`/api/personas/${personaId}/favorite`, { method: "PATCH" });
+      if (!res.ok) throw new Error();
+    } catch {
+      // Revert on error & refetch
+      fetchPersonas();
+    }
+  }, [fetchPersonas]);
+
   // Derive unique values for filter dropdowns
   const uniqueCountries = [...new Set(personas.map((p) => p.country).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, "tr"));
   const uniqueLanguages = [...new Set(personas.map((p) => p.language).filter(Boolean) as string[])].sort();
@@ -1422,6 +1421,11 @@ function PersonasPage() {
       return true;
     })
     .sort((a, b) => {
+      // Favorites always first
+      const aFav = a.isFavorite ? 1 : 0;
+      const bFav = b.isFavorite ? 1 : 0;
+      if (bFav !== aFav) return bFav - aFav;
+
       switch (sortBy) {
         case "newest":
           return (b.createdAt || "").localeCompare(a.createdAt || "");

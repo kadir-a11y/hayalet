@@ -36,6 +36,7 @@ import {
   Sparkles,
   Copy,
   Save,
+  Star,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
@@ -185,6 +186,8 @@ interface Persona {
   maxPostsPerDay: number | null;
   isActive: boolean | null;
   isVerified: boolean | null;
+  isFavorite: boolean | null;
+  influenceScore: number | null;
   createdAt: string | null;
   updatedAt: string | null;
   tags: Tag[];
@@ -3337,6 +3340,37 @@ export default function PersonaDetailPage() {
               <Badge variant={persona.isActive ? "default" : "secondary"}>
                 {persona.isActive ? "Aktif" : "Pasif"}
               </Badge>
+              <button
+                className="p-1 rounded hover:bg-muted transition-colors"
+                onClick={async () => {
+                  const prev = persona.isFavorite;
+                  setPersona({ ...persona, isFavorite: !prev });
+                  try {
+                    const res = await fetch(`/api/personas/${persona.id}/favorite`, { method: "PATCH" });
+                    if (!res.ok) throw new Error();
+                  } catch {
+                    setPersona({ ...persona, isFavorite: prev });
+                  }
+                }}
+              >
+                <Star className={`h-5 w-5 ${persona.isFavorite ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/40 hover:text-yellow-400"}`} />
+              </button>
+              {persona.influenceScore != null && persona.influenceScore > 0 && (
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${
+                    persona.influenceScore >= 81 ? "border-purple-500 text-purple-600 bg-purple-50" :
+                    persona.influenceScore >= 51 ? "border-orange-500 text-orange-600 bg-orange-50" :
+                    persona.influenceScore >= 21 ? "border-blue-500 text-blue-600 bg-blue-50" :
+                    "border-muted-foreground text-muted-foreground"
+                  }`}
+                >
+                  {persona.influenceScore >= 81 ? "Elit" :
+                   persona.influenceScore >= 51 ? "Yüksek" :
+                   persona.influenceScore >= 21 ? "Orta" : "Düşük"}
+                  {" "}{persona.influenceScore}
+                </Badge>
+              )}
             </div>
             <p className="text-muted-foreground">@{persona.name}</p>
             {persona.bio && (
