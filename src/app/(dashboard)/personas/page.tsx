@@ -1322,6 +1322,18 @@ function PersonasPage() {
     updateParams({ account: next.length > 0 ? next.join(",") : "all", page: "1" });
   };
   const clearFilterAccounts = () => updateParams({ account: "all", page: "1" });
+  const clearAllFilters = () => updateParams({
+    gender: "all",
+    status: "all",
+    country: "all",
+    lang: "all",
+    tag: "all",
+    role: "all",
+    favorite: "all",
+    influence: "all",
+    account: "all",
+    page: "1",
+  });
   const setSortBy = (v: string) => updateParams({ sort: v, page: "1" });
   const setViewMode = (v: string) => updateParams({ view: v });
   const setCurrentPage = (v: number) => updateParams({ page: String(v) });
@@ -1776,15 +1788,7 @@ function PersonasPage() {
                 variant="ghost"
                 size="sm"
                 className="h-8 text-xs text-muted-foreground"
-                onClick={() => {
-                  setFilterCountry("all");
-                  setFilterLanguage("all");
-                  setFilterTag("all");
-                  setFilterRole("all");
-                  setFilterFavoriteParam("all");
-                  setFilterMinInfluenceParam("all");
-                  clearFilterAccounts();
-                }}
+                onClick={clearAllFilters}
               >
                 <X className="mr-1 h-3 w-3" />
                 Temizle
@@ -1869,7 +1873,19 @@ function PersonasPage() {
               className="mt-3"
               onClick={() => {
                 setSearchInput("");
-                router.replace("/personas", { scroll: false });
+                updateParams({
+                  q: "",
+                  gender: "all",
+                  status: "all",
+                  country: "all",
+                  lang: "all",
+                  tag: "all",
+                  role: "all",
+                  favorite: "all",
+                  influence: "all",
+                  account: "all",
+                  page: "1",
+                });
               }}
             >
               Filtreleri Temizle

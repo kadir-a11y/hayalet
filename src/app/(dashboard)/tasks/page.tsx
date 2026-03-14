@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,16 +31,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   Plus,
   MoreHorizontal,
   Pencil,
@@ -56,6 +44,7 @@ import {
   RotateCcw,
   CalendarDays,
   Users,
+  X,
 } from "lucide-react";
 
 interface TeamTask {
@@ -153,7 +142,9 @@ export default function TasksPage() {
     try {
       const res = await fetch("/api/users");
       if (res.ok) setTeamUsers(await res.json());
-    } catch {}
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
   }, []);
 
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
@@ -163,7 +154,8 @@ export default function TasksPage() {
   const filteredTasks = tasks.filter((t) => {
     if (statusFilter === "active" && ["completed", "cancelled"].includes(t.task.status)) return false;
     if (statusFilter !== "active" && statusFilter !== "all" && t.task.status !== statusFilter) return false;
-    if (assigneeFilter !== "all" && t.task.assignedTo !== assigneeFilter) return false;
+    if (assigneeFilter === "unassigned" && t.task.assignedTo !== null) return false;
+    if (assigneeFilter !== "all" && assigneeFilter !== "unassigned" && t.task.assignedTo !== assigneeFilter) return false;
     return true;
   });
 
@@ -404,11 +396,23 @@ export default function TasksPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tüm Kişiler</SelectItem>
+            <SelectItem value="unassigned">Atanmamış</SelectItem>
             {teamUsers.map((u) => (
               <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
+        {(statusFilter !== "active" || assigneeFilter !== "all") && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2 text-xs text-muted-foreground"
+            onClick={() => { setStatusFilter("active"); setAssigneeFilter("all"); }}
+          >
+            <X className="mr-1 h-3 w-3" />
+            Temizle
+          </Button>
+        )}
       </div>
 
       {/* Task List */}
@@ -559,9 +563,10 @@ export default function TasksPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Atanan Kişi</Label>
-                <Select value={createAssignee} onValueChange={setCreateAssignee}>
+                <Select value={createAssignee || "none"} onValueChange={(v) => setCreateAssignee(v === "none" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="Kişi seçin..." /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">Atanmamış</SelectItem>
                     {teamUsers.map((u) => (
                       <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
                     ))}
@@ -613,9 +618,10 @@ export default function TasksPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Atanan Kişi</Label>
-                <Select value={editAssignee} onValueChange={setEditAssignee}>
+                <Select value={editAssignee || "none"} onValueChange={(v) => setEditAssignee(v === "none" ? "" : v)}>
                   <SelectTrigger><SelectValue placeholder="Kişi seçin..." /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">Atanmamış</SelectItem>
                     {teamUsers.map((u) => (
                       <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
                     ))}
@@ -691,31 +697,31 @@ export default function TasksPage() {
       </Dialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Görevi Sil</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bu görevi silmek istediğinize emin misiniz?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+      <Dialog open={deleteOpen} onOpenChange={(o) => { if (!deleteLoading) { setDeleteOpen(o); if (!o) setDeleteTask(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Görevi Sil</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Bu görevi silmek istediğinize emin misiniz?</p>
           {deleteTask && (
             <div className="rounded-md border bg-muted/50 p-3 text-sm">
               <p className="font-medium">{deleteTask.task.title}</p>
             </div>
           )}
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteLoading}>Vazgeç</AlertDialogCancel>
-            <AlertDialogAction
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDeleteOpen(false); setDeleteTask(null); }} disabled={deleteLoading}>
+              Vazgeç
+            </Button>
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={deleteLoading}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteLoading ? "Siliniyor..." : "Sil"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
