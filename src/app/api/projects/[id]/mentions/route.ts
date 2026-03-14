@@ -26,8 +26,8 @@ export async function GET(
     sentiment: searchParams.get("sentiment") || undefined,
     responseStatus: searchParams.get("responseStatus") || undefined,
     search: searchParams.get("search") || undefined,
-    limit: searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined,
-    offset: searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : undefined,
+    limit: searchParams.get("limit") ? (isNaN(parseInt(searchParams.get("limit")!)) ? undefined : parseInt(searchParams.get("limit")!)) : undefined,
+    offset: searchParams.get("offset") ? (isNaN(parseInt(searchParams.get("offset")!)) ? undefined : parseInt(searchParams.get("offset")!)) : undefined,
   };
 
   const mentions = await getMentions(id, filters);

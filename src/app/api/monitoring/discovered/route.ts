@@ -16,8 +16,10 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const minScore = searchParams.get("minScore");
   const maxScore = searchParams.get("maxScore");
-  const page = parseInt(searchParams.get("page") || "1");
-  const pageSize = parseInt(searchParams.get("pageSize") || "50");
+  const parsedPage = parseInt(searchParams.get("page") || "1");
+  const page = isNaN(parsedPage) ? 1 : parsedPage;
+  const parsedPageSize = parseInt(searchParams.get("pageSize") || "50");
+  const pageSize = isNaN(parsedPageSize) ? 50 : Math.min(parsedPageSize, 100);
 
   const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
 
@@ -40,8 +42,14 @@ export async function GET(req: NextRequest) {
   if (topicId) conditions.push(eq(discoveredItems.topicId, topicId));
   if (sourceId) conditions.push(eq(discoveredItems.sourceId, sourceId));
   if (status) conditions.push(eq(discoveredItems.status, status));
-  if (minScore) conditions.push(gte(discoveredItems.relevanceScore, parseInt(minScore)));
-  if (maxScore) conditions.push(lte(discoveredItems.relevanceScore, parseInt(maxScore)));
+  if (minScore) {
+    const val = parseInt(minScore);
+    if (!isNaN(val)) conditions.push(gte(discoveredItems.relevanceScore, val));
+  }
+  if (maxScore) {
+    const val = parseInt(maxScore);
+    if (!isNaN(val)) conditions.push(lte(discoveredItems.relevanceScore, val));
+  }
 
   const where = and(...conditions);
 

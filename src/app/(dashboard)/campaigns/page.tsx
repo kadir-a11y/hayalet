@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -572,13 +574,13 @@ export default function CampaignsPage() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Tag className="h-4 w-4 shrink-0" />
                       <div className="flex flex-wrap gap-1">
-                        {matchedTags.map((tag) => (
-                          <Badge key={tag!.id} variant="outline" className="text-xs">
+                        {matchedTags.filter((tag): tag is TagItem => tag != null).map((tag) => (
+                          <Badge key={tag.id} variant="outline" className="text-xs">
                             <span
                               className="mr-1 inline-block h-2 w-2 rounded-full"
-                              style={{ backgroundColor: tag!.color || "#6B7280" }}
+                              style={{ backgroundColor: tag.color || "#6B7280" }}
                             />
-                            {tag!.name}
+                            {tag.name}
                           </Badge>
                         ))}
                       </div>
