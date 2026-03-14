@@ -68,6 +68,8 @@ import {
   Calendar,
   CheckSquare,
   Plus,
+  Play,
+  RotateCcw,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -191,6 +193,7 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
   // Bulk
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkCancelOpen, setBulkCancelOpen] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
 
   // Action loading
@@ -357,17 +360,17 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
     }
   }
 
-  async function handleCancel(item: ContentItem) {
+  async function handleStatusChange(item: ContentItem, newStatus: string) {
     setActionLoading(item.id);
     try {
       const res = await fetch(`/api/content/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "cancelled" }),
+        body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) await fetchItems();
     } catch (error) {
-      console.error("Failed to cancel:", error);
+      console.error("Failed to update status:", error);
     } finally {
       setActionLoading(null);
     }
@@ -435,9 +438,33 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
         })
       ));
       setSelectedIds(new Set());
+      setBulkCancelOpen(false);
       await fetchItems();
     } catch (error) {
       console.error("Bulk cancel error:", error);
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleBulkResume() {
+    setBulkLoading(true);
+    try {
+      const ids = Array.from(selectedIds).filter((id) => {
+        const item = items.find((i) => i.id === id);
+        return item && ["cancelled", "failed"].includes(item.status || "");
+      });
+      await Promise.all(ids.map((id) =>
+        fetch(`/api/content/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "draft" }),
+        })
+      ));
+      setSelectedIds(new Set());
+      await fetchItems();
+    } catch (error) {
+      console.error("Bulk resume error:", error);
     } finally {
       setBulkLoading(false);
     }
@@ -519,8 +546,11 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-md border bg-muted/50 px-4 py-2">
           <span className="text-sm font-medium">{selectedIds.size} seçili</span>
-          <Button variant="outline" size="sm" className="h-7" onClick={handleBulkCancel} disabled={bulkLoading}>
-            <Ban className="mr-1.5 h-3 w-3" /> İptal Et
+          <Button variant="outline" size="sm" className="h-7" onClick={() => setBulkCancelOpen(true)} disabled={bulkLoading}>
+            <Ban className="mr-1.5 h-3 w-3" /> Durdur
+          </Button>
+          <Button variant="outline" size="sm" className="h-7" onClick={handleBulkResume} disabled={bulkLoading}>
+            <Play className="mr-1.5 h-3 w-3" /> Devam Ettir
           </Button>
           <Button variant="destructive" size="sm" className="h-7" onClick={() => setBulkDeleteOpen(true)} disabled={bulkLoading}>
             <Trash2 className="mr-1.5 h-3 w-3" /> Sil
@@ -562,7 +592,9 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
             const TypeIcon = typeCfg.icon;
             const isSelected = selectedIds.has(item.id);
             const canEdit = ["draft", "scheduled"].includes(item.status || "");
-            const canCancel = ["scheduled", "queued"].includes(item.status || "");
+            const canStop = ["scheduled", "queued"].includes(item.status || "");
+            const canResume = ["cancelled", "failed"].includes(item.status || "");
+            const canBackToDraft = item.status === "scheduled";
 
             return (
               <Card
@@ -669,9 +701,19 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
                                 <Pencil className="mr-2 h-4 w-4" /> Düzenle
                               </DropdownMenuItem>
                             )}
-                            {canCancel && (
-                              <DropdownMenuItem onClick={() => handleCancel(item)}>
-                                <Ban className="mr-2 h-4 w-4" /> İptal Et
+                            {canStop && (
+                              <DropdownMenuItem onClick={() => handleStatusChange(item, "cancelled")}>
+                                <Ban className="mr-2 h-4 w-4" /> Durdur
+                              </DropdownMenuItem>
+                            )}
+                            {canBackToDraft && (
+                              <DropdownMenuItem onClick={() => handleStatusChange(item, "draft")}>
+                                <RotateCcw className="mr-2 h-4 w-4" /> Taslağa Çevir
+                              </DropdownMenuItem>
+                            )}
+                            {canResume && (
+                              <DropdownMenuItem onClick={() => handleStatusChange(item, "draft")}>
+                                <Play className="mr-2 h-4 w-4" /> Devam Ettir
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
@@ -794,14 +836,26 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
             </ScrollArea>
           )}
           <DialogFooter>
-            {detailItem && ["draft", "scheduled", "queued"].includes(detailItem.status || "") && (
+            {detailItem && (
               <div className="flex gap-2 mr-auto">
-                <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); openEdit(detailItem); }}>
-                  <Pencil className="mr-1.5 h-3.5 w-3.5" /> Düzenle
-                </Button>
+                {["draft", "scheduled"].includes(detailItem.status || "") && (
+                  <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); openEdit(detailItem); }}>
+                    <Pencil className="mr-1.5 h-3.5 w-3.5" /> Düzenle
+                  </Button>
+                )}
                 {["scheduled", "queued"].includes(detailItem.status || "") && (
-                  <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleCancel(detailItem); }}>
-                    <Ban className="mr-1.5 h-3.5 w-3.5" /> İptal Et
+                  <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "cancelled"); }}>
+                    <Ban className="mr-1.5 h-3.5 w-3.5" /> Durdur
+                  </Button>
+                )}
+                {detailItem.status === "scheduled" && (
+                  <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "draft"); }}>
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Taslağa Çevir
+                  </Button>
+                )}
+                {["cancelled", "failed"].includes(detailItem.status || "") && (
+                  <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "draft"); }}>
+                    <Play className="mr-1.5 h-3.5 w-3.5" /> Devam Ettir
                   </Button>
                 )}
               </div>
@@ -970,6 +1024,25 @@ export default function ContentHistoryTab({ projectId }: { projectId: string }) 
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteLoading ? "Siliniyor..." : "Sil"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Cancel Confirmation */}
+      <AlertDialog open={bulkCancelOpen} onOpenChange={setBulkCancelOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Toplu Durdurma</AlertDialogTitle>
+            <AlertDialogDescription>
+              Seçili {selectedIds.size} içerikten uygun olanları durdurmak istediğinize emin misiniz?
+              Sadece taslak, zamanlanmış ve kuyrukta olan içerikler durdurulur.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkLoading}>Vazgeç</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkCancel} disabled={bulkLoading}>
+              {bulkLoading ? "Durduruluyor..." : "Durdur"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

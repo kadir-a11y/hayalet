@@ -73,6 +73,8 @@ import {
   Clock,
   Calendar,
   CheckSquare,
+  Play,
+  RotateCcw,
 } from "lucide-react";
 import AiContentContent from "@/components/content/ai-content";
 
@@ -230,6 +232,7 @@ export default function ContentPage() {
   // Bulk selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkCancelOpen, setBulkCancelOpen] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
 
   // Action loading
@@ -408,19 +411,19 @@ export default function ContentPage() {
     }
   }
 
-  async function handleCancel(item: ContentItemRow) {
+  async function handleStatusChange(item: ContentItemRow, newStatus: string) {
     setActionLoading(item.contentItem.id);
     try {
       const res = await fetch(`/api/content/${item.contentItem.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "cancelled" }),
+        body: JSON.stringify({ status: newStatus }),
       });
       if (res.ok) {
         await fetchContent();
       }
     } catch (error) {
-      console.error("Failed to cancel content:", error);
+      console.error("Failed to update status:", error);
     } finally {
       setActionLoading(null);
     }
@@ -468,18 +471,41 @@ export default function ContentPage() {
         const row = items.find((r) => r.contentItem.id === id);
         return row && ["scheduled", "queued", "draft"].includes(row.contentItem.status);
       });
-      const promises = cancellableIds.map((id) =>
+      await Promise.all(cancellableIds.map((id) =>
         fetch(`/api/content/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "cancelled" }),
         })
-      );
-      await Promise.all(promises);
+      ));
       setSelectedIds(new Set());
+      setBulkCancelOpen(false);
       await fetchContent();
     } catch (error) {
       console.error("Failed to bulk cancel:", error);
+    } finally {
+      setBulkLoading(false);
+    }
+  }
+
+  async function handleBulkResume() {
+    setBulkLoading(true);
+    try {
+      const resumableIds = Array.from(selectedIds).filter((id) => {
+        const row = items.find((r) => r.contentItem.id === id);
+        return row && ["cancelled", "failed"].includes(row.contentItem.status);
+      });
+      await Promise.all(resumableIds.map((id) =>
+        fetch(`/api/content/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "draft" }),
+        })
+      ));
+      setSelectedIds(new Set());
+      await fetchContent();
+    } catch (error) {
+      console.error("Failed to bulk resume:", error);
     } finally {
       setBulkLoading(false);
     }
@@ -706,9 +732,13 @@ export default function ContentPage() {
               {selectedIds.size > 0 && (
                 <div className="mt-3 flex items-center gap-3 rounded-md border bg-muted/50 px-4 py-2">
                   <span className="text-sm font-medium">{selectedIds.size} öğe seçili</span>
-                  <Button variant="outline" size="sm" onClick={handleBulkCancel} disabled={bulkLoading}>
+                  <Button variant="outline" size="sm" onClick={() => setBulkCancelOpen(true)} disabled={bulkLoading}>
                     <Ban className="mr-1.5 h-3.5 w-3.5" />
-                    İptal Et
+                    Durdur
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleBulkResume} disabled={bulkLoading}>
+                    <Play className="mr-1.5 h-3.5 w-3.5" />
+                    Devam Ettir
                   </Button>
                   <Button variant="destructive" size="sm" onClick={() => setBulkDeleteOpen(true)} disabled={bulkLoading}>
                     <Trash2 className="mr-1.5 h-3.5 w-3.5" />
@@ -728,7 +758,7 @@ export default function ContentPage() {
                     formatDate={formatDate}
                     onDelete={openDelete}
                     onEdit={openEdit}
-                    onCancel={handleCancel}
+                    onStatusChange={handleStatusChange}
                     onDetail={openDetail}
                     selectedIds={selectedIds}
                     onToggleSelect={toggleSelect}
@@ -785,6 +815,28 @@ export default function ContentPage() {
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   {bulkLoading ? "Siliniyor..." : `${selectedIds.size} İçeriği Sil`}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          {/* Bulk Cancel Confirmation */}
+          <AlertDialog open={bulkCancelOpen} onOpenChange={setBulkCancelOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Toplu Durdurma</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Seçili {selectedIds.size} içerikten uygun olanları durdurmak istediğinize emin misiniz?
+                  Sadece taslak, zamanlanmış ve kuyrukta olan içerikler durdurulur.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={bulkLoading}>Vazgeç</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleBulkCancel}
+                  disabled={bulkLoading}
+                >
+                  {bulkLoading ? "Durduruluyor..." : "Durdur"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -968,16 +1020,30 @@ export default function ContentPage() {
                 </ScrollArea>
               )}
               <DialogFooter>
-                {detailItem && ["draft", "scheduled", "queued"].includes(detailItem.contentItem.status) && (
+                {detailItem && (
                   <div className="flex gap-2 mr-auto">
-                    <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); openEdit(detailItem); }}>
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                      Düzenle
-                    </Button>
+                    {["draft", "scheduled"].includes(detailItem.contentItem.status) && (
+                      <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); openEdit(detailItem); }}>
+                        <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                        Düzenle
+                      </Button>
+                    )}
                     {["scheduled", "queued"].includes(detailItem.contentItem.status) && (
-                      <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleCancel(detailItem); }}>
+                      <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "cancelled"); }}>
                         <Ban className="mr-1.5 h-3.5 w-3.5" />
-                        İptal Et
+                        Durdur
+                      </Button>
+                    )}
+                    {detailItem.contentItem.status === "scheduled" && (
+                      <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "draft"); }}>
+                        <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                        Taslağa Çevir
+                      </Button>
+                    )}
+                    {["cancelled", "failed"].includes(detailItem.contentItem.status) && (
+                      <Button variant="outline" size="sm" onClick={() => { setDetailOpen(false); handleStatusChange(detailItem, "draft"); }}>
+                        <Play className="mr-1.5 h-3.5 w-3.5" />
+                        Devam Ettir
                       </Button>
                     )}
                   </div>
@@ -1003,7 +1069,7 @@ function ContentTable({
   formatDate,
   onDelete,
   onEdit,
-  onCancel,
+  onStatusChange,
   onDetail,
   selectedIds,
   onToggleSelect,
@@ -1014,7 +1080,7 @@ function ContentTable({
   formatDate: (d: string | null) => string;
   onDelete: (item: ContentItemRow) => void;
   onEdit: (item: ContentItemRow) => void;
-  onCancel: (item: ContentItemRow) => void;
+  onStatusChange: (item: ContentItemRow, status: string) => void;
   onDetail: (item: ContentItemRow) => void;
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
@@ -1060,7 +1126,9 @@ function ContentTable({
             const ci = row.contentItem;
             const isSelected = selectedIds.has(ci.id);
             const canEdit = ["draft", "scheduled"].includes(ci.status);
-            const canCancel = ["scheduled", "queued"].includes(ci.status);
+            const canStop = ["scheduled", "queued"].includes(ci.status);
+            const canResume = ["cancelled", "failed"].includes(ci.status);
+            const canBackToDraft = ci.status === "scheduled";
 
             return (
               <TableRow
@@ -1152,10 +1220,22 @@ function ContentTable({
                             Düzenle
                           </DropdownMenuItem>
                         )}
-                        {canCancel && (
-                          <DropdownMenuItem onClick={() => onCancel(row)}>
+                        {canStop && (
+                          <DropdownMenuItem onClick={() => onStatusChange(row, "cancelled")}>
                             <Ban className="mr-2 h-4 w-4" />
-                            İptal Et
+                            Durdur
+                          </DropdownMenuItem>
+                        )}
+                        {canBackToDraft && (
+                          <DropdownMenuItem onClick={() => onStatusChange(row, "draft")}>
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                            Taslağa Çevir
+                          </DropdownMenuItem>
+                        )}
+                        {canResume && (
+                          <DropdownMenuItem onClick={() => onStatusChange(row, "draft")}>
+                            <Play className="mr-2 h-4 w-4" />
+                            Devam Ettir
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
