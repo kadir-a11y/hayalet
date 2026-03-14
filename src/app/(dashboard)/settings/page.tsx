@@ -38,10 +38,12 @@ import {
   Shield,
   Tags,
   Bug,
+  Users,
 } from "lucide-react";
 import RolesContent from "@/components/settings/roles-content";
 import TagsContent from "@/components/settings/tags-content";
 import BugReportsContent from "@/components/settings/bug-reports-content";
+import UsersContent from "@/components/settings/users-content";
 
 interface UserProfile {
   id: string;
@@ -265,6 +267,10 @@ export default function SettingsPage() {
           <TabsTrigger value="tags" className="gap-2">
             <Tags className="h-4 w-4" />
             Etiketler
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-2">
+            <Users className="h-4 w-4" />
+            Kullanıcılar
           </TabsTrigger>
           <TabsTrigger value="bug-reports" className="gap-2">
             <Bug className="h-4 w-4" />
@@ -605,6 +611,11 @@ export default function SettingsPage() {
         {/* Tags Tab */}
         <TabsContent value="tags">
           <TagsContent embedded />
+        </TabsContent>
+
+        {/* Users Tab */}
+        <TabsContent value="users">
+          <UsersContent embedded />
         </TabsContent>
 
         {/* Bug Reports Tab */}
