@@ -55,6 +55,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import ReportsContent from "@/components/analytics/reports-content";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -337,6 +338,7 @@ export default function AnalyticsPage() {
         <TabsList>
           <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
           <TabsTrigger value="engagement">Etkileşim</TabsTrigger>
+          <TabsTrigger value="reports">Raporlar & Dışa Aktarım</TabsTrigger>
         </TabsList>
 
         {/* ================================================================ */}
@@ -839,6 +841,11 @@ export default function AnalyticsPage() {
               </Card>
             </>
           )}
+        </TabsContent>
+
+        {/* Reports Tab */}
+        <TabsContent value="reports" className="space-y-6">
+          <ReportsContent embedded />
         </TabsContent>
       </Tabs>
     </div>

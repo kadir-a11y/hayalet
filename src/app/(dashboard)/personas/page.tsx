@@ -23,7 +23,12 @@ import {
   Share2,
   BadgeCheck,
   AlertTriangle,
+  Save,
+  Bookmark,
+  Trash2,
+  Settings2,
 } from "lucide-react";
+import { usePreferences } from "@/hooks/use-preferences";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -261,8 +266,10 @@ const defaultFormData: CreateFormData = {
 
 function PersonaRow({
   persona,
+  visibleColumns = ["persona", "gender", "birthDate", "language", "country", "status", "tags"],
 }: {
   persona: Persona;
+  visibleColumns?: string[];
 }) {
   return (
     <TableRow
@@ -279,74 +286,84 @@ function PersonaRow({
               {getInitials(persona.name)}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0">
+          <div className="min-w-0 group/name">
             <p className="truncate text-sm font-medium flex items-center gap-1">
               {persona.name}
               {persona.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-blue-500 shrink-0" />}
             </p>
-            <p className="truncate text-xs text-muted-foreground">@{persona.name}</p>
+            <p className="truncate text-xs text-muted-foreground opacity-0 group-hover/name:opacity-100 transition-opacity h-0 group-hover/name:h-auto">@{persona.name}</p>
           </div>
         </div>
       </TableCell>
-      <TableCell>
-        <span className="text-xs">
-          {persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}
-        </span>
-      </TableCell>
-      <TableCell>
-        <span className="text-xs text-muted-foreground">
-          {persona.birthDate || "-"}
-        </span>
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-medium">
-            {languageLabels[persona.language || "tr"] || persona.language}
+      {visibleColumns.includes("gender") && (
+        <TableCell>
+          <span className="text-xs">
+            {persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}
           </span>
-        </div>
-      </TableCell>
-      <TableCell>
-        {(persona.country || persona.city) ? (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span className="truncate">
-              {[persona.city, persona.country].filter(Boolean).join(", ")}
+        </TableCell>
+      )}
+      {visibleColumns.includes("birthDate") && (
+        <TableCell>
+          <span className="text-xs text-muted-foreground">
+            {persona.birthDate || "-"}
+          </span>
+        </TableCell>
+      )}
+      {visibleColumns.includes("language") && (
+        <TableCell>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium">
+              {languageLabels[persona.language || "tr"] || persona.language}
             </span>
           </div>
-        ) : (
-          <span className="text-xs text-muted-foreground">-</span>
-        )}
-      </TableCell>
-      <TableCell>
-        <Badge
-          variant={persona.isActive ? "default" : "secondary"}
-          className="text-xs"
-        >
-          {persona.isActive ? "Aktif" : "Pasif"}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <div className="flex flex-wrap gap-1">
-          {persona.tags.slice(0, 3).map((tag) => (
-            <Badge
-              key={tag.id}
-              variant="outline"
-              className="text-xs px-1.5 py-0"
-              style={{
-                borderColor: tag.color ?? undefined,
-                color: tag.color ?? undefined,
-              }}
-            >
-              {tag.name}
-            </Badge>
-          ))}
-          {persona.tags.length > 3 && (
-            <span className="text-xs text-muted-foreground">
-              +{persona.tags.length - 3}
-            </span>
+        </TableCell>
+      )}
+      {visibleColumns.includes("country") && (
+        <TableCell>
+          {persona.country ? (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">{persona.country}</span>
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">-</span>
           )}
-        </div>
-      </TableCell>
+        </TableCell>
+      )}
+      {visibleColumns.includes("status") && (
+        <TableCell>
+          <Badge
+            variant={persona.isActive ? "default" : "secondary"}
+            className="text-xs"
+          >
+            {persona.isActive ? "Aktif" : "Pasif"}
+          </Badge>
+        </TableCell>
+      )}
+      {visibleColumns.includes("tags") && (
+        <TableCell>
+          <div className="flex items-center gap-1.5">
+            {persona.tags.slice(0, 2).map((tag) => (
+              <Badge
+                key={tag.id}
+                variant="outline"
+                className="text-xs px-1.5 py-0 whitespace-nowrap"
+                style={{
+                  borderColor: tag.color ?? undefined,
+                  color: tag.color ?? undefined,
+                }}
+              >
+                {tag.name}
+              </Badge>
+            ))}
+            {persona.tags.length > 2 && (
+              <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                +{persona.tags.length - 2}
+              </Badge>
+            )}
+          </div>
+        </TableCell>
+      )}
     </TableRow>
   );
 }
@@ -1089,12 +1106,97 @@ function PersonasPage() {
   const sortBy = searchParams.get("sort") || "newest";
   const viewMode = (searchParams.get("view") || "table") as "table" | "grid";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = parseInt(searchParams.get("size") || "25", 10);
+  const pageSize = parseInt(searchParams.get("size") || "10", 10);
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [searchInput, setSearchInput] = useState(search);
+
+  // #16: Saved filters, #17: Last session, #18: Column selector
+  const { get: getPref, set: setPref, remove: removePref, getAll: getAllPrefs, loaded: prefsLoaded } = usePreferences("personas");
+  const [saveFilterName, setSaveFilterName] = useState("");
+  const [showSaveFilter, setShowSaveFilter] = useState(false);
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
+
+  // Default visible columns
+  const defaultColumns = ["persona", "gender", "birthDate", "language", "country", "status", "tags"];
+  const visibleColumns: string[] = getPref<string[]>("visibleColumns", defaultColumns) ?? defaultColumns;
+
+  // #17: Restore last session filters on first load (only when no URL params)
+  const sessionRestored = useRef(false);
+  useEffect(() => {
+    if (!prefsLoaded || sessionRestored.current) return;
+    sessionRestored.current = true;
+    // Only restore if URL has no filter params
+    const hasUrlFilters = searchParams.toString().length > 0;
+    if (hasUrlFilters) return;
+    const lastSession = getPref<Record<string, string>>("lastSession");
+    if (lastSession && Object.keys(lastSession).length > 0) {
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(lastSession)) {
+        if (value && value !== "all" && value !== "newest" && value !== "table" && value !== "1" && value !== "10") {
+          params.set(key, value);
+        }
+      }
+      const qs = params.toString();
+      if (qs) router.replace(`/personas?${qs}`, { scroll: false });
+    }
+  }, [prefsLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // #17: Save current filters as last session
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    const session: Record<string, string> = {};
+    if (search) session.q = search;
+    if (filterGender !== "all") session.gender = filterGender;
+    if (filterStatus !== "all") session.status = filterStatus;
+    if (filterCountry !== "all") session.country = filterCountry;
+    if (filterLanguage !== "all") session.lang = filterLanguage;
+    if (filterTag !== "all") session.tag = filterTag;
+    if (filterRole !== "all") session.role = filterRole;
+    if (sortBy !== "newest") session.sort = sortBy;
+    if (viewMode !== "table") session.view = viewMode;
+    if (pageSize !== 10) session.size = String(pageSize);
+    setPref("lastSession", session);
+  }, [search, filterGender, filterStatus, filterCountry, filterLanguage, filterTag, filterRole, sortBy, viewMode, pageSize, prefsLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // #16: Saved filters helpers
+  const savedFilters = getAllPrefs("savedFilter_");
+  const saveCurrentFilter = () => {
+    if (!saveFilterName.trim()) return;
+    const filterState: Record<string, string> = {};
+    if (search) filterState.q = search;
+    if (filterGender !== "all") filterState.gender = filterGender;
+    if (filterStatus !== "all") filterState.status = filterStatus;
+    if (filterCountry !== "all") filterState.country = filterCountry;
+    if (filterLanguage !== "all") filterState.lang = filterLanguage;
+    if (filterTag !== "all") filterState.tag = filterTag;
+    if (filterRole !== "all") filterState.role = filterRole;
+    if (sortBy !== "newest") filterState.sort = sortBy;
+    setPref(`savedFilter_${saveFilterName.trim()}`, filterState);
+    setSaveFilterName("");
+    setShowSaveFilter(false);
+  };
+  const applySavedFilter = (filterData: unknown) => {
+    const data = filterData as Record<string, string>;
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(data)) {
+      params.set(key, value);
+    }
+    router.replace(`/personas?${params.toString()}`, { scroll: false });
+  };
+  const deleteSavedFilter = (name: string) => {
+    removePref(`savedFilter_${name}`);
+  };
+
+  // #18: Column toggle
+  const toggleColumn = (col: string) => {
+    const next = visibleColumns.includes(col)
+      ? visibleColumns.filter((c) => c !== col)
+      : [...visibleColumns, col];
+    setPref("visibleColumns", next);
+  };
 
   // Debounce search input to URL
   useEffect(() => {
@@ -1110,7 +1212,7 @@ function PersonasPage() {
   const updateParams = useCallback((updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(updates)) {
-      if (value === null || value === "" || value === "all" || (key === "sort" && value === "newest") || (key === "view" && value === "table") || (key === "page" && value === "1") || (key === "size" && value === "25")) {
+      if (value === null || value === "" || value === "all" || (key === "sort" && value === "newest") || (key === "view" && value === "table") || (key === "page" && value === "1") || (key === "size" && value === "10")) {
         params.delete(key);
       } else {
         params.set(key, value);
@@ -1163,7 +1265,7 @@ function PersonasPage() {
   const uniqueTags = [...new Map(personas.flatMap((p) => p.tags).map((t) => [t.id, t])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
   const uniqueRoles = [...new Map(personas.flatMap((p) => p.roles || []).map((r) => [r.id, r])).values()].sort((a, b) => a.name.localeCompare(b.name, "tr"));
 
-  const activeFilterCount = [filterCountry, filterLanguage, filterTag, filterRole].filter((f) => f !== "all").length + filterAccounts.length;
+  const activeFilterCount = [filterGender, filterStatus, filterCountry, filterLanguage, filterTag, filterRole].filter((f) => f !== "all").length + filterAccounts.length;
 
   // Filters now use URL search params - page reset happens in updateParams
 
@@ -1235,16 +1337,11 @@ function PersonasPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Header — #13: Compact 2-line header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Personas</h1>
-          {!isLoading && (
-            <p className="text-sm text-muted-foreground">
-              Toplam {personas.length} persona
-            </p>
-          )}
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Personas{!isLoading && <span className="text-muted-foreground font-normal text-lg ml-2">({filteredPersonas.length})</span>}
+        </h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={() => setBulkDialogOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
@@ -1257,56 +1354,18 @@ function PersonasPage() {
         </div>
       </div>
 
-      <Separator />
-
-      {/* Search + Filters + View Toggle */}
+      {/* Search + Sort + Filters + View Toggle — #14: Consolidated filter bar */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Persona, ülke, şehir, etiket veya rol ara..."
+              placeholder="Persona, ülke, etiket veya rol ara..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9"
             />
           </div>
-
-          <Select value={filterGender} onValueChange={setFilterGender}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Cinsiyet" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tümü</SelectItem>
-              <SelectItem value="erkek">Erkek</SelectItem>
-              <SelectItem value="kadın">Kadın</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Durum" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tümü</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="inactive">Pasif</SelectItem>
-              <SelectItem value="verified">Onaylı</SelectItem>
-              <SelectItem value="unverified">Onaysız</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Sıralama" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">En Yeni</SelectItem>
-              <SelectItem value="oldest">En Eski</SelectItem>
-              <SelectItem value="name_asc">İsim (A-Z)</SelectItem>
-              <SelectItem value="name_desc">İsim (Z-A)</SelectItem>
-            </SelectContent>
-          </Select>
 
           <Button
             variant={showAdvancedFilters ? "secondary" : "outline"}
@@ -1322,6 +1381,18 @@ function PersonasPage() {
               </Badge>
             )}
           </Button>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Sıralama" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">En Yeni</SelectItem>
+              <SelectItem value="oldest">En Eski</SelectItem>
+              <SelectItem value="name_asc">İsim (A-Z)</SelectItem>
+              <SelectItem value="name_desc">İsim (Z-A)</SelectItem>
+            </SelectContent>
+          </Select>
 
           <div className="flex rounded-lg border">
             <Button
@@ -1341,11 +1412,122 @@ function PersonasPage() {
               <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
+
+          {/* #18: Column selector */}
+          <Popover open={showColumnSelector} onOpenChange={setShowColumnSelector}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon" className="h-9 w-9">
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-2" align="end">
+              <p className="text-xs font-medium text-muted-foreground mb-2 px-2">Görünür Sütunlar</p>
+              {[
+                { key: "gender", label: "Cinsiyet" },
+                { key: "birthDate", label: "Doğum Tarihi" },
+                { key: "language", label: "Dil" },
+                { key: "country", label: "Ülke" },
+                { key: "status", label: "Durum" },
+                { key: "tags", label: "Etiketler" },
+              ].map((col) => (
+                <label key={col.key} className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-muted rounded cursor-pointer">
+                  <Checkbox
+                    checked={visibleColumns.includes(col.key)}
+                    onCheckedChange={() => toggleColumn(col.key)}
+                  />
+                  {col.label}
+                </label>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
+
+        {/* #16: Saved filters bar */}
+        {(Object.keys(savedFilters).length > 0 || activeFilterCount > 0) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {Object.entries(savedFilters).map(([name, data]) => (
+              <div key={name} className="flex items-center gap-0.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs gap-1.5"
+                  onClick={() => applySavedFilter(data)}
+                >
+                  <Bookmark className="h-3 w-3" />
+                  {name}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => deleteSavedFilter(name)}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+            {activeFilterCount > 0 && (
+              <>
+                {showSaveFilter ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      placeholder="Filtre adı..."
+                      value={saveFilterName}
+                      onChange={(e) => setSaveFilterName(e.target.value)}
+                      className="h-7 w-32 text-xs"
+                      onKeyDown={(e) => { if (e.key === "Enter") saveCurrentFilter(); }}
+                    />
+                    <Button size="sm" className="h-7 text-xs" onClick={saveCurrentFilter} disabled={!saveFilterName.trim()}>
+                      <Save className="h-3 w-3 mr-1" />
+                      Kaydet
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setShowSaveFilter(false)}>
+                      İptal
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => setShowSaveFilter(true)}
+                  >
+                    <Save className="h-3 w-3" />
+                    Filtreyi Kaydet
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {/* Advanced Filters */}
         {showAdvancedFilters && (
           <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+            <Select value={filterGender} onValueChange={setFilterGender}>
+              <SelectTrigger className="w-[130px] h-8 text-sm">
+                <SelectValue placeholder="Cinsiyet" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Cinsiyet</SelectItem>
+                <SelectItem value="erkek">Erkek</SelectItem>
+                <SelectItem value="kadın">Kadın</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[130px] h-8 text-sm">
+                <SelectValue placeholder="Durum" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Durum</SelectItem>
+                <SelectItem value="active">Aktif</SelectItem>
+                <SelectItem value="inactive">Pasif</SelectItem>
+                <SelectItem value="verified">Onaylı</SelectItem>
+                <SelectItem value="unverified">Onaysız</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={filterCountry} onValueChange={setFilterCountry}>
               <SelectTrigger className="w-[150px] h-8 text-sm">
                 <Globe className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -1559,12 +1741,12 @@ function PersonasPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Persona</TableHead>
-                <TableHead className="w-[70px]">Cinsiyet</TableHead>
-                <TableHead className="w-[100px]">Doğum Tarihi</TableHead>
-                <TableHead className="w-[60px]">Dil</TableHead>
-                <TableHead className="w-[160px]">Konum</TableHead>
-                <TableHead className="w-[80px]">Durum</TableHead>
-                <TableHead className="w-[200px]">Etiketler</TableHead>
+                {visibleColumns.includes("gender") && <TableHead className="w-[70px]">Cinsiyet</TableHead>}
+                {visibleColumns.includes("birthDate") && <TableHead className="w-[100px]">Doğum Tarihi</TableHead>}
+                {visibleColumns.includes("language") && <TableHead className="w-[60px]">Dil</TableHead>}
+                {visibleColumns.includes("country") && <TableHead className="w-[130px]">Ülke</TableHead>}
+                {visibleColumns.includes("status") && <TableHead className="w-[80px]">Durum</TableHead>}
+                {visibleColumns.includes("tags") && <TableHead className="w-[200px]">Etiketler</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1572,6 +1754,7 @@ function PersonasPage() {
                 <PersonaRow
                   key={persona.id}
                   persona={persona}
+                  visibleColumns={visibleColumns}
                 />
               ))}
             </TableBody>

@@ -33,7 +33,13 @@ import {
   CheckCircle2,
   AlertCircle,
   Info,
+  Shield,
+  Tags,
+  Bug,
 } from "lucide-react";
+import RolesContent from "@/components/settings/roles-content";
+import TagsContent from "@/components/settings/tags-content";
+import BugReportsContent from "@/components/settings/bug-reports-content";
 
 interface UserProfile {
   id: string;
@@ -249,6 +255,18 @@ export default function SettingsPage() {
           <TabsTrigger value="preferences" className="gap-2">
             <Globe className="h-4 w-4" />
             Tercihler
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="gap-2">
+            <Shield className="h-4 w-4" />
+            Roller
+          </TabsTrigger>
+          <TabsTrigger value="tags" className="gap-2">
+            <Tags className="h-4 w-4" />
+            Etiketler
+          </TabsTrigger>
+          <TabsTrigger value="bug-reports" className="gap-2">
+            <Bug className="h-4 w-4" />
+            Bug Bildirimleri
           </TabsTrigger>
         </TabsList>
 
@@ -575,6 +593,21 @@ export default function SettingsPage() {
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Roles Tab */}
+        <TabsContent value="roles">
+          <RolesContent embedded />
+        </TabsContent>
+
+        {/* Tags Tab */}
+        <TabsContent value="tags">
+          <TagsContent embedded />
+        </TabsContent>
+
+        {/* Bug Reports Tab */}
+        <TabsContent value="bug-reports">
+          <BugReportsContent embedded />
         </TabsContent>
       </Tabs>
     </div>

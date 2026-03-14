@@ -41,7 +41,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, FileText, Trash2, Twitter, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Plus, FileText, Trash2, Twitter, Instagram, Facebook, Linkedin, Sparkles } from "lucide-react";
+import AiContentContent from "@/components/content/ai-content";
 
 // --- Types ---
 
@@ -298,6 +299,25 @@ export default function ContentPage() {
             İçerik kuyruğunuzu oluşturun, zamanlayın ve yönetin.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          {/* page-level tabs will be added below */}
+        </div>
+      </div>
+
+      <Tabs defaultValue="list" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="list" className="gap-2">
+            <FileText className="h-4 w-4" />
+            İçerik Listesi
+          </TabsTrigger>
+          <TabsTrigger value="ai-generate" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            AI Üretici
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-6">
+        <div className="flex items-center justify-end">
         <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) resetCreateForm(); }}>
           <DialogTrigger asChild>
             <Button>
@@ -450,6 +470,12 @@ export default function ContentPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+        </TabsContent>
+
+        <TabsContent value="ai-generate">
+          <AiContentContent embedded />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

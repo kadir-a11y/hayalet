@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Users,
-  Tags,
   FileText,
   Megaphone,
   BarChart3,
@@ -13,12 +12,8 @@ import {
   LogOut,
   Menu,
   X,
-  Shield,
   FolderKanban,
-  Bug,
   Radar,
-  Sparkles,
-  FileDown,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -37,16 +32,11 @@ import { BugReporter } from "@/components/bug-reporter";
 
 const navItems = [
   { href: "/personas", label: "Personas", icon: Users },
-  { href: "/roles", label: "Roller", icon: Shield },
-  { href: "/tags", label: "Etiketler", icon: Tags },
   { href: "/content", label: "İçerik", icon: FileText },
   { href: "/campaigns", label: "Kampanyalar", icon: Megaphone },
   { href: "/projects", label: "Projeler", icon: FolderKanban },
   { href: "/monitoring", label: "İzleme", icon: Radar },
-  { href: "/ai-content", label: "AI İçerik", icon: Sparkles },
-  { href: "/reports", label: "Raporlar", icon: FileDown },
   { href: "/analytics", label: "Analitik", icon: BarChart3 },
-  { href: "/bug-reports", label: "Bug Bildirimleri", icon: Bug },
   { href: "/settings", label: "Ayarlar", icon: Settings },
 ];
 
@@ -188,12 +178,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   // Persist collapse state
   useEffect(() => {
     const saved = localStorage.getItem("sidebar-collapsed");
-    if (saved === "true") setCollapsed(true);
+    if (saved !== null) setCollapsed(saved === "true");
   }, []);
 
   const toggleCollapse = () => {

@@ -29,6 +29,7 @@ export { engagementMetrics } from "./engagement-metrics";
 export { workspaceSessions } from "./workspace-sessions";
 export { workspaceResponses } from "./workspace-responses";
 export { organicActivityConfig, organicActivityLog } from "./organic-activity";
+export { userPreferences } from "./user-preferences";
 
 import { users } from "./users";
 import { personas } from "./personas";
@@ -59,6 +60,7 @@ import { engagementMetrics } from "./engagement-metrics";
 import { workspaceSessions } from "./workspace-sessions";
 import { workspaceResponses } from "./workspace-responses";
 import { organicActivityConfig, organicActivityLog } from "./organic-activity";
+import { userPreferences } from "./user-preferences";
 
 // ── Users relations ──────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
@@ -72,6 +74,15 @@ export const usersRelations = relations(users, ({ many }) => ({
   playbooks: many(projectPlaybooks),
   bugReports: many(bugReports),
   monitoredTopics: many(monitoredTopics),
+  preferences: many(userPreferences),
+}));
+
+// ── User preferences relations ──────────────────────────────────────
+export const userPreferencesRelations = relations(userPreferences, ({ one }) => ({
+  user: one(users, {
+    fields: [userPreferences.userId],
+    references: [users.id],
+  }),
 }));
 
 // ── Personas relations ───────────────────────────────────────────────
