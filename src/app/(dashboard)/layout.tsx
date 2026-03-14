@@ -36,7 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { BugReporter } from "@/components/bug-reporter";
 
@@ -60,15 +60,26 @@ function Sidebar({
   onToggle?: () => void;
 }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const userName = session?.user?.name || "Kullanıcı";
-  const userEmail = session?.user?.email || "";
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string }>({ name: "", email: "" });
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((s) => {
+        if (s?.user) setUserInfo({ name: s.user.name || "Kullanıcı", email: s.user.email || "" });
+      })
+      .catch(() => {});
+  }, []);
+
+  const userName = userInfo.name || "Kullanıcı";
+  const userEmail = userInfo.email;
   const initials = userName
     .split(" ")
+    .filter(Boolean)
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2) || "U";
 
   return (
     <TooltipProvider delayDuration={0}>
