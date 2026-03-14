@@ -16,6 +16,8 @@ export async function GET() {
       id: users.id,
       name: users.name,
       email: users.email,
+      title: users.title,
+      responsibilities: users.responsibilities,
       isAdmin: users.isAdmin,
       createdAt: users.createdAt,
     })
@@ -28,6 +30,8 @@ const createUserSchema = z.object({
   name: z.string().min(1, "İsim zorunludur"),
   email: z.string().email("Geçerli e-posta giriniz"),
   password: z.string().min(6, "Şifre en az 6 karakter olmalıdır"),
+  title: z.string().optional(),
+  responsibilities: z.string().optional(),
   isAdmin: z.boolean().default(true),
 });
 
@@ -52,12 +56,16 @@ export async function POST(req: NextRequest) {
         name: parsed.data.name,
         email: parsed.data.email,
         passwordHash,
+        title: parsed.data.title,
+        responsibilities: parsed.data.responsibilities,
         isAdmin: parsed.data.isAdmin,
       })
       .returning({
         id: users.id,
         name: users.name,
         email: users.email,
+        title: users.title,
+        responsibilities: users.responsibilities,
         isAdmin: users.isAdmin,
       });
 

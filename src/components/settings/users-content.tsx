@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -46,13 +47,14 @@ import {
   Loader2,
   KeyRound,
   Shield,
-  ShieldOff,
 } from "lucide-react";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  title: string | null;
+  responsibilities: string | null;
   isAdmin: boolean;
   createdAt: string;
 }
@@ -66,6 +68,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [createPassword, setCreatePassword] = useState("");
+  const [createTitle, setCreateTitle] = useState("");
+  const [createResponsibilities, setCreateResponsibilities] = useState("");
   const [createIsAdmin, setCreateIsAdmin] = useState(true);
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState("");
@@ -75,6 +79,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
   const [editUser, setEditUser] = useState<User | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+  const [editResponsibilities, setEditResponsibilities] = useState("");
   const [editIsAdmin, setEditIsAdmin] = useState(true);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
@@ -120,6 +126,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
           name: createName.trim(),
           email: createEmail.trim(),
           password: createPassword,
+          title: createTitle.trim() || undefined,
+          responsibilities: createResponsibilities.trim() || undefined,
           isAdmin: createIsAdmin,
         }),
       });
@@ -142,6 +150,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
     setCreateName("");
     setCreateEmail("");
     setCreatePassword("");
+    setCreateTitle("");
+    setCreateResponsibilities("");
     setCreateIsAdmin(true);
     setCreateError("");
   }
@@ -150,6 +160,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
     setEditUser(user);
     setEditName(user.name);
     setEditEmail(user.email);
+    setEditTitle(user.title || "");
+    setEditResponsibilities(user.responsibilities || "");
     setEditIsAdmin(user.isAdmin);
     setEditError("");
     setEditOpen(true);
@@ -166,6 +178,8 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
         body: JSON.stringify({
           name: editName.trim(),
           email: editEmail.trim(),
+          title: editTitle.trim() || null,
+          responsibilities: editResponsibilities.trim() || null,
           isAdmin: editIsAdmin,
         }),
       });
@@ -278,9 +292,14 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
                     {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-medium">{user.name}</p>
+                    {user.title && (
+                      <Badge variant="outline" className="text-xs font-normal">
+                        {user.title}
+                      </Badge>
+                    )}
                     {user.isAdmin && (
                       <Badge variant="secondary" className="text-xs">
                         <Shield className="mr-1 h-3 w-3" />
@@ -289,11 +308,16 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
+                  {user.responsibilities && (
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                      {user.responsibilities}
+                    </p>
+                  )}
                 </div>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -340,6 +364,14 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
               <Label>Şifre</Label>
               <Input type="password" value={createPassword} onChange={(e) => setCreatePassword(e.target.value)} placeholder="En az 6 karakter" />
             </div>
+            <div className="space-y-2">
+              <Label>Ünvan / Pozisyon</Label>
+              <Input value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} placeholder="Örn: Proje Yöneticisi" />
+            </div>
+            <div className="space-y-2">
+              <Label>Sorumluluk Alanları</Label>
+              <Textarea value={createResponsibilities} onChange={(e) => setCreateResponsibilities(e.target.value)} placeholder="Örn: Proje yönetimi, stratejik kararlar, mimari tasarım..." rows={3} />
+            </div>
             <div className="flex items-center justify-between">
               <Label>Admin Yetkisi</Label>
               <Switch checked={createIsAdmin} onCheckedChange={setCreateIsAdmin} />
@@ -372,6 +404,14 @@ export default function UsersContent({ embedded }: { embedded?: boolean }) {
             <div className="space-y-2">
               <Label>E-posta</Label>
               <Input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Ünvan / Pozisyon</Label>
+              <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Örn: Proje Yöneticisi" />
+            </div>
+            <div className="space-y-2">
+              <Label>Sorumluluk Alanları</Label>
+              <Textarea value={editResponsibilities} onChange={(e) => setEditResponsibilities(e.target.value)} placeholder="Sorumluluk alanlarını yazın..." rows={3} />
             </div>
             <div className="flex items-center justify-between">
               <Label>Admin Yetkisi</Label>

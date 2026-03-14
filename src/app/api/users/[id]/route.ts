@@ -10,6 +10,8 @@ const updateUserSchema = z.object({
   name: z.string().min(1).optional(),
   email: z.string().email().optional(),
   password: z.string().min(6).optional(),
+  title: z.string().nullable().optional(),
+  responsibilities: z.string().nullable().optional(),
   isAdmin: z.boolean().optional(),
 });
 
@@ -35,6 +37,8 @@ export async function PATCH(
 
   if (parsed.data.name) updateData.name = parsed.data.name;
   if (parsed.data.email) updateData.email = parsed.data.email;
+  if (parsed.data.title !== undefined) updateData.title = parsed.data.title;
+  if (parsed.data.responsibilities !== undefined) updateData.responsibilities = parsed.data.responsibilities;
   if (parsed.data.isAdmin !== undefined) updateData.isAdmin = parsed.data.isAdmin;
   if (parsed.data.password) {
     updateData.passwordHash = await hash(parsed.data.password, 12);
@@ -49,6 +53,8 @@ export async function PATCH(
         id: users.id,
         name: users.name,
         email: users.email,
+        title: users.title,
+        responsibilities: users.responsibilities,
         isAdmin: users.isAdmin,
       });
 

@@ -80,15 +80,10 @@ interface UserItem {
   id: string;
   name: string;
   email: string;
+  title: string | null;
+  responsibilities: string | null;
   isAdmin: boolean;
 }
-
-const TEAM_ROLES: Record<string, string> = {
-  "Kadir Kurtuluş": "Proje Yöneticisi & Baş Geliştirici",
-  "Enes Almış": "Backend Geliştirici & Sistem Yönetimi",
-  "Murat Bütün": "Frontend Geliştirici & UI/UX",
-  "Oğulcan Altaş": "İçerik Stratejisti & Test",
-};
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   pending: { label: "Bekliyor", color: "bg-gray-100 text-gray-700 border-gray-200", icon: Clock },
@@ -299,7 +294,7 @@ export default function TasksPage() {
           const userTasks = tasks.filter((t) => t.task.assignedTo === user.id);
           const active = userTasks.filter((t) => ["pending", "in_progress"].includes(t.task.status)).length;
           const done = userTasks.filter((t) => t.task.status === "completed").length;
-          const role = TEAM_ROLES[user.name] || "Ekip Üyesi";
+          const role = user.title || "Ekip Üyesi";
 
           return (
             <Card key={user.id} className="hover:shadow-sm transition-shadow">

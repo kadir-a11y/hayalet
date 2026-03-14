@@ -4,42 +4,41 @@ const { hash } = pkg;
 
 const client = postgres(process.env.DATABASE_URL);
 
+const TEAM_DATA = {
+  "kadirkurtulus@hayalet.dev": {
+    title: "Proje Yöneticisi",
+    responsibilities: "Proje yönetimi, yeni mimariler, stratejik kararlar",
+  },
+  "muratbutun@hayalet.dev": {
+    title: "Veri & API Yöneticisi",
+    responsibilities: "Veri akışı, API yönetimi, içerik beslemesi, monitoring işlemleri, proxy işlemleri",
+  },
+  "ogulcanaltas@hayalet.dev": {
+    title: "Proje Tasarım & Strateji",
+    responsibilities: "Bug takibi, proje tasarımı ve yönetimi, içerik strateji ve kararları, kişi API ve bağlantıları, kişilerin günlük içerik yönetimi",
+  },
+  "enesalmis@hayalet.dev": {
+    title: "Persona & Hesap Yöneticisi",
+    responsibilities: "Persona yönetimi, personalara eksiksiz eposta/telefon/email/sosyal medya hesapları, API'lerin sisteme girilmesi",
+  },
+};
+
 async function run() {
   const existing = await client`SELECT id, name, email, is_admin FROM users`;
   console.log("Mevcut kullanicilar:", existing.map(u => u.name + " (" + u.email + ")"));
 
-  const adminUser = existing.find(u => u.email === "admin@hayalet.dev");
-  if (adminUser) {
-    await client`UPDATE users SET name = ${"Kadir Kurtuluş"}, email = ${"kadirkurtulus@hayalet.dev"}, is_admin = true WHERE id = ${adminUser.id}`;
-    console.log("Admin guncellendi -> Kadir Kurtulus");
+  // Update titles and responsibilities
+  for (const [email, data] of Object.entries(TEAM_DATA)) {
+    const user = existing.find(u => u.email === email);
+    if (user) {
+      await client`UPDATE users SET title = ${data.title}, responsibilities = ${data.responsibilities} WHERE id = ${user.id}`;
+      console.log("Guncellendi:", user.name, "->", data.title);
+    }
   }
 
-  const enesUser = existing.find(u => u.name && u.name.toLowerCase().includes("enes"));
-  if (enesUser) {
-    await client`UPDATE users SET name = ${"Enes Almış"}, email = ${"enesalmis@hayalet.dev"}, is_admin = true WHERE id = ${enesUser.id}`;
-    console.log("Enes guncellendi -> Enes Almis");
-  }
-
-  const pw = await hash(process.env.ADMIN_PASSWORD || "Hayalet2026!Secure", 12);
-
-  const ogulcanExists = existing.find(u => u.email === "ogulcanaltas@hayalet.dev");
-  if (!ogulcanExists) {
-    await client`INSERT INTO users (name, email, password_hash, is_admin) VALUES (${"Oğulcan Altaş"}, ${"ogulcanaltas@hayalet.dev"}, ${pw}, true)`;
-    console.log("Ogulcan Altas eklendi");
-  }
-
-  const muratExists = existing.find(u => u.email === "muratbutun@hayalet.dev");
-  if (!muratExists) {
-    await client`INSERT INTO users (name, email, password_hash, is_admin) VALUES (${"Murat Bütün"}, ${"muratbutun@hayalet.dev"}, ${pw}, true)`;
-    console.log("Murat Butun eklendi");
-  }
-
-  await client`UPDATE users SET is_admin = true`;
-  console.log("Tum kullanicilar admin yapildi");
-
-  const final = await client`SELECT name, email, is_admin FROM users`;
+  const final = await client`SELECT name, email, title, responsibilities FROM users`;
   console.log("\nSon kullanici listesi:");
-  final.forEach(u => console.log("  -", u.name, "(" + u.email + ") admin=" + u.is_admin));
+  final.forEach(u => console.log("  -", u.name, "|", u.title || "-", "|", u.responsibilities || "-"));
 
   await client.end();
 }
