@@ -48,6 +48,24 @@ Bu adımlar sadece 1 kere yapılır. `.env` oluşturulduktan sonra bu bölüm at
 
 ---
 
+## 🔴 ZORUNLU: Görev Takibi Güncellemesi
+
+**Her görev tamamlandığında ANINDA Notion Görev Takibi DB'sini güncelle.**
+Bu kural session sonu beklenmez — görev biter bitmez yapılır.
+
+### Kural:
+- Bir göreve başladığında → Durum: "Devam Ediyor" olarak güncelle
+- Bir görevi bitirdiğinde → Durum: "Tamamlandı" olarak güncelle
+- Blocker varsa → Durum: "Beklemede" olarak güncelle
+- ASLA "toplu güncelleme yaparım" deme — HER GÖREVİ TEK TEK güncelle
+- Görev Takibi DB: https://www.notion.so/e9a281ceb8724c76a519b93f80b67295
+
+### Güncelleme yöntemi:
+Notion MCP ile görev sayfasını bul ve Durum property'sini güncelle.
+Bulamıyorsan kullanıcıya söyle, sessizce geçme.
+
+---
+
 ## 🔴 ZORUNLU: Session Bitiş — BUNLARI YAPMADAN SESSION BİTMEZ
 
 Kullanıcı "bitti", "tamam", "kapat", "son", "bitir" veya benzeri bir şey derse:
