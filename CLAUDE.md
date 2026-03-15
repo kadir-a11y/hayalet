@@ -11,18 +11,23 @@ Repo: github.com/kadir-a11y/persona (private)
 
 1. Bu dosyayı oku ✓ (zaten okudun)
 2. `.env` dosyası var mı kontrol et. YOKSA → aşağıdaki "İlk Kurulum" bölümüne git, ÖNCE onu çöz.
-3. Notion Handoff Log'un **EN ÜSTTEKİ** kaydını oku:
+3. `git log --oneline -20` çalıştır → ne yapılmış gör
+4. Notion Handoff Log'un **EN ÜSTTEKİ** kaydını oku:
    → https://www.notion.so/323dccfc21ee8185aee7e4f31747bffb
-4. Kullanıcıya şu formatla başla — TAHMİN ETME, HANDOFF'TAN OKU:
+5. **Notion Görev Takibi DB'yi kontrol et** — hangi görevler "Tamamlandı", hangileri "Yapılacak":
+   → https://www.notion.so/e9a281ceb8724c76a519b93f80b67295
+   **KURAL: "Tamamlandı" olan görevleri TEKRAR ÖNERMEYECEKSİN. Sadece "Yapılacak" ve "Devam Ediyor" görevlerle ilgilen.**
+   **Çelişirse: git log > Görev DB > Handoff Log (bu sıra)**
+6. Kullanıcıya şu formatla başla — TAHMİN ETME, HANDOFF + DB'DEN OKU:
    ```
    Son session: [tarih — başlık]
-   Yapılan: [kısa özet]
-   Kalınan yer: [nerede kalındı]
-   Önerilen adım: [handoff'taki öneri]
+   Tamamlanan görevler: [DB'den oku]
+   Kalan görevler: [DB'den oku — "Yapılacak" olanları listele]
+   Önerilen adım: [kalan görevlerden en yüksek öncelikli]
    
    Bununla devam edelim mi, yoksa farklı bir şey mi yapalım?
    ```
-5. Kullanıcı onay verene kadar kod yazma.
+7. Kullanıcı onay verene kadar kod yazma.
 
 Gerekirse ek bilgi için:
 - Claude Context (iş kuralları, tuzaklar): https://www.notion.so/323dccfc21ee81b3b248df22166f42aa
@@ -63,6 +68,15 @@ Bu kural session sonu beklenmez — görev biter bitmez yapılır.
 ### Güncelleme yöntemi:
 Notion MCP ile görev sayfasını bul ve Durum property'sini güncelle.
 Bulamıyorsan kullanıcıya söyle, sessizce geçme.
+
+---
+
+## 🔴 ZORUNLU: Session İçi Akış
+
+- Görev bitti → commit et → Notion'da Tamamlandı yap → sıradaki göreve GEÇ. Soru sorma, liste sunma.
+- Sadece BLOCKER varsa veya KARAR GEREKİYORSA dur ve sor.
+- "Başlayayım mı?" diye sorma — başla.
+- Her 3 commit sonrası → Handoff Log güncelle (kısa da olsa).
 
 ---
 
