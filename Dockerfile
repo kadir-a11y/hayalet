@@ -34,13 +34,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy worker and queue files
+# Copy worker, queue, and all lib files needed at runtime
 COPY --from=builder /app/worker.ts ./worker.ts
-COPY --from=builder /app/src/lib/queue ./src/lib/queue
-COPY --from=builder /app/src/lib/ai ./src/lib/ai
-COPY --from=builder /app/src/lib/db ./src/lib/db
-COPY --from=builder /app/src/lib/services ./src/lib/services
-COPY --from=builder /app/src/lib/validators ./src/lib/validators
+COPY --from=builder /app/src/lib ./src/lib
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
