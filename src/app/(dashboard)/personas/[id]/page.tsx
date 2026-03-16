@@ -108,6 +108,12 @@ interface SocialAccount {
   apiSecretKey: string | null;
   accessToken: string | null;
   accessTokenSecret: string | null;
+  proxyUrl: string | null;
+  proxyType: string | null;
+  proxyCountry: string | null;
+  proxyRotation: boolean | null;
+  userAgent: string | null;
+  fingerprint: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
   createdAt: string | null;
@@ -948,6 +954,11 @@ function AddSocialAccountDialog({
   const [apiSecretKey, setApiSecretKey] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [accessTokenSecret, setAccessTokenSecret] = useState("");
+  const [proxyUrl, setProxyUrl] = useState("");
+  const [proxyType, setProxyType] = useState("");
+  const [proxyCountry, setProxyCountry] = useState("");
+  const [proxyRotation, setProxyRotation] = useState(false);
+  const [userAgent, setUserAgent] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -963,6 +974,11 @@ function AddSocialAccountDialog({
     setApiSecretKey("");
     setAccessToken("");
     setAccessTokenSecret("");
+    setProxyUrl("");
+    setProxyType("");
+    setProxyCountry("");
+    setProxyRotation(false);
+    setUserAgent("");
     setShowPassword(false);
     setError("");
   }
@@ -988,6 +1004,11 @@ function AddSocialAccountDialog({
           apiSecretKey: apiSecretKey.trim() || undefined,
           accessToken: accessToken.trim() || undefined,
           accessTokenSecret: accessTokenSecret.trim() || undefined,
+          proxyUrl: proxyUrl.trim() || undefined,
+          proxyType: proxyType || undefined,
+          proxyCountry: proxyCountry.trim() || undefined,
+          proxyRotation: proxyRotation || undefined,
+          userAgent: userAgent.trim() || undefined,
         }),
       });
 
@@ -1085,6 +1106,47 @@ function AddSocialAccountDialog({
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Access Token Secret</Label>
               <Input className="h-9 text-sm" placeholder="Access Token Secret" value={accessTokenSecret} onChange={(e) => setAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
+            </div>
+          </div>
+
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Proxy / Anti-Detection (opsiyonel)</p>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Proxy URL</Label>
+              <Input className="h-9 text-sm" placeholder="http://user:pass@ip:port" value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} disabled={isSubmitting} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Proxy Tipi</Label>
+              <Select value={proxyType} onValueChange={setProxyType} disabled={isSubmitting}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Seçin..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="http">HTTP</SelectItem>
+                  <SelectItem value="https">HTTPS</SelectItem>
+                  <SelectItem value="socks4">SOCKS4</SelectItem>
+                  <SelectItem value="socks5">SOCKS5</SelectItem>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="mobile">Mobile</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Proxy Ülke</Label>
+              <Input className="h-9 text-sm" placeholder="TR, US, DE..." value={proxyCountry} onChange={(e) => setProxyCountry(e.target.value)} disabled={isSubmitting} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">User Agent</Label>
+              <Input className="h-9 text-sm" placeholder="Mozilla/5.0 ..." value={userAgent} onChange={(e) => setUserAgent(e.target.value)} disabled={isSubmitting} />
+            </div>
+            <div className="flex items-center gap-2 pt-5">
+              <input type="checkbox" id="proxyRotation" checked={proxyRotation} onChange={(e) => setProxyRotation(e.target.checked)} disabled={isSubmitting} className="h-4 w-4 rounded border-input" />
+              <Label htmlFor="proxyRotation" className="text-xs font-medium">Proxy Rotasyonu</Label>
             </div>
           </div>
 
@@ -1338,6 +1400,11 @@ function SocialAccountCard({
     apiSecretKey: account.apiSecretKey || "",
     accessToken: account.accessToken || "",
     accessTokenSecret: account.accessTokenSecret || "",
+    proxyUrl: account.proxyUrl || "",
+    proxyType: account.proxyType || "",
+    proxyCountry: account.proxyCountry || "",
+    proxyRotation: account.proxyRotation || false,
+    userAgent: account.userAgent || "",
   });
 
   async function handleDelete() {
@@ -1370,6 +1437,11 @@ function SocialAccountCard({
           apiSecretKey: editData.apiSecretKey || undefined,
           accessToken: editData.accessToken || undefined,
           accessTokenSecret: editData.accessTokenSecret || undefined,
+          proxyUrl: editData.proxyUrl || undefined,
+          proxyType: editData.proxyType || undefined,
+          proxyCountry: editData.proxyCountry || undefined,
+          proxyRotation: editData.proxyRotation || undefined,
+          userAgent: editData.userAgent || undefined,
         }),
       });
       if (!res.ok) throw new Error();
@@ -1453,6 +1525,44 @@ function SocialAccountCard({
             <div className="space-y-1">
               <Label className="text-xs">Access Token Secret</Label>
               <Input className="h-8 text-sm" value={editData.accessTokenSecret} onChange={(e) => setEditData((d) => ({ ...d, accessTokenSecret: e.target.value }))} />
+            </div>
+          </div>
+          <Separator />
+          <p className="text-xs font-medium text-muted-foreground">Proxy / Anti-Detection</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Proxy URL</Label>
+              <Input className="h-8 text-sm" placeholder="http://user:pass@ip:port" value={editData.proxyUrl} onChange={(e) => setEditData((d) => ({ ...d, proxyUrl: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Proxy Tipi</Label>
+              <Select value={editData.proxyType} onValueChange={(v) => setEditData((d) => ({ ...d, proxyType: v }))}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Seçin..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="http">HTTP</SelectItem>
+                  <SelectItem value="https">HTTPS</SelectItem>
+                  <SelectItem value="socks4">SOCKS4</SelectItem>
+                  <SelectItem value="socks5">SOCKS5</SelectItem>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="mobile">Mobile</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Proxy Ülke</Label>
+              <Input className="h-8 text-sm" placeholder="TR, US..." value={editData.proxyCountry} onChange={(e) => setEditData((d) => ({ ...d, proxyCountry: e.target.value }))} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">User Agent</Label>
+              <Input className="h-8 text-sm" value={editData.userAgent} onChange={(e) => setEditData((d) => ({ ...d, userAgent: e.target.value }))} />
+            </div>
+            <div className="flex items-center gap-2 pt-4">
+              <input type="checkbox" checked={editData.proxyRotation} onChange={(e) => setEditData((d) => ({ ...d, proxyRotation: e.target.checked }))} className="h-4 w-4 rounded border-input" />
+              <Label className="text-xs">Proxy Rotasyonu</Label>
             </div>
           </div>
         </div>
@@ -1582,6 +1692,28 @@ function SocialAccountCard({
               <Shield className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">Token Secret: </span>
               <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Proxy Info */}
+      {(account.proxyUrl || account.userAgent) && (
+        <div className="grid gap-1.5 text-sm border-t pt-2">
+          <p className="text-xs font-medium text-muted-foreground">Proxy / Anti-Detection</p>
+          {account.proxyUrl && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Globe className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-mono text-xs truncate">{showPassword ? account.proxyUrl : "••••••••"}</span>
+              {account.proxyType && <Badge variant="outline" className="text-[10px] h-4">{account.proxyType.toUpperCase()}</Badge>}
+              {account.proxyCountry && <Badge variant="outline" className="text-[10px] h-4">{account.proxyCountry}</Badge>}
+              {account.proxyRotation && <Badge variant="outline" className="text-[10px] h-4 bg-green-50">Rotasyon</Badge>}
+            </div>
+          )}
+          {account.userAgent && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-mono text-xs truncate">{account.userAgent.substring(0, 60)}...</span>
             </div>
           )}
         </div>

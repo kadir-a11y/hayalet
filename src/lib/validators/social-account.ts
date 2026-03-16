@@ -14,6 +14,12 @@ export const socialAccountCreateSchema = z.object({
   accessToken: z.string().optional(),
   accessTokenSecret: z.string().optional(),
   credentialsRef: z.string().optional(),
+  proxyUrl: z.string().optional(),
+  proxyType: z.enum(["http", "https", "socks4", "socks5", "residential", "mobile"]).optional(),
+  proxyCountry: z.string().max(50).optional(),
+  proxyRotation: z.boolean().default(false),
+  userAgent: z.string().optional(),
+  fingerprint: z.string().optional(),
   isActive: z.boolean().default(true),
 });
 
