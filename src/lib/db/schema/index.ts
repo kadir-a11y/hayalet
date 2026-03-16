@@ -31,6 +31,7 @@ export { workspaceResponses } from "./workspace-responses";
 export { organicActivityConfig, organicActivityLog } from "./organic-activity";
 export { userPreferences } from "./user-preferences";
 export { teamTasks } from "./team-tasks";
+export { systemRoles, userSystemRoles } from "./user-roles";
 
 import { users } from "./users";
 import { personas } from "./personas";
@@ -63,6 +64,7 @@ import { workspaceResponses } from "./workspace-responses";
 import { organicActivityConfig, organicActivityLog } from "./organic-activity";
 import { userPreferences } from "./user-preferences";
 import { teamTasks } from "./team-tasks";
+import { systemRoles, userSystemRoles } from "./user-roles";
 
 // ── Users relations ──────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ many }) => ({
@@ -78,6 +80,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   monitoredTopics: many(monitoredTopics),
   preferences: many(userPreferences),
   assignedTasks: many(teamTasks),
+  systemRoles: many(userSystemRoles),
 }));
 
 // ── User preferences relations ──────────────────────────────────────
@@ -465,5 +468,21 @@ export const organicActivityLogRelations = relations(organicActivityLog, ({ one 
   persona: one(personas, {
     fields: [organicActivityLog.personaId],
     references: [personas.id],
+  }),
+}));
+
+// ── System roles relations ──────────────────────────────────────────
+export const systemRolesRelations = relations(systemRoles, ({ many }) => ({
+  userRoles: many(userSystemRoles),
+}));
+
+export const userSystemRolesRelations = relations(userSystemRoles, ({ one }) => ({
+  user: one(users, {
+    fields: [userSystemRoles.userId],
+    references: [users.id],
+  }),
+  role: one(systemRoles, {
+    fields: [userSystemRoles.roleId],
+    references: [systemRoles.id],
   }),
 }));
