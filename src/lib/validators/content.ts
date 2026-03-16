@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { validateTwitterContent } from "@/lib/platforms/twitter/validation";
 
-export const contentItemCreateSchema = z.object({
+const contentItemBaseSchema = z.object({
   personaId: z.string().uuid(),
   campaignId: z.string().uuid().optional(),
   platform: z.enum(["twitter", "instagram", "facebook", "linkedin", "tiktok", "reddit"]),
@@ -14,7 +15,16 @@ export const contentItemCreateSchema = z.object({
   aiModel: z.string().optional(),
 });
 
-export const contentItemUpdateSchema = contentItemCreateSchema.partial();
+export const contentItemCreateSchema = contentItemBaseSchema.superRefine((data, ctx) => {
+  if (data.platform === "twitter" && data.status !== "draft") {
+    const result = validateTwitterContent(data.content, data.mediaUrls?.length || 0);
+    for (const error of result.errors) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: error, path: ["content"] });
+    }
+  }
+});
+
+export const contentItemUpdateSchema = contentItemBaseSchema.partial();
 
 export const bulkContentCreateSchema = z.object({
   personaIds: z.array(z.string().uuid()).min(1),

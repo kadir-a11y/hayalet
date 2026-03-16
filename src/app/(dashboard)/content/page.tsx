@@ -68,6 +68,7 @@ import {
   Search,
   X,
   Loader2,
+  ExternalLink,
   Bot,
   Clock,
   Calendar,
@@ -92,6 +93,9 @@ interface ContentItemRow {
     scheduledAt: string | null;
     publishedAt: string | null;
     errorMessage: string | null;
+    externalPostId: string | null;
+    externalPostUrl: string | null;
+    platformError: string | null;
     aiGenerated: boolean;
     aiPrompt: string | null;
     aiModel: string | null;
@@ -836,11 +840,28 @@ export default function ContentPage() {
                       )}
                     </div>
 
+                    {/* External post link */}
+                    {detailItem.contentItem.externalPostUrl && (
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={detailItem.contentItem.externalPostUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:underline"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Platformda Görüntüle
+                        </a>
+                      </div>
+                    )}
+
                     {/* Error message */}
-                    {detailItem.contentItem.errorMessage && (
+                    {(detailItem.contentItem.errorMessage || detailItem.contentItem.platformError) && (
                       <div className="rounded-md border border-red-200 bg-red-50 p-3">
                         <p className="text-sm font-medium text-red-700">Hata</p>
-                        <p className="text-sm text-red-600 mt-1">{detailItem.contentItem.errorMessage}</p>
+                        <p className="text-sm text-red-600 mt-1">
+                          {detailItem.contentItem.platformError || detailItem.contentItem.errorMessage}
+                        </p>
                       </div>
                     )}
 
@@ -1005,12 +1026,25 @@ function ContentTable({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${STATUS_BADGE_COLORS[ci.status] || ""}`}
-                  >
-                    {STATUS_LABELS[ci.status] || ci.status}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${STATUS_BADGE_COLORS[ci.status] || ""}`}
+                    >
+                      {STATUS_LABELS[ci.status] || ci.status}
+                    </Badge>
+                    {ci.externalPostUrl && (
+                      <a
+                        href={ci.externalPostUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                   {ci.publishedAt
