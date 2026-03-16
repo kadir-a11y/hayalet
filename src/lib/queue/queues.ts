@@ -65,3 +65,13 @@ export const relevanceScoringQueue = new Queue("relevance-scoring", {
     removeOnFail: { count: 2000 },
   },
 });
+
+export const metricsCollectionQueue = new Queue("metrics-collection", {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 10000 },
+    removeOnComplete: { count: 500 },
+    removeOnFail: { count: 1000 },
+  },
+});
