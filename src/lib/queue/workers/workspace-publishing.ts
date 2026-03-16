@@ -4,6 +4,7 @@ import { workspacePublishingQueue } from "../queues";
 import { db } from "@/lib/db";
 import { contentItems, personas, workspaceResponses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { postTweet, postThread, splitIntoThread } from "@/lib/platforms/twitter";
 
 interface WorkspacePublishingJob {
   contentItemId: string;
@@ -59,22 +60,50 @@ export function createWorkspacePublishingWorker() {
         .where(eq(contentItems.id, contentItemId));
 
       try {
-        // Simulate platform delivery
-        console.log(
-          `[Workspace] Publishing on ${platform} for persona ${personaId}: ` +
-          `${job.data.content.substring(0, 50)}...`
-        );
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const content = job.data.content;
 
-        // Mark as published
-        await db
-          .update(contentItems)
-          .set({
-            status: "published",
-            publishedAt: new Date(),
-            updatedAt: new Date(),
-          })
-          .where(eq(contentItems.id, contentItemId));
+        if (platform === "twitter") {
+          // Real Twitter API posting
+          const chunks = splitIntoThread(content);
+          let result;
+
+          if (chunks.length === 1) {
+            result = await postTweet(personaId, chunks[0]);
+          } else {
+            result = await postThread(personaId, chunks);
+          }
+
+          if (!result.success) {
+            throw new Error(result.error || "Twitter posting failed");
+          }
+
+          // Mark as published with external IDs
+          await db
+            .update(contentItems)
+            .set({
+              status: "published",
+              publishedAt: new Date(),
+              externalPostId: result.externalPostId || null,
+              externalPostUrl: result.externalPostUrl || null,
+              updatedAt: new Date(),
+            })
+            .where(eq(contentItems.id, contentItemId));
+        } else {
+          // Other platforms — log for now until implemented
+          console.log(
+            `[Workspace] Publishing on ${platform} for persona ${personaId}: ` +
+            `${content.substring(0, 50)}...`
+          );
+
+          await db
+            .update(contentItems)
+            .set({
+              status: "published",
+              publishedAt: new Date(),
+              updatedAt: new Date(),
+            })
+            .where(eq(contentItems.id, contentItemId));
+        }
 
         // Update workspace response
         await db
@@ -95,6 +124,7 @@ export function createWorkspacePublishingWorker() {
           .set({
             status: "failed",
             errorMessage: message,
+            platformError: platform === "twitter" ? message : null,
             updatedAt: new Date(),
           })
           .where(eq(contentItems.id, contentItemId));
