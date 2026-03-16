@@ -17,10 +17,14 @@ export const socialAccounts = pgTable("social_accounts", {
   apiSecretKey: text("api_secret_key"),
   accessToken: text("access_token"),
   accessTokenSecret: text("access_token_secret"),
+  refreshToken: text("refresh_token"),
+  tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+  externalAccountId: text("external_account_id"),
   credentialsRef: text("credentials_ref"),
   isActive: boolean("is_active").default(true),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 }, (table) => [
   index("social_accounts_persona_id_idx").on(table.personaId),
 ]);
