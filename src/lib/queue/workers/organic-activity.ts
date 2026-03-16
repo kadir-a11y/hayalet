@@ -21,6 +21,7 @@ export function createOrganicActivityWorker() {
     async (job: Job<OrganicActivityJob>) => {
       const { configId } = job.data;
 
+      try {
       // Fetch active configs
       const conditions = [eq(organicActivityConfig.isActive, true)];
       if (configId) {
@@ -133,6 +134,16 @@ export function createOrganicActivityWorker() {
       }
 
       console.log(`[Organic] Completed: ${totalActions} actions`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        console.error(`[OrganicActivity] Job ${job.id} failed:`, {
+          configId,
+          error: message,
+          stack: error instanceof Error ? error.stack : undefined,
+          timestamp: new Date().toISOString(),
+        });
+        throw error;
+      }
     },
     {
       connection: redisConnection,

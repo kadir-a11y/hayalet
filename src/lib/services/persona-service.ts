@@ -149,16 +149,18 @@ export async function getPersonaCount(userId: string, isAdmin = false) {
 }
 
 export async function setPersonaTags(personaId: string, tagIds: string[]) {
-  await db.delete(personaTags).where(eq(personaTags.personaId, personaId));
+  await db.transaction(async (tx) => {
+    await tx.delete(personaTags).where(eq(personaTags.personaId, personaId));
 
-  if (tagIds.length > 0) {
-    await db.insert(personaTags).values(
-      tagIds.map((tagId) => ({
-        personaId,
-        tagId,
-      }))
-    );
-  }
+    if (tagIds.length > 0) {
+      await tx.insert(personaTags).values(
+        tagIds.map((tagId) => ({
+          personaId,
+          tagId,
+        }))
+      );
+    }
+  });
 }
 
 export async function getPersonasWithTags(userId: string, isAdmin = false) {
