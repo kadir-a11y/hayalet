@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { getPersonasWithTags, createPersona } from "@/lib/services/persona-service";
 import { personaCreateSchema } from "@/lib/validators/persona";
 import { logActivity } from "@/lib/services/activity-log-service";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET() {
   const session = await auth();
@@ -10,7 +13,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const [dbUser] = await db.select({ isAdmin: users.isAdmin }).from(users).where(eq(users.id, session.user.id)).limit(1);
+  const isAdmin = Boolean(dbUser?.isAdmin);
   const personas = await getPersonasWithTags(session.user.id, isAdmin);
   return NextResponse.json(personas);
 }

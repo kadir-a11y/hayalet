@@ -26,6 +26,7 @@ export const workspaceGenerateSchema = z.object({
   contentType: z.enum(workspaceContentTypes).default("reply"),
   sentimentDirection: z.enum(workspaceSentiments).optional(),
   temperature: z.number().min(0).max(1).default(0.85),
+  language: z.string().min(2).max(5).optional(),
 });
 
 export const workspaceResponseUpdateSchema = z.object({

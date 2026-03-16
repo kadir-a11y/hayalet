@@ -3,6 +3,9 @@ import { auth } from "@/lib/auth";
 import { getProjects, createProject, applyPlaybook } from "@/lib/services/project-service";
 import { projectCreateSchema } from "@/lib/validators/project";
 import { logActivity } from "@/lib/services/activity-log-service";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -18,7 +21,8 @@ export async function GET(req: NextRequest) {
     search: searchParams.get("search") || undefined,
   };
 
-  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  const [dbUser] = await db.select({ isAdmin: users.isAdmin }).from(users).where(eq(users.id, session.user.id)).limit(1);
+  const isAdmin = Boolean(dbUser?.isAdmin);
   const projects = await getProjects(session.user.id, filters, isAdmin);
   return NextResponse.json(projects);
 }

@@ -197,7 +197,7 @@ export async function generateResponses(
         personalityTraits: (persona.personalityTraits as string[]) || [],
         interests: (persona.interests as string[]) || [],
         behavioralPatterns: (persona.behavioralPatterns as Record<string, string>) || {},
-        language: persona.language || "tr",
+        language: options.language || persona.language || "tr",
         gender: persona.gender || undefined,
         country: persona.country || undefined,
         city: persona.city || undefined,
