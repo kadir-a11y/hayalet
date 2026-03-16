@@ -9,32 +9,18 @@ import {
   Edit,
   Trash2,
   Plus,
-  X,
   Loader2,
   User,
   Globe,
   Clock,
   MessageSquare,
-  Hash,
-  Smile,
+  Mail,
   Pen,
-  Settings2,
   MapPin,
   FileText,
-  Eye,
-  EyeOff,
-  Mail,
-  Phone,
-  Key,
-  ExternalLink,
   BookOpen,
-  StickyNote,
   Shield,
   Image,
-  Film,
-  FileIcon,
-  Upload,
-  Download,
   Sparkles,
   Copy,
   Save,
@@ -52,17 +38,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -71,7 +48,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,272 +59,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { countries, getCitiesByCountry } from "@/lib/data/countries";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string | null;
-}
-
-interface SocialAccount {
-  id: string;
-  platform: string;
-  platformUserId: string | null;
-  platformUsername: string | null;
-  platformEmail: string | null;
-  platformPhone: string | null;
-  platformPassword: string | null;
-  apiEndpoint: string | null;
-  apiKey: string | null;
-  apiSecretKey: string | null;
-  accessToken: string | null;
-  accessTokenSecret: string | null;
-  proxyUrl: string | null;
-  proxyType: string | null;
-  proxyCountry: string | null;
-  proxyRotation: boolean | null;
-  userAgent: string | null;
-  fingerprint: string | null;
-  isActive: boolean | null;
-  lastUsedAt: string | null;
-  createdAt: string | null;
-}
-
-interface ForumAccount {
-  id: string;
-  portalName: string;
-  portalUrl: string | null;
-  username: string | null;
-  email: string | null;
-  phone: string | null;
-  password: string | null;
-  apiEndpoint: string | null;
-  apiKey: string | null;
-  apiSecretKey: string | null;
-  accessToken: string | null;
-  accessTokenSecret: string | null;
-  notes: string | null;
-  isActive: boolean | null;
-  lastUsedAt: string | null;
-  createdAt: string | null;
-}
-
-interface EmailAccount {
-  id: string;
-  provider: string;
-  email: string;
-  password: string | null;
-  phone: string | null;
-  recoveryEmail: string | null;
-  smtpHost: string | null;
-  smtpPort: string | null;
-  imapHost: string | null;
-  imapPort: string | null;
-  apiKey: string | null;
-  notes: string | null;
-  isActive: boolean | null;
-  lastUsedAt: string | null;
-  createdAt: string | null;
-}
-
-interface ContentItem {
-  id: string;
-  platform: string;
-  contentType: string;
-  content: string;
-  status: string;
-  scheduledAt: string | null;
-  publishedAt: string | null;
-  aiGenerated: boolean;
-  createdAt: string | null;
-}
-
-interface BehavioralPatterns {
-  writing_style?: string;
-  tone?: string;
-  emoji_usage?: string;
-  hashtag_style?: string;
-}
-
-interface Persona {
-  id: string;
-  name: string;
-  bio: string | null;
-  avatarUrl: string | null;
-  personalityTraits: string[];
-  interests: string[];
-  behavioralPatterns: BehavioralPatterns;
-  gender: string | null;
-  birthDate: string | null;
-  country: string | null;
-  city: string | null;
-  language: string | null;
-  timezone: string | null;
-  activeHoursStart: number | null;
-  activeHoursEnd: number | null;
-  maxPostsPerDay: number | null;
-  isActive: boolean | null;
-  isVerified: boolean | null;
-  isFavorite: boolean | null;
-  influenceScore: number | null;
-  createdAt: string | null;
-  updatedAt: string | null;
-  tags: Tag[];
-  socialAccounts: SocialAccount[];
-  forumAccounts: ForumAccount[];
-  emailAccounts: EmailAccount[];
-}
-
-interface EditFormData {
-  name: string;
-  bio: string;
-  gender: string;
-  birthDate: string;
-  country: string;
-  city: string;
-  language: string;
-  timezone: string;
-  activeHoursStart: number;
-  activeHoursEnd: number;
-  maxPostsPerDay: number;
-  isActive: boolean;
-  personalityTraits: string[];
-  interests: string[];
-  behavioralPatterns: BehavioralPatterns;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const languageNames: Record<string, string> = {
-  tr: "Türkçe",
-  en: "English",
-  de: "Deutsch",
-  fr: "Français",
-  es: "Español",
-  ar: "العربية",
-  ru: "Русский",
-  pt: "Português",
-  ja: "日本語",
-  zh: "中文",
-  ko: "한국어",
-  it: "Italiano",
-  nl: "Nederlands",
-  pl: "Polski",
-  sv: "Svenska",
-  hi: "हिन्दी",
-  bn: "বাংলা",
-  ur: "اردو",
-  fa: "فارسی",
-  id: "Bahasa Indonesia",
-  ms: "Bahasa Melayu",
-  th: "ไทย",
-  vi: "Tiếng Việt",
-  tl: "Filipino",
-  el: "Ελληνικά",
-  cs: "Čeština",
-  ro: "Română",
-  hu: "Magyar",
-  da: "Dansk",
-  no: "Norsk",
-  fi: "Suomi",
-  uk: "Українська",
-  he: "עברית",
-  sw: "Kiswahili",
-  az: "Azərbaycan",
-  kk: "Қазақша",
-  uz: "Oʻzbek",
-  ka: "ქართული",
-  sr: "Српски",
-  hr: "Hrvatski",
-  bg: "Български",
-  sq: "Shqip",
-  ca: "Català",
-  sk: "Slovenčina",
-  lt: "Lietuvių",
-  lv: "Latviešu",
-  et: "Eesti",
-  sl: "Slovenščina",
-  mk: "Македонски",
-};
-
-const usageLevelLabels: Record<string, string> = {
-  none: "Hiç",
-  minimal: "Minimal",
-  moderate: "Orta",
-  heavy: "Yoğun",
-};
-
-const statusLabels: Record<string, string> = {
-  draft: "Taslak",
-  scheduled: "Zamanlanmış",
-  published: "Yayınlanmış",
-  failed: "Başarısız",
-};
-
-const statusColors: Record<string, string> = {
-  draft: "secondary",
-  scheduled: "outline",
-  published: "default",
-  failed: "destructive",
-};
-
-const platformNames: Record<string, string> = {
-  twitter: "X (Twitter)",
-  instagram: "Instagram",
-  facebook: "Facebook",
-  linkedin: "LinkedIn",
-  tiktok: "TikTok",
-  youtube: "YouTube",
-  threads: "Threads",
-  pinterest: "Pinterest",
-  reddit: "Reddit",
-};
-
-function platformIcon(platform: string): string {
-  const icons: Record<string, string> = {
-    twitter: "X", instagram: "IG", facebook: "FB", linkedin: "LI",
-    tiktok: "TT", youtube: "YT", threads: "TH", pinterest: "PI", reddit: "RD",
-  };
-  return icons[platform.toLowerCase()] || platform.slice(0, 2).toUpperCase();
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("tr-TR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatShortDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return new Date(dateStr).toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import type { Persona } from "./types";
+import {
+  getInitials,
+  languageNames,
+  usageLevelLabels,
+  platformNames,
+} from "./utils";
+import { EditPersonaDialog } from "./edit-persona-dialog";
+import { AddSocialAccountDialog, SocialAccountCard } from "./social-accounts";
+import { AddForumAccountDialog, ForumAccountCard } from "./forum-accounts";
+import { AddEmailAccountDialog, EmailAccountCard } from "./email-accounts";
+import { TagsManager } from "./tags-manager";
+import { PostsTab } from "./posts-tab";
+import { MediaTab } from "./media-tab";
+import { RolesManager } from "./roles-manager";
+import { SettingsTab } from "./settings-tab";
 
 // ---------------------------------------------------------------------------
 // Profile skeleton
@@ -380,2911 +106,6 @@ function ProfileSkeleton() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Edit Dialog
-// ---------------------------------------------------------------------------
-
-function EditPersonaDialog({
-  open,
-  onOpenChange,
-  persona,
-  onUpdated,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  persona: Persona;
-  onUpdated: () => void;
-}) {
-  const [formData, setFormData] = useState<EditFormData>({
-    name: persona.name,
-    bio: persona.bio || "",
-    gender: persona.gender || "",
-    birthDate: persona.birthDate || "",
-    country: persona.country || "",
-    city: persona.city || "",
-    language: persona.language || "tr",
-    timezone: persona.timezone || "Europe/Istanbul",
-    activeHoursStart: persona.activeHoursStart ?? 9,
-    activeHoursEnd: persona.activeHoursEnd ?? 23,
-    maxPostsPerDay: persona.maxPostsPerDay ?? 5,
-    isActive: persona.isActive ?? true,
-    personalityTraits: persona.personalityTraits || [],
-    interests: persona.interests || [],
-    behavioralPatterns: persona.behavioralPatterns || {},
-  });
-  const [newTrait, setNewTrait] = useState("");
-  const [newInterest, setNewInterest] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    setFormData({
-      name: persona.name,
-      bio: persona.bio || "",
-      gender: persona.gender || "",
-      birthDate: persona.birthDate || "",
-      country: persona.country || "",
-      city: persona.city || "",
-      language: persona.language || "tr",
-      timezone: persona.timezone || "Europe/Istanbul",
-      activeHoursStart: persona.activeHoursStart ?? 9,
-      activeHoursEnd: persona.activeHoursEnd ?? 23,
-      maxPostsPerDay: persona.maxPostsPerDay ?? 5,
-      isActive: persona.isActive ?? true,
-      personalityTraits: persona.personalityTraits || [],
-      interests: persona.interests || [],
-      behavioralPatterns: persona.behavioralPatterns || {},
-    });
-  }, [persona]);
-
-  function addTrait() {
-    const v = newTrait.trim();
-    if (v && !formData.personalityTraits.includes(v)) {
-      setFormData((f) => ({ ...f, personalityTraits: [...f.personalityTraits, v] }));
-      setNewTrait("");
-    }
-  }
-
-  function removeTrait(t: string) {
-    setFormData((f) => ({
-      ...f,
-      personalityTraits: f.personalityTraits.filter((x) => x !== t),
-    }));
-  }
-
-  function addInterest() {
-    const v = newInterest.trim();
-    if (v && !formData.interests.includes(v)) {
-      setFormData((f) => ({ ...f, interests: [...f.interests, v] }));
-      setNewInterest("");
-    }
-  }
-
-  function removeInterest(i: string) {
-    setFormData((f) => ({
-      ...f,
-      interests: f.interests.filter((x) => x !== i),
-    }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!formData.name.trim()) {
-      setError("Persona ismi zorunludur.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`/api/personas/${persona.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          bio: formData.bio.trim() || undefined,
-          gender: formData.gender || undefined,
-          birthDate: formData.birthDate || undefined,
-          country: formData.country.trim() || undefined,
-          city: formData.city.trim() || undefined,
-          language: formData.language,
-          timezone: formData.timezone,
-          activeHoursStart: formData.activeHoursStart,
-          activeHoursEnd: formData.activeHoursEnd,
-          maxPostsPerDay: formData.maxPostsPerDay,
-          isActive: formData.isActive,
-          personalityTraits: formData.personalityTraits,
-          interests: formData.interests,
-          behavioralPatterns: formData.behavioralPatterns,
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(
-          data?.error?.fieldErrors
-            ? Object.values(data.error.fieldErrors).flat().join(", ")
-            : "Güncelleme başarısız."
-        );
-      }
-
-      onOpenChange(false);
-      onUpdated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Personayı Düzenle</DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Basic info */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">
-              Kullanıcı Adı <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="edit-name"
-              value={formData.name}
-              onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="edit-bio">Biyografi</Label>
-            <Textarea
-              id="edit-bio"
-              rows={3}
-              value={formData.bio}
-              onChange={(e) => setFormData((f) => ({ ...f, bio: e.target.value }))}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Gender & Birth Date */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Cinsiyet</Label>
-              <Select
-                value={formData.gender}
-                onValueChange={(v) => setFormData((f) => ({ ...f, gender: v }))}
-                disabled={isSubmitting}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kadın">Kadın</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-birthdate">Doğum Tarihi</Label>
-              <Input
-                id="edit-birthdate"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => setFormData((f) => ({ ...f, birthDate: e.target.value }))}
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
-
-          {/* Country & City */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Ülke</Label>
-              <Select
-                value={formData.country}
-                onValueChange={(v) =>
-                  setFormData((f) => ({ ...f, country: v, city: "" }))
-                }
-                disabled={isSubmitting}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Ülke seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Şehir</Label>
-              <Select
-                value={formData.city}
-                onValueChange={(v) =>
-                  setFormData((f) => ({ ...f, city: v }))
-                }
-                disabled={isSubmitting || !formData.country}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Şehir seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getCitiesByCountry(formData.country).map((city) => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Status */}
-          <div className="flex items-center gap-3">
-            <Switch
-              id="edit-active"
-              checked={formData.isActive}
-              onCheckedChange={(v) => setFormData((f) => ({ ...f, isActive: v }))}
-              disabled={isSubmitting}
-            />
-            <Label htmlFor="edit-active">
-              {formData.isActive ? "Aktif" : "Pasif"}
-            </Label>
-          </div>
-
-          <Separator />
-
-          {/* Personality Traits */}
-          <div className="space-y-2">
-            <Label>Kişilik Özellikleri</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {formData.personalityTraits.map((t) => (
-                <Badge key={t} variant="secondary" className="gap-1">
-                  {t}
-                  <button
-                    type="button"
-                    onClick={() => removeTrait(t)}
-                    className="ml-1 rounded-full hover:bg-muted"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Yeni özellik ekle..."
-                value={newTrait}
-                onChange={(e) => setNewTrait(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addTrait();
-                  }
-                }}
-                disabled={isSubmitting}
-              />
-              <Button type="button" variant="outline" size="icon" onClick={addTrait}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Interests */}
-          <div className="space-y-2">
-            <Label>İlgi Alanları</Label>
-            <div className="flex flex-wrap gap-1.5">
-              {formData.interests.map((i) => (
-                <Badge key={i} variant="outline" className="gap-1">
-                  {i}
-                  <button
-                    type="button"
-                    onClick={() => removeInterest(i)}
-                    className="ml-1 rounded-full hover:bg-muted"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Yeni ilgi alanı ekle..."
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addInterest();
-                  }
-                }}
-                disabled={isSubmitting}
-              />
-              <Button type="button" variant="outline" size="icon" onClick={addInterest}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Behavioral patterns */}
-          <div className="space-y-3">
-            <Label>Davranışsal Kalıplar</Label>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="edit-writingStyle" className="text-xs text-muted-foreground">
-                  Yazım Stili
-                </Label>
-                <Input
-                  id="edit-writingStyle"
-                  placeholder="örneğin: resmi, samimi..."
-                  value={formData.behavioralPatterns.writing_style || ""}
-                  onChange={(e) =>
-                    setFormData((f) => ({
-                      ...f,
-                      behavioralPatterns: { ...f.behavioralPatterns, writing_style: e.target.value },
-                    }))
-                  }
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-tone" className="text-xs text-muted-foreground">
-                  Ton
-                </Label>
-                <Input
-                  id="edit-tone"
-                  placeholder="örneğin: ciddi, eğlenceli..."
-                  value={formData.behavioralPatterns.tone || ""}
-                  onChange={(e) =>
-                    setFormData((f) => ({
-                      ...f,
-                      behavioralPatterns: { ...f.behavioralPatterns, tone: e.target.value },
-                    }))
-                  }
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-emojiUsage" className="text-xs text-muted-foreground">
-                  Emoji Kullanımı
-                </Label>
-                <Select
-                  value={formData.behavioralPatterns.emoji_usage || "none"}
-                  onValueChange={(v) =>
-                    setFormData((f) => ({
-                      ...f,
-                      behavioralPatterns: { ...f.behavioralPatterns, emoji_usage: v },
-                    }))
-                  }
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger id="edit-emojiUsage">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Hiç</SelectItem>
-                    <SelectItem value="minimal">Minimal</SelectItem>
-                    <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yoğun</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-hashtagStyle" className="text-xs text-muted-foreground">
-                  Hashtag Stili
-                </Label>
-                <Select
-                  value={formData.behavioralPatterns.hashtag_style || "none"}
-                  onValueChange={(v) =>
-                    setFormData((f) => ({
-                      ...f,
-                      behavioralPatterns: { ...f.behavioralPatterns, hashtag_style: v },
-                    }))
-                  }
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger id="edit-hashtagStyle">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Hiç</SelectItem>
-                    <SelectItem value="minimal">Minimal</SelectItem>
-                    <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yoğun</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Settings */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="edit-language">Dil</Label>
-              <Select
-                value={formData.language}
-                onValueChange={(v) => setFormData((f) => ({ ...f, language: v }))}
-                disabled={isSubmitting}
-              >
-                <SelectTrigger id="edit-language">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageNames).map(([code, name]) => (
-                    <SelectItem key={code} value={code}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-timezone">Saat Dilimi</Label>
-              <Select
-                value={formData.timezone}
-                onValueChange={(v) => setFormData((f) => ({ ...f, timezone: v }))}
-                disabled={isSubmitting}
-              >
-                <SelectTrigger id="edit-timezone">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Europe/Istanbul">Europe/Istanbul</SelectItem>
-                  <SelectItem value="Europe/London">Europe/London</SelectItem>
-                  <SelectItem value="Europe/Berlin">Europe/Berlin</SelectItem>
-                  <SelectItem value="Europe/Moscow">Europe/Moscow</SelectItem>
-                  <SelectItem value="America/New_York">America/New_York</SelectItem>
-                  <SelectItem value="America/Los_Angeles">America/Los_Angeles</SelectItem>
-                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
-                  <SelectItem value="Asia/Shanghai">Asia/Shanghai</SelectItem>
-                  <SelectItem value="Asia/Dubai">Asia/Dubai</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="edit-activeStart">Aktif Başlangıç</Label>
-              <Input
-                id="edit-activeStart"
-                type="number"
-                min={0}
-                max={23}
-                value={formData.activeHoursStart}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, activeHoursStart: parseInt(e.target.value) || 0 }))
-                }
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-activeEnd">Aktif Bitiş</Label>
-              <Input
-                id="edit-activeEnd"
-                type="number"
-                min={0}
-                max={23}
-                value={formData.activeHoursEnd}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, activeHoursEnd: parseInt(e.target.value) || 0 }))
-                }
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-maxPosts">Maks. Gönderi</Label>
-              <Input
-                id="edit-maxPosts"
-                type="number"
-                min={1}
-                max={100}
-                value={formData.maxPostsPerDay}
-                onChange={(e) =>
-                  setFormData((f) => ({ ...f, maxPostsPerDay: parseInt(e.target.value) || 1 }))
-                }
-                disabled={isSubmitting}
-              />
-            </div>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              İptal
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Kaydediliyor...
-                </>
-              ) : (
-                "Kaydet"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Add Social Account Dialog
-// ---------------------------------------------------------------------------
-
-function AddSocialAccountDialog({
-  open,
-  onOpenChange,
-  personaId,
-  onCreated,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  personaId: string;
-  onCreated: () => void;
-}) {
-  const [platform, setPlatform] = useState("twitter");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [apiEndpoint, setApiEndpoint] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [apiSecretKey, setApiSecretKey] = useState("");
-  const [accessToken, setAccessToken] = useState("");
-  const [accessTokenSecret, setAccessTokenSecret] = useState("");
-  const [proxyUrl, setProxyUrl] = useState("");
-  const [proxyType, setProxyType] = useState("");
-  const [proxyCountry, setProxyCountry] = useState("");
-  const [proxyRotation, setProxyRotation] = useState(false);
-  const [userAgent, setUserAgent] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  function resetForm() {
-    setPlatform("twitter");
-    setUsername("");
-    setEmail("");
-    setPhone("");
-    setPassword("");
-    setApiEndpoint("");
-    setApiKey("");
-    setApiSecretKey("");
-    setAccessToken("");
-    setAccessTokenSecret("");
-    setProxyUrl("");
-    setProxyType("");
-    setProxyCountry("");
-    setProxyRotation(false);
-    setUserAgent("");
-    setShowPassword(false);
-    setError("");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/social-accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          personaId,
-          platform,
-          platformUsername: username.trim() || undefined,
-          platformEmail: email.trim() || undefined,
-          platformPhone: phone.trim() || undefined,
-          platformPassword: password || undefined,
-          apiEndpoint: apiEndpoint.trim() || undefined,
-          apiKey: apiKey.trim() || undefined,
-          apiSecretKey: apiSecretKey.trim() || undefined,
-          accessToken: accessToken.trim() || undefined,
-          accessTokenSecret: accessTokenSecret.trim() || undefined,
-          proxyUrl: proxyUrl.trim() || undefined,
-          proxyType: proxyType || undefined,
-          proxyCountry: proxyCountry.trim() || undefined,
-          proxyRotation: proxyRotation || undefined,
-          userAgent: userAgent.trim() || undefined,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Hesap eklenemedi.");
-
-      resetForm();
-      onOpenChange(false);
-      onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) resetForm();
-        onOpenChange(v);
-      }}
-    >
-      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Sosyal Medya Hesabı Ekle</DialogTitle>
-          <DialogDescription>Platform hesap bilgilerini girin.</DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Platform</Label>
-              <Select value={platform} onValueChange={setPlatform} disabled={isSubmitting}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(platformNames).map(([key, name]) => (
-                    <SelectItem key={key} value={key}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
-              <Input className="h-9 text-sm" placeholder="@kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Şifre</Label>
-              <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">E-posta</Label>
-              <Input className="h-9 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Telefon</Label>
-              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">API Bilgileri (opsiyonel)</p>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">API Endpoint</Label>
-            <Input className="h-9 text-sm" placeholder="https://api.example.com" value={apiEndpoint} onChange={(e) => setApiEndpoint(e.target.value)} disabled={isSubmitting} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">API Key</Label>
-              <Input className="h-9 text-sm" placeholder="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">API Secret Key</Label>
-              <Input className="h-9 text-sm" placeholder="API Secret Key" value={apiSecretKey} onChange={(e) => setApiSecretKey(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Access Token</Label>
-              <Input className="h-9 text-sm" placeholder="Access Token" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Access Token Secret</Label>
-              <Input className="h-9 text-sm" placeholder="Access Token Secret" value={accessTokenSecret} onChange={(e) => setAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Proxy / Anti-Detection (opsiyonel)</p>
-
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Proxy URL</Label>
-              <Input className="h-9 text-sm" placeholder="http://user:pass@ip:port" value={proxyUrl} onChange={(e) => setProxyUrl(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Proxy Tipi</Label>
-              <Select value={proxyType} onValueChange={setProxyType} disabled={isSubmitting}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Seçin..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="http">HTTP</SelectItem>
-                  <SelectItem value="https">HTTPS</SelectItem>
-                  <SelectItem value="socks4">SOCKS4</SelectItem>
-                  <SelectItem value="socks5">SOCKS5</SelectItem>
-                  <SelectItem value="residential">Residential</SelectItem>
-                  <SelectItem value="mobile">Mobile</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Proxy Ülke</Label>
-              <Input className="h-9 text-sm" placeholder="TR, US, DE..." value={proxyCountry} onChange={(e) => setProxyCountry(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">User Agent</Label>
-              <Input className="h-9 text-sm" placeholder="Mozilla/5.0 ..." value={userAgent} onChange={(e) => setUserAgent(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="flex items-center gap-2 pt-5">
-              <input type="checkbox" id="proxyRotation" checked={proxyRotation} onChange={(e) => setProxyRotation(e.target.checked)} disabled={isSubmitting} className="h-4 w-4 rounded border-input" />
-              <Label htmlFor="proxyRotation" className="text-xs font-medium">Proxy Rotasyonu</Label>
-            </div>
-          </div>
-
-          {error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              İptal
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Ekle
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Tags management sub-component
-// ---------------------------------------------------------------------------
-
-function TagsManager({
-  personaId,
-  personaTags,
-  onUpdated,
-}: {
-  personaId: string;
-  personaTags: Tag[];
-  onUpdated: () => void;
-}) {
-  const [allTags, setAllTags] = useState<Tag[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(
-    new Set(personaTags.map((t) => t.id))
-  );
-
-  useEffect(() => {
-    setSelectedTagIds(new Set(personaTags.map((t) => t.id)));
-  }, [personaTags]);
-
-  useEffect(() => {
-    fetch("/api/tags")
-      .then((res) => res.json())
-      .then((data) => setAllTags(data))
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  function toggleTag(tagId: string) {
-    setSelectedTagIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(tagId)) next.delete(tagId);
-      else next.add(tagId);
-      return next;
-    });
-  }
-
-  async function saveTags() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/personas/${personaId}/tags`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tagIds: Array.from(selectedTagIds) }),
-      });
-      if (!res.ok) throw new Error();
-      onUpdated();
-    } catch {
-      console.error("Etiketler kaydedilemedi.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  const hasChanges =
-    selectedTagIds.size !== personaTags.length ||
-    personaTags.some((t) => !selectedTagIds.has(t.id));
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (allTags.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-sm text-muted-foreground">
-          Henüz etiket oluşturulmamış.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istediğiniz etiketleri seçin.
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {allTags.map((tag) => {
-          const isSelected = selectedTagIds.has(tag.id);
-          return (
-            <Badge
-              key={tag.id}
-              variant={isSelected ? "default" : "outline"}
-              className="cursor-pointer select-none transition-colors"
-              style={
-                isSelected
-                  ? { backgroundColor: tag.color ?? undefined }
-                  : { borderColor: tag.color ?? undefined, color: tag.color ?? undefined }
-              }
-              onClick={() => toggleTag(tag.id)}
-            >
-              {tag.name}
-              {isSelected && <X className="ml-1 h-3 w-3" />}
-            </Badge>
-          );
-        })}
-      </div>
-      {hasChanges && (
-        <Button onClick={saveTags} disabled={isSaving} size="sm">
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Kaydediliyor...
-            </>
-          ) : (
-            "Değişiklikleri Kaydet"
-          )}
-        </Button>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Posts Tab Content
-// ---------------------------------------------------------------------------
-
-function PostsTab({ personaId }: { personaId: string }) {
-  const [posts, setPosts] = useState<ContentItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`/api/personas/${personaId}/content`)
-      .then((res) => res.json())
-      .then((data) => setPosts(Array.isArray(data) ? data : []))
-      .catch(() => setPosts([]))
-      .finally(() => setIsLoading(false));
-  }, [personaId]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <FileText className="h-8 w-8 text-muted-foreground" />
-        <h3 className="mt-4 text-sm font-semibold">Henüz gönderi yok</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Bu personaya henüz içerik oluşturulmamış.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {posts.map((post) => (
-        <div
-          key={post.id}
-          className="rounded-lg border p-4 space-y-2"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-bold">
-                {platformIcon(post.platform)}
-              </div>
-              <span className="text-xs font-medium capitalize text-muted-foreground">
-                {post.platform}
-              </span>
-              {post.aiGenerated && (
-                <Badge variant="outline" className="text-xs px-1.5 py-0">
-                  AI
-                </Badge>
-              )}
-            </div>
-            <Badge
-              variant={statusColors[post.status] as any || "secondary"}
-            >
-              {statusLabels[post.status] || post.status}
-            </Badge>
-          </div>
-          <p className="text-sm whitespace-pre-wrap line-clamp-4">{post.content}</p>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{formatShortDate(post.createdAt)}</span>
-            {post.scheduledAt && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {formatShortDate(post.scheduledAt)}
-              </span>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Social Account Card with credentials
-// ---------------------------------------------------------------------------
-
-function SocialAccountCard({
-  account,
-  onDelete,
-  onUpdated,
-}: {
-  account: SocialAccount;
-  onDelete: () => void;
-  onUpdated: () => void;
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editData, setEditData] = useState({
-    platform: account.platform,
-    platformUsername: account.platformUsername || "",
-    platformEmail: account.platformEmail || "",
-    platformPhone: account.platformPhone || "",
-    platformPassword: account.platformPassword || "",
-    apiEndpoint: account.apiEndpoint || "",
-    apiKey: account.apiKey || "",
-    apiSecretKey: account.apiSecretKey || "",
-    accessToken: account.accessToken || "",
-    accessTokenSecret: account.accessTokenSecret || "",
-    proxyUrl: account.proxyUrl || "",
-    proxyType: account.proxyType || "",
-    proxyCountry: account.proxyCountry || "",
-    proxyRotation: account.proxyRotation || false,
-    userAgent: account.userAgent || "",
-  });
-
-  async function handleDelete() {
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`/api/social-accounts/${account.id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error();
-      onDelete();
-    } catch {
-      setIsDeleting(false);
-    }
-  }
-
-  async function handleSave() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/social-accounts/${account.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          platform: editData.platform,
-          platformUsername: editData.platformUsername || undefined,
-          platformEmail: editData.platformEmail || undefined,
-          platformPhone: editData.platformPhone || undefined,
-          platformPassword: editData.platformPassword || undefined,
-          apiEndpoint: editData.apiEndpoint || undefined,
-          apiKey: editData.apiKey || undefined,
-          apiSecretKey: editData.apiSecretKey || undefined,
-          accessToken: editData.accessToken || undefined,
-          accessTokenSecret: editData.accessTokenSecret || undefined,
-          proxyUrl: editData.proxyUrl || undefined,
-          proxyType: editData.proxyType || undefined,
-          proxyCountry: editData.proxyCountry || undefined,
-          proxyRotation: editData.proxyRotation || undefined,
-          userAgent: editData.userAgent || undefined,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      setIsEditing(false);
-      onUpdated();
-    } catch {
-      // ignore
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  if (isEditing) {
-    return (
-      <div className="rounded-lg border p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-              {platformIcon(editData.platform)}
-            </div>
-            <p className="text-sm font-medium">Düzenle</p>
-          </div>
-        </div>
-
-        <div className="grid gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">Platform</Label>
-            <Select value={editData.platform} onValueChange={(v) => setEditData((d) => ({ ...d, platform: v }))}>
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(platformNames).map(([key, name]) => (
-                  <SelectItem key={key} value={key}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Kullanıcı Adı</Label>
-              <Input className="h-8 text-sm" value={editData.platformUsername} onChange={(e) => setEditData((d) => ({ ...d, platformUsername: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
-              <Input className="h-8 text-sm" value={editData.platformPassword} onChange={(e) => setEditData((d) => ({ ...d, platformPassword: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta</Label>
-              <Input className="h-8 text-sm" value={editData.platformEmail} onChange={(e) => setEditData((d) => ({ ...d, platformEmail: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" value={editData.platformPhone} onChange={(e) => setEditData((d) => ({ ...d, platformPhone: e.target.value }))} />
-            </div>
-          </div>
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
-
-          <div className="space-y-1">
-            <Label className="text-xs">API Endpoint</Label>
-            <Input className="h-8 text-sm" value={editData.apiEndpoint} onChange={(e) => setEditData((d) => ({ ...d, apiEndpoint: e.target.value }))} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">API Key</Label>
-              <Input className="h-8 text-sm" value={editData.apiKey} onChange={(e) => setEditData((d) => ({ ...d, apiKey: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">API Secret Key</Label>
-              <Input className="h-8 text-sm" value={editData.apiSecretKey} onChange={(e) => setEditData((d) => ({ ...d, apiSecretKey: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token</Label>
-              <Input className="h-8 text-sm" value={editData.accessToken} onChange={(e) => setEditData((d) => ({ ...d, accessToken: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token Secret</Label>
-              <Input className="h-8 text-sm" value={editData.accessTokenSecret} onChange={(e) => setEditData((d) => ({ ...d, accessTokenSecret: e.target.value }))} />
-            </div>
-          </div>
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground">Proxy / Anti-Detection</p>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Proxy URL</Label>
-              <Input className="h-8 text-sm" placeholder="http://user:pass@ip:port" value={editData.proxyUrl} onChange={(e) => setEditData((d) => ({ ...d, proxyUrl: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Proxy Tipi</Label>
-              <Select value={editData.proxyType} onValueChange={(v) => setEditData((d) => ({ ...d, proxyType: v }))}>
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Seçin..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="http">HTTP</SelectItem>
-                  <SelectItem value="https">HTTPS</SelectItem>
-                  <SelectItem value="socks4">SOCKS4</SelectItem>
-                  <SelectItem value="socks5">SOCKS5</SelectItem>
-                  <SelectItem value="residential">Residential</SelectItem>
-                  <SelectItem value="mobile">Mobile</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Proxy Ülke</Label>
-              <Input className="h-8 text-sm" placeholder="TR, US..." value={editData.proxyCountry} onChange={(e) => setEditData((d) => ({ ...d, proxyCountry: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">User Agent</Label>
-              <Input className="h-8 text-sm" value={editData.userAgent} onChange={(e) => setEditData((d) => ({ ...d, userAgent: e.target.value }))} />
-            </div>
-            <div className="flex items-center gap-2 pt-4">
-              <input type="checkbox" checked={editData.proxyRotation} onChange={(e) => setEditData((d) => ({ ...d, proxyRotation: e.target.checked }))} className="h-4 w-4 rounded border-input" />
-              <Label className="text-xs">Proxy Rotasyonu</Label>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
-            Kaydet
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-            {platformIcon(account.platform)}
-          </div>
-          <div>
-            <p className="text-sm font-medium">
-              {platformNames[account.platform] || account.platform}
-            </p>
-            {account.platformUsername && (
-              <p className="text-xs text-muted-foreground">
-                @{account.platformUsername}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={account.isActive ? "default" : "secondary"}>
-            {account.isActive ? "Aktif" : "Pasif"}
-          </Badge>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
-            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bu sosyal medya hesap bilgileri kalıcı olarak silinecektir.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      {/* Credentials */}
-      <div className="grid gap-2 text-sm">
-        {account.platformEmail && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="h-3.5 w-3.5 shrink-0" />
-            <span>{account.platformEmail}</span>
-          </div>
-        )}
-        {account.platformPhone && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 shrink-0" />
-            <span>{account.platformPhone}</span>
-          </div>
-        )}
-        {account.platformPassword && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Key className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">Şifre: </span>
-            <span className="font-mono text-xs">
-              {showPassword ? account.platformPassword : "••••••••"}
-            </span>
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* API Credentials */}
-      {(account.apiKey || account.accessToken) && (
-        <div className="grid gap-1.5 text-sm border-t pt-2">
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
-          {account.apiEndpoint && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-mono text-xs truncate">{account.apiEndpoint}</span>
-            </div>
-          )}
-          {account.apiKey && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Key className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">API Key: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
-            </div>
-          )}
-          {account.apiSecretKey && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Key className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">API Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
-            </div>
-          )}
-          {account.accessToken && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">Access Token: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
-            </div>
-          )}
-          {account.accessTokenSecret && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">Token Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Proxy Info */}
-      {(account.proxyUrl || account.userAgent) && (
-        <div className="grid gap-1.5 text-sm border-t pt-2">
-          <p className="text-xs font-medium text-muted-foreground">Proxy / Anti-Detection</p>
-          {account.proxyUrl && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-mono text-xs truncate">{showPassword ? account.proxyUrl : "••••••••"}</span>
-              {account.proxyType && <Badge variant="outline" className="text-[10px] h-4">{account.proxyType.toUpperCase()}</Badge>}
-              {account.proxyCountry && <Badge variant="outline" className="text-[10px] h-4">{account.proxyCountry}</Badge>}
-              {account.proxyRotation && <Badge variant="outline" className="text-[10px] h-4 bg-green-50">Rotasyon</Badge>}
-            </div>
-          )}
-          {account.userAgent && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-mono text-xs truncate">{account.userAgent.substring(0, 60)}...</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {account.lastUsedAt && (
-        <p className="text-xs text-muted-foreground">
-          Son kullanım: {formatShortDate(account.lastUsedAt)}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Add Forum Account Dialog
-// ---------------------------------------------------------------------------
-
-function AddForumAccountDialog({
-  open,
-  onOpenChange,
-  personaId,
-  onCreated,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  personaId: string;
-  onCreated: () => void;
-}) {
-  const [portalName, setPortalName] = useState("");
-  const [portalUrl, setPortalUrl] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [forumApiEndpoint, setForumApiEndpoint] = useState("");
-  const [forumApiKey, setForumApiKey] = useState("");
-  const [forumApiSecretKey, setForumApiSecretKey] = useState("");
-  const [forumAccessToken, setForumAccessToken] = useState("");
-  const [forumAccessTokenSecret, setForumAccessTokenSecret] = useState("");
-  const [notes, setNotes] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  function resetForm() {
-    setPortalName("");
-    setPortalUrl("");
-    setUsername("");
-    setEmail("");
-    setPhone("");
-    setPassword("");
-    setForumApiEndpoint("");
-    setForumApiKey("");
-    setForumApiSecretKey("");
-    setForumAccessToken("");
-    setForumAccessTokenSecret("");
-    setNotes("");
-    setShowPassword(false);
-    setError("");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!portalName.trim()) {
-      setError("Portal adı zorunludur.");
-      return;
-    }
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/forum-accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          personaId,
-          portalName: portalName.trim(),
-          portalUrl: portalUrl.trim() || undefined,
-          username: username.trim() || undefined,
-          email: email.trim() || undefined,
-          phone: phone.trim() || undefined,
-          password: password || undefined,
-          apiEndpoint: forumApiEndpoint.trim() || undefined,
-          apiKey: forumApiKey.trim() || undefined,
-          apiSecretKey: forumApiSecretKey.trim() || undefined,
-          accessToken: forumAccessToken.trim() || undefined,
-          accessTokenSecret: forumAccessTokenSecret.trim() || undefined,
-          notes: notes.trim() || undefined,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Hesap eklenemedi.");
-
-      resetForm();
-      onOpenChange(false);
-      onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) resetForm();
-        onOpenChange(v);
-      }}
-    >
-      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Forum / Portal Hesabı Ekle</DialogTitle>
-          <DialogDescription>Forum veya portal üyelik bilgilerini girin.</DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Portal Adı *</Label>
-              <Input className="h-9 text-sm" placeholder="Technopat, r10.net" value={portalName} onChange={(e) => setPortalName(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Portal URL</Label>
-              <Input className="h-9 text-sm" placeholder="https://forum.example.com" value={portalUrl} onChange={(e) => setPortalUrl(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
-              <Input className="h-9 text-sm" placeholder="kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Şifre</Label>
-              <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">E-posta</Label>
-              <Input className="h-9 text-sm" type="email" placeholder="hesap@email.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Telefon</Label>
-              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">API Bilgileri (opsiyonel)</p>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">API Endpoint</Label>
-            <Input className="h-9 text-sm" placeholder="https://api.example.com" value={forumApiEndpoint} onChange={(e) => setForumApiEndpoint(e.target.value)} disabled={isSubmitting} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">API Key</Label>
-              <Input className="h-9 text-sm" placeholder="API Key" value={forumApiKey} onChange={(e) => setForumApiKey(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">API Secret Key</Label>
-              <Input className="h-9 text-sm" placeholder="API Secret Key" value={forumApiSecretKey} onChange={(e) => setForumApiSecretKey(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Access Token</Label>
-              <Input className="h-9 text-sm" placeholder="Access Token" value={forumAccessToken} onChange={(e) => setForumAccessToken(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Access Token Secret</Label>
-              <Input className="h-9 text-sm" placeholder="Access Token Secret" value={forumAccessTokenSecret} onChange={(e) => setForumAccessTokenSecret(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Notlar</Label>
-            <Textarea className="text-sm min-h-[60px]" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} />
-          </div>
-
-          {error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              İptal
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Ekle
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Add Email Account Dialog
-// ---------------------------------------------------------------------------
-
-function AddEmailAccountDialog({
-  open,
-  onOpenChange,
-  personaId,
-  onCreated,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  personaId: string;
-  onCreated: () => void;
-}) {
-  const [provider, setProvider] = useState("hotmail");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [recoveryEmail, setRecoveryEmail] = useState("");
-  const [notes, setNotes] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-
-  function resetForm() {
-    setProvider("hotmail");
-    setEmail("");
-    setPassword("");
-    setPhone("");
-    setRecoveryEmail("");
-    setNotes("");
-    setShowPassword(false);
-    setError("");
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim()) {
-      setError("E-posta adresi zorunludur.");
-      return;
-    }
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/email-accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          personaId,
-          provider,
-          email: email.trim(),
-          password: password || undefined,
-          phone: phone.trim() || undefined,
-          recoveryEmail: recoveryEmail.trim() || undefined,
-          notes: notes.trim() || undefined,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Hesap eklenemedi.");
-
-      resetForm();
-      onOpenChange(false);
-      onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) resetForm();
-        onOpenChange(v);
-      }}
-    >
-      <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>E-posta Hesabı Ekle</DialogTitle>
-          <DialogDescription>E-posta hesap bilgilerini girin.</DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Sağlayıcı</Label>
-              <Select value={provider} onValueChange={setProvider} disabled={isSubmitting}>
-                <SelectTrigger className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hotmail">Hotmail / Outlook</SelectItem>
-                  <SelectItem value="gmail">Gmail</SelectItem>
-                  <SelectItem value="yandex">Yandex</SelectItem>
-                  <SelectItem value="protonmail">ProtonMail</SelectItem>
-                  <SelectItem value="icloud">iCloud</SelectItem>
-                  <SelectItem value="other">Diğer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">E-posta Adresi *</Label>
-              <Input className="h-9 text-sm" type="email" placeholder="hesap@hotmail.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Şifre</Label>
-              <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Telefon</Label>
-              <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kurtarma E-postası</Label>
-              <Input className="h-9 text-sm" type="email" placeholder="recovery@email.com" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} disabled={isSubmitting} />
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Notlar</Label>
-            <Textarea className="text-sm min-h-[60px]" placeholder="Ek notlar..." value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isSubmitting} />
-          </div>
-
-          {error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              İptal
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Ekle
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Email Account Card
-// ---------------------------------------------------------------------------
-
-const emailProviderNames: Record<string, string> = {
-  hotmail: "Hotmail / Outlook",
-  gmail: "Gmail",
-  yandex: "Yandex",
-  protonmail: "ProtonMail",
-  icloud: "iCloud",
-  other: "Diğer",
-};
-
-function EmailAccountCard({
-  account,
-  onDelete,
-  onUpdated,
-}: {
-  account: EmailAccount;
-  onDelete: () => void;
-  onUpdated: () => void;
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editData, setEditData] = useState({
-    provider: account.provider || "hotmail",
-    email: account.email || "",
-    password: account.password || "",
-    phone: account.phone || "",
-    recoveryEmail: account.recoveryEmail || "",
-    notes: account.notes || "",
-  });
-
-  async function handleDelete() {
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`/api/email-accounts/${account.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      onDelete();
-    } catch {
-      setIsDeleting(false);
-    }
-  }
-
-  async function handleSave() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/email-accounts/${account.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          provider: editData.provider,
-          email: editData.email.trim(),
-          password: editData.password || undefined,
-          phone: editData.phone.trim() || undefined,
-          recoveryEmail: editData.recoveryEmail.trim() || undefined,
-          notes: editData.notes.trim() || undefined,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      setIsEditing(false);
-      onUpdated();
-    } catch {
-      // ignore
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  if (isEditing) {
-    return (
-      <div className="rounded-lg border p-4 space-y-3">
-        <p className="text-sm font-medium">E-posta Hesabı — Düzenle</p>
-        <div className="grid gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">Sağlayıcı</Label>
-            <Select value={editData.provider} onValueChange={(v) => setEditData((d) => ({ ...d, provider: v }))}>
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hotmail">Hotmail / Outlook</SelectItem>
-                <SelectItem value="gmail">Gmail</SelectItem>
-                <SelectItem value="yandex">Yandex</SelectItem>
-                <SelectItem value="protonmail">ProtonMail</SelectItem>
-                <SelectItem value="icloud">iCloud</SelectItem>
-                <SelectItem value="other">Diğer</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta</Label>
-              <Input className="h-8 text-sm" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
-              <Input className="h-8 text-sm" value={editData.password} onChange={(e) => setEditData((d) => ({ ...d, password: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Kurtarma E-postası</Label>
-              <Input className="h-8 text-sm" value={editData.recoveryEmail} onChange={(e) => setEditData((d) => ({ ...d, recoveryEmail: e.target.value }))} />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Notlar</Label>
-            <Input className="h-8 text-sm" value={editData.notes} onChange={(e) => setEditData((d) => ({ ...d, notes: e.target.value }))} />
-          </div>
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
-            Kaydet
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-            <Mail className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">{emailProviderNames[account.provider] || account.provider}</p>
-            <p className="text-xs text-muted-foreground">{account.email}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={account.isActive ? "default" : "secondary"}>
-            {account.isActive ? "Aktif" : "Pasif"}
-          </Badge>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
-            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bu e-posta hesap bilgileri kalıcı olarak silinecektir.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      <div className="grid gap-2 text-sm">
-        {account.password && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Key className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">Şifre: </span>
-            <span className="font-mono text-xs">
-              {showPassword ? account.password : "••••••••"}
-            </span>
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-        )}
-        {account.phone && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 shrink-0" />
-            <span>{account.phone}</span>
-          </div>
-        )}
-        {account.recoveryEmail && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">Kurtarma: {account.recoveryEmail}</span>
-          </div>
-        )}
-        {account.notes && (
-          <div className="flex items-start gap-2 text-muted-foreground">
-            <StickyNote className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span className="text-xs">{account.notes}</span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Forum Account Card with credentials
-// ---------------------------------------------------------------------------
-
-function ForumAccountCard({
-  account,
-  onDelete,
-  onUpdated,
-}: {
-  account: ForumAccount;
-  onDelete: () => void;
-  onUpdated: () => void;
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editData, setEditData] = useState({
-    portalName: account.portalName || "",
-    portalUrl: account.portalUrl || "",
-    username: account.username || "",
-    email: account.email || "",
-    phone: account.phone || "",
-    password: account.password || "",
-    apiEndpoint: account.apiEndpoint || "",
-    apiKey: account.apiKey || "",
-    apiSecretKey: account.apiSecretKey || "",
-    accessToken: account.accessToken || "",
-    accessTokenSecret: account.accessTokenSecret || "",
-    notes: account.notes || "",
-  });
-
-  async function handleDelete() {
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`/api/forum-accounts/${account.id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error();
-      onDelete();
-    } catch {
-      setIsDeleting(false);
-    }
-  }
-
-  async function handleSave() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/forum-accounts/${account.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          portalName: editData.portalName.trim(),
-          portalUrl: editData.portalUrl.trim() || undefined,
-          username: editData.username.trim() || undefined,
-          email: editData.email.trim() || undefined,
-          phone: editData.phone.trim() || undefined,
-          password: editData.password || undefined,
-          apiEndpoint: editData.apiEndpoint.trim() || undefined,
-          apiKey: editData.apiKey.trim() || undefined,
-          apiSecretKey: editData.apiSecretKey.trim() || undefined,
-          accessToken: editData.accessToken.trim() || undefined,
-          accessTokenSecret: editData.accessTokenSecret.trim() || undefined,
-          notes: editData.notes.trim() || undefined,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      setIsEditing(false);
-      onUpdated();
-    } catch {
-      // ignore
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  if (isEditing) {
-    return (
-      <div className="rounded-lg border p-4 space-y-3">
-        <p className="text-sm font-medium">Forum / Portal — Düzenle</p>
-        <div className="grid gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Portal Adı</Label>
-              <Input className="h-8 text-sm" value={editData.portalName} onChange={(e) => setEditData((d) => ({ ...d, portalName: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Portal URL</Label>
-              <Input className="h-8 text-sm" value={editData.portalUrl} onChange={(e) => setEditData((d) => ({ ...d, portalUrl: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Kullanıcı Adı</Label>
-              <Input className="h-8 text-sm" value={editData.username} onChange={(e) => setEditData((d) => ({ ...d, username: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şifre</Label>
-              <Input className="h-8 text-sm" value={editData.password} onChange={(e) => setEditData((d) => ({ ...d, password: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">E-posta</Label>
-              <Input className="h-8 text-sm" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Telefon</Label>
-              <Input className="h-8 text-sm" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} />
-            </div>
-          </div>
-          <Separator />
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
-          <div className="space-y-1">
-            <Label className="text-xs">API Endpoint</Label>
-            <Input className="h-8 text-sm" value={editData.apiEndpoint} onChange={(e) => setEditData((d) => ({ ...d, apiEndpoint: e.target.value }))} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">API Key</Label>
-              <Input className="h-8 text-sm" value={editData.apiKey} onChange={(e) => setEditData((d) => ({ ...d, apiKey: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">API Secret Key</Label>
-              <Input className="h-8 text-sm" value={editData.apiSecretKey} onChange={(e) => setEditData((d) => ({ ...d, apiSecretKey: e.target.value }))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token</Label>
-              <Input className="h-8 text-sm" value={editData.accessToken} onChange={(e) => setEditData((d) => ({ ...d, accessToken: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Access Token Secret</Label>
-              <Input className="h-8 text-sm" value={editData.accessTokenSecret} onChange={(e) => setEditData((d) => ({ ...d, accessTokenSecret: e.target.value }))} />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Notlar</Label>
-            <Input className="h-8 text-sm" value={editData.notes} onChange={(e) => setEditData((d) => ({ ...d, notes: e.target.value }))} />
-          </div>
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
-          <Button size="sm" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
-            Kaydet
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-lg border p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
-            <BookOpen className="h-4 w-4" />
-          </div>
-          <div>
-            <p className="text-sm font-medium">{account.portalName}</p>
-            {account.username && (
-              <p className="text-xs text-muted-foreground">@{account.username}</p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {account.portalUrl && (
-            <a
-              href={account.portalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          )}
-          <Badge variant={account.isActive ? "default" : "secondary"}>
-            {account.isActive ? "Aktif" : "Pasif"}
-          </Badge>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditing(true)}>
-            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isDeleting}>
-                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bu forum/portal hesap bilgileri kalıcı olarak silinecektir.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      {/* Credentials */}
-      <div className="grid gap-2 text-sm">
-        {account.email && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Mail className="h-3.5 w-3.5 shrink-0" />
-            <span>{account.email}</span>
-          </div>
-        )}
-        {account.phone && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 shrink-0" />
-            <span>{account.phone}</span>
-          </div>
-        )}
-        {account.password && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Key className="h-3.5 w-3.5 shrink-0" />
-            <span className="font-mono text-xs">
-              {showPassword ? account.password : "••••••••"}
-            </span>
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            </button>
-          </div>
-        )}
-        {account.notes && (
-          <div className="flex items-start gap-2 text-muted-foreground">
-            <StickyNote className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span className="text-xs">{account.notes}</span>
-          </div>
-        )}
-      </div>
-
-      {/* API Credentials */}
-      {(account.apiKey || account.accessToken) && (
-        <div className="grid gap-1.5 text-sm border-t pt-2">
-          <p className="text-xs font-medium text-muted-foreground">API Bilgileri</p>
-          {account.apiEndpoint && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-mono text-xs truncate">{account.apiEndpoint}</span>
-            </div>
-          )}
-          {account.apiKey && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Key className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">API Key: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
-            </div>
-          )}
-          {account.apiSecretKey && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Key className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">API Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
-            </div>
-          )}
-          {account.accessToken && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">Access Token: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
-            </div>
-          )}
-          {account.accessTokenSecret && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs">Token Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {account.lastUsedAt && (
-        <p className="text-xs text-muted-foreground">
-          Son kullanım: {formatShortDate(account.lastUsedAt)}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Media Tab
-// ---------------------------------------------------------------------------
-
-interface MediaItem {
-  id: string;
-  type: string;
-  filename: string;
-  r2Key: string;
-  url: string;
-  contentType: string | null;
-  size: number | null;
-  createdAt: string | null;
-}
-
-function formatFileSize(bytes: number | null): string {
-  if (!bytes) return "-";
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / 1024 / 1024).toFixed(1) + " MB";
-}
-
-function MediaTab({ personaId }: { personaId: string }) {
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
-  const [filter, setFilter] = useState<"all" | "image" | "video" | "document">("all");
-
-  const fetchMedia = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/media?personaId=${personaId}`);
-      const data = await res.json();
-      setMedia(Array.isArray(data) ? data : []);
-    } catch {
-      setMedia([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [personaId]);
-
-  useEffect(() => {
-    fetchMedia();
-  }, [fetchMedia]);
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploadError("");
-    setIsUploading(true);
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append("file", files[i]);
-        formData.append("personaId", personaId);
-
-        const res = await fetch("/api/media", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "Yükleme başarısız.");
-        }
-      }
-      fetchMedia();
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Yükleme başarısız.");
-    } finally {
-      setIsUploading(false);
-      e.target.value = "";
-    }
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      const res = await fetch(`/api/media/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setMedia((prev) => prev.filter((m) => m.id !== id));
-      }
-    } catch {
-      // silently fail
-    }
-  }
-
-  const filtered = filter === "all" ? media : media.filter((m) => m.type === filter);
-
-  const counts = {
-    all: media.length,
-    image: media.filter((m) => m.type === "image").length,
-    video: media.filter((m) => m.type === "video").length,
-    document: media.filter((m) => m.type === "document").length,
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Upload & Filters */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex gap-1">
-          {(["all", "image", "video", "document"] as const).map((t) => (
-            <Button
-              key={t}
-              variant={filter === t ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilter(t)}
-              className="text-xs"
-            >
-              {t === "all" && "Tümü"}
-              {t === "image" && "Görseller"}
-              {t === "video" && "Videolar"}
-              {t === "document" && "Belgeler"}
-              {counts[t] > 0 && (
-                <Badge variant="secondary" className="ml-1.5 text-xs px-1.5 py-0">
-                  {counts[t]}
-                </Badge>
-              )}
-            </Button>
-          ))}
-        </div>
-        <div>
-          <input
-            type="file"
-            id="media-upload"
-            className="hidden"
-            multiple
-            accept="image/*,video/*,.pdf,.doc,.docx,.txt"
-            onChange={handleUpload}
-            disabled={isUploading}
-          />
-          <Button
-            size="sm"
-            onClick={() => document.getElementById("media-upload")?.click()}
-            disabled={isUploading}
-          >
-            {isUploading ? (
-              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Upload className="mr-1.5 h-3.5 w-3.5" />
-            )}
-            Yükle
-          </Button>
-        </div>
-      </div>
-
-      {uploadError && (
-        <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {uploadError}
-        </div>
-      )}
-
-      {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Image className="h-8 w-8 text-muted-foreground" />
-          <h3 className="mt-4 text-sm font-semibold">
-            {media.length === 0 ? "Henüz medya yok" : "Bu filtrede medya yok"}
-          </h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Görsel, video veya belge yükleyin.
-          </p>
-          {media.length === 0 && (
-            <Button
-              size="sm"
-              className="mt-4"
-              onClick={() => document.getElementById("media-upload")?.click()}
-            >
-              <Upload className="mr-1.5 h-3.5 w-3.5" />
-              Dosya Yükle
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              className="group relative rounded-lg border overflow-hidden"
-            >
-              {/* Preview */}
-              {item.type === "image" ? (
-                <div className="aspect-video bg-muted">
-                  <img
-                    src={item.url}
-                    alt={item.filename}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  {item.type === "video" ? (
-                    <Film className="h-10 w-10 text-muted-foreground" />
-                  ) : (
-                    <FileIcon className="h-10 w-10 text-muted-foreground" />
-                  )}
-                </div>
-              )}
-
-              {/* Info */}
-              <div className="p-3 space-y-1">
-                <p className="text-xs font-medium truncate" title={item.filename}>
-                  {item.filename}
-                </p>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{formatFileSize(item.size)}</span>
-                  <span>{formatShortDate(item.createdAt)}</span>
-                </div>
-              </div>
-
-              {/* Hover actions */}
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border shadow-sm hover:bg-background"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                </a>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button className="flex h-7 w-7 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm border shadow-sm hover:bg-background">
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Dosyayı silmek istediğinize emin misiniz?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        &ldquo;{item.filename}&rdquo; kalıcı olarak silinecektir.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>İptal</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(item.id)}>
-                        Sil
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Roles Manager (for persona detail)
-// ---------------------------------------------------------------------------
-
-interface RoleItem {
-  roleId: string;
-  roleName: string;
-  roleColor: string | null;
-  roleDescription: string | null;
-  categoryId: string | null;
-  categoryName: string | null;
-  categoryColor: string | null;
-}
-
-interface AvailableRole {
-  id: string;
-  name: string;
-  color: string | null;
-  categoryId: string | null;
-  categoryName: string | null;
-  categoryColor: string | null;
-}
-
-function RolesManager({
-  personaId,
-  onUpdated,
-}: {
-  personaId: string;
-  onUpdated: () => void;
-}) {
-  const [assignedRoles, setAssignedRoles] = useState<RoleItem[]>([]);
-  const [allRoles, setAllRoles] = useState<AvailableRole[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [selectedRoleIds, setSelectedRoleIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    Promise.all([
-      fetch(`/api/personas/${personaId}/roles`).then((r) => r.json()),
-      fetch("/api/roles").then((r) => r.json()),
-    ])
-      .then(([assigned, all]) => {
-        const assignedArr = Array.isArray(assigned) ? assigned : [];
-        setAssignedRoles(assignedArr);
-        setSelectedRoleIds(new Set(assignedArr.map((r: RoleItem) => r.roleId)));
-        setAllRoles(Array.isArray(all) ? all : []);
-      })
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
-  }, [personaId]);
-
-  function toggleRole(roleId: string) {
-    setSelectedRoleIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(roleId)) next.delete(roleId);
-      else next.add(roleId);
-      return next;
-    });
-  }
-
-  async function saveRoles() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/personas/${personaId}/roles`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roleIds: Array.from(selectedRoleIds) }),
-      });
-      if (!res.ok) throw new Error();
-      // Refresh assigned roles
-      const updated = await fetch(`/api/personas/${personaId}/roles`).then((r) =>
-        r.json()
-      );
-      setAssignedRoles(Array.isArray(updated) ? updated : []);
-      onUpdated();
-    } catch {
-      console.error("Roller kaydedilemedi.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  const hasChanges =
-    selectedRoleIds.size !== assignedRoles.length ||
-    assignedRoles.some((r) => !selectedRoleIds.has(r.roleId));
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (allRoles.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Shield className="h-8 w-8 text-muted-foreground" />
-        <h3 className="mt-4 text-sm font-semibold">Henüz rol tanımlanmamış</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Öncelikle &ldquo;Roller&rdquo; sayfasından rol ve kategori oluşturun.
-        </p>
-      </div>
-    );
-  }
-
-  // Group roles by category for display
-  const grouped = new Map<string, { categoryName: string; categoryColor: string | null; roles: AvailableRole[] }>();
-  const uncategorized: AvailableRole[] = [];
-
-  for (const role of allRoles) {
-    if (role.categoryId && role.categoryName) {
-      const existing = grouped.get(role.categoryId);
-      if (existing) {
-        existing.roles.push(role);
-      } else {
-        grouped.set(role.categoryId, {
-          categoryName: role.categoryName,
-          categoryColor: role.categoryColor,
-          roles: [role],
-        });
-      }
-    } else {
-      uncategorized.push(role);
-    }
-  }
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istediğiniz rolleri seçin. AI içerik üretiminde bu roller dikkate alınacaktır.
-      </p>
-
-      {Array.from(grouped.entries()).map(([catId, group]) => (
-        <div key={catId} className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: group.categoryColor || "#6B7280" }}
-            />
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {group.categoryName}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {group.roles.map((role) => {
-              const isSelected = selectedRoleIds.has(role.id);
-              return (
-                <Badge
-                  key={role.id}
-                  variant={isSelected ? "default" : "outline"}
-                  className="cursor-pointer select-none transition-colors"
-                  style={
-                    isSelected
-                      ? { backgroundColor: role.color ?? undefined }
-                      : { borderColor: role.color ?? undefined, color: role.color ?? undefined }
-                  }
-                  onClick={() => toggleRole(role.id)}
-                >
-                  {role.name}
-                  {isSelected && <X className="ml-1 h-3 w-3" />}
-                </Badge>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-
-      {uncategorized.length > 0 && (
-        <div className="space-y-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Diğer
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {uncategorized.map((role) => {
-              const isSelected = selectedRoleIds.has(role.id);
-              return (
-                <Badge
-                  key={role.id}
-                  variant={isSelected ? "default" : "outline"}
-                  className="cursor-pointer select-none transition-colors"
-                  style={
-                    isSelected
-                      ? { backgroundColor: role.color ?? undefined }
-                      : { borderColor: role.color ?? undefined, color: role.color ?? undefined }
-                  }
-                  onClick={() => toggleRole(role.id)}
-                >
-                  {role.name}
-                  {isSelected && <X className="ml-1 h-3 w-3" />}
-                </Badge>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {hasChanges && (
-        <Button onClick={saveRoles} disabled={isSaving} size="sm">
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Kaydediliyor...
-            </>
-          ) : (
-            "Değişiklikleri Kaydet"
-          )}
-        </Button>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Settings Tab (editable)
-// ---------------------------------------------------------------------------
-
-function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdated: () => void }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [data, setData] = useState({
-    language: persona.language || "tr",
-    gender: persona.gender || "",
-    birthDate: persona.birthDate || "",
-    country: persona.country || "",
-    city: persona.city || "",
-    timezone: persona.timezone || "Europe/Istanbul",
-    activeHoursStart: persona.activeHoursStart ?? 9,
-    activeHoursEnd: persona.activeHoursEnd ?? 23,
-    maxPostsPerDay: persona.maxPostsPerDay ?? 5,
-    isActive: persona.isActive ?? true,
-    isVerified: persona.isVerified ?? false,
-  });
-
-  useEffect(() => {
-    setData({
-      language: persona.language || "tr",
-      gender: persona.gender || "",
-      birthDate: persona.birthDate || "",
-      country: persona.country || "",
-      city: persona.city || "",
-      timezone: persona.timezone || "Europe/Istanbul",
-      activeHoursStart: persona.activeHoursStart ?? 9,
-      activeHoursEnd: persona.activeHoursEnd ?? 23,
-      maxPostsPerDay: persona.maxPostsPerDay ?? 5,
-      isActive: persona.isActive ?? true,
-      isVerified: persona.isVerified ?? false,
-    });
-  }, [persona]);
-
-  async function handleSave() {
-    setIsSaving(true);
-    try {
-      const res = await fetch(`/api/personas/${persona.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error();
-      setIsEditing(false);
-      onUpdated();
-    } catch {
-      // ignore
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  const cityList = data.country ? getCitiesByCountry(data.country) : [];
-
-  if (isEditing) {
-    return (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Settings2 className="h-4 w-4" />
-            Ayarlar — Düzenle
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1">
-              <Label className="text-xs">Dil</Label>
-              <Select value={data.language} onValueChange={(v) => setData((d) => ({ ...d, language: v }))}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(languageNames).map(([code, name]) => (
-                    <SelectItem key={code} value={code}>{name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Cinsiyet</Label>
-              <Select value={data.gender} onValueChange={(v) => setData((d) => ({ ...d, gender: v }))}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kadın">Kadın</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Doğum Tarihi</Label>
-              <Input className="h-8 text-sm" type="date" value={data.birthDate} onChange={(e) => setData((d) => ({ ...d, birthDate: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Ülke</Label>
-              <Select value={data.country} onValueChange={(v) => setData((d) => ({ ...d, country: v, city: "" }))}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
-                <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Şehir</Label>
-              {cityList.length > 0 ? (
-                <Select value={data.city} onValueChange={(v) => setData((d) => ({ ...d, city: v }))}>
-                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
-                  <SelectContent>
-                    {cityList.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input className="h-8 text-sm" value={data.city} onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))} placeholder="Şehir" />
-              )}
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Saat Dilimi</Label>
-              <Input className="h-8 text-sm" value={data.timezone} onChange={(e) => setData((d) => ({ ...d, timezone: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Aktif Saat Başlangıç</Label>
-              <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursStart} onChange={(e) => setData((d) => ({ ...d, activeHoursStart: parseInt(e.target.value) || 0 }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Aktif Saat Bitiş</Label>
-              <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursEnd} onChange={(e) => setData((d) => ({ ...d, activeHoursEnd: parseInt(e.target.value) || 0 }))} />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Günlük Maks. Gönderi</Label>
-              <Input className="h-8 text-sm" type="number" min={1} max={50} value={data.maxPostsPerDay} onChange={(e) => setData((d) => ({ ...d, maxPostsPerDay: parseInt(e.target.value) || 1 }))} />
-            </div>
-            <div className="flex items-center gap-3 pt-4">
-              <Switch checked={data.isActive} onCheckedChange={(v) => setData((d) => ({ ...d, isActive: v }))} />
-              <Label className="text-xs">{data.isActive ? "Aktif" : "Pasif"}</Label>
-            </div>
-            <div className="flex items-center gap-3 pt-4">
-              <Switch checked={data.isVerified} onCheckedChange={(v) => setData((d) => ({ ...d, isVerified: v }))} />
-              <Label className="text-xs">{data.isVerified ? "Onaylı ✓" : "Onaysız"}</Label>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
-              Kaydet
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Settings2 className="h-4 w-4" />
-          Ayarlar
-        </CardTitle>
-        <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-          <Edit className="mr-1.5 h-3.5 w-3.5" />
-          Düzenle
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Dil</p>
-            <p className="text-sm">{languageNames[persona.language || "tr"] || persona.language}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Cinsiyet</p>
-            <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Doğum Tarihi</p>
-            <p className="text-sm">{persona.birthDate || "-"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Konum</p>
-            <p className="text-sm">
-              {[persona.city, persona.country].filter(Boolean).join(", ") || "-"}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Saat Dilimi</p>
-            <p className="text-sm">{persona.timezone || "Europe/Istanbul"}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Aktif Saatler</p>
-            <p className="text-sm">
-              {persona.activeHoursStart ?? 9}:00 - {persona.activeHoursEnd ?? 23}:00
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Günlük Maks. Gönderi</p>
-            <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Durum</p>
-            <div className="flex items-center gap-2">
-              <Badge variant={persona.isActive ? "default" : "secondary"}>
-                {persona.isActive ? "Aktif" : "Pasif"}
-              </Badge>
-              {persona.isVerified && (
-                <Badge variant="outline" className="text-blue-500 border-blue-500">
-                  ✓ Onaylı
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Son Güncelleme</p>
-            <p className="text-sm">{formatDate(persona.updatedAt)}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Oluşturulma</p>
-            <p className="text-sm">{formatDate(persona.createdAt)}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -3338,15 +159,15 @@ export default function PersonaDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setAiResults(data.results || []);
-        toast({ title: "İçerik üretildi", description: `${(data.results || []).length} içerik başarıyla oluşturuldu.` });
+        toast({ title: "\u0130\u00E7erik \u00FCretildi", description: `${(data.results || []).length} i\u00E7erik ba\u015Far\u0131yla olu\u015Fturuldu.` });
       } else {
         const err = await res.json().catch(() => ({}));
         console.error("AI generation failed:", err);
-        toast({ title: "İçerik üretilemedi", description: err.details || err.error || "Bir hata oluştu. Lütfen tekrar deneyin.", variant: "destructive" });
+        toast({ title: "\u0130\u00E7erik \u00FCretilemedi", description: err.details || err.error || "Bir hata olu\u015Ftu. L\u00FCtfen tekrar deneyin.", variant: "destructive" });
       }
     } catch (error) {
       console.error("AI generation failed:", error);
-      toast({ title: "Bağlantı hatası", description: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.", variant: "destructive" });
+      toast({ title: "Ba\u011Flant\u0131 hatas\u0131", description: "Sunucuya ba\u011Flan\u0131lamad\u0131. L\u00FCtfen tekrar deneyin.", variant: "destructive" });
     } finally {
       setAiLoading(false);
     }
@@ -3357,14 +178,14 @@ export default function PersonaDetailPage() {
       setError("");
       const res = await fetch(`/api/personas/${id}`);
       if (res.status === 404) {
-        setError("Persona bulunamadı.");
+        setError("Persona bulunamad\u0131.");
         return;
       }
-      if (!res.ok) throw new Error("Persona yüklenemedi.");
+      if (!res.ok) throw new Error("Persona y\u00FCklenemedi.");
       const data = await res.json();
       setPersona(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
+      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
     } finally {
       setIsLoading(false);
     }
@@ -3378,7 +199,7 @@ export default function PersonaDetailPage() {
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/personas/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Silme başarısız.");
+      if (!res.ok) throw new Error("Silme ba\u015Far\u0131s\u0131z.");
       router.push("/personas");
     } catch {
       setIsDeleting(false);
@@ -3398,10 +219,10 @@ export default function PersonaDetailPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <User className="h-10 w-10 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">
-              {error || "Persona bulunamadı"}
+              {error || "Persona bulunamad\u0131"}
             </h3>
             <Button variant="outline" className="mt-6" onClick={() => router.push("/personas")}>
-              Personas Listesine Dön
+              Personas Listesine D\u00F6n
             </Button>
           </CardContent>
         </Card>
@@ -3427,7 +248,7 @@ export default function PersonaDetailPage() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            Düzenle
+            D\u00FCzenle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -3442,14 +263,14 @@ export default function PersonaDetailPage() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Personayı silmek istediğinize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Personay\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu işlem geri alınamaz. &ldquo;{persona.name}&rdquo; personası ve ilişkili
-                  tüm verileri kalıcı olarak silinecektir.
+                  Bu i\u015Flem geri al\u0131namaz. &ldquo;{persona.name}&rdquo; persanas\u0131 ve ili\u015Fkili
+                  t\u00FCm verileri kal\u0131c\u0131 olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>İptal</AlertDialogCancel>
+                <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -3516,7 +337,7 @@ export default function PersonaDetailPage() {
               {persona.gender && (
                 <span className="flex items-center gap-1">
                   <User className="h-3.5 w-3.5" />
-                  {persona.gender === "erkek" ? "Erkek" : "Kadın"}
+                  {persona.gender === "erkek" ? "Erkek" : "Kad\u0131n"}
                 </span>
               )}
               {persona.birthDate && (
@@ -3548,8 +369,8 @@ export default function PersonaDetailPage() {
           <TabsTrigger value="forumlar">Forum & Portallar</TabsTrigger>
           <TabsTrigger value="roller">Roller</TabsTrigger>
           <TabsTrigger value="medya">Medya</TabsTrigger>
-          <TabsTrigger value="gonderiler">Gönderiler</TabsTrigger>
-          <TabsTrigger value="ai-icerik">AI İçerik</TabsTrigger>
+          <TabsTrigger value="gonderiler">G\u00F6nderiler</TabsTrigger>
+          <TabsTrigger value="ai-icerik">AI \u0130\u00E7erik</TabsTrigger>
           <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
         </TabsList>
@@ -3560,7 +381,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <User className="h-4 w-4" />
-                Kişilik Özellikleri
+                Ki\u015Filik \u00D6zellikleri
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -3571,7 +392,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Henüz kişilik özelliği eklenmemiş.</p>
+                <p className="text-sm text-muted-foreground">Hen\u00FCz ki\u015Filik \u00F6zelli\u011Fi eklenmemi\u015F.</p>
               )}
             </CardContent>
           </Card>
@@ -3580,7 +401,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <MessageSquare className="h-4 w-4" />
-                İlgi Alanları
+                \u0130lgi Alanlar\u0131
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -3591,7 +412,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Henüz ilgi alanı eklenmemiş.</p>
+                <p className="text-sm text-muted-foreground">Hen\u00FCz ilgi alan\u0131 eklenmemi\u015F.</p>
               )}
             </CardContent>
           </Card>
@@ -3600,13 +421,13 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Pen className="h-4 w-4" />
-                Davranışsal Kalıplar
+                Davran\u0131\u015Fsal Kal\u0131plar
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Yazım Stili</p>
+                  <p className="text-xs font-medium text-muted-foreground">Yaz\u0131m Stili</p>
                   <p className="text-sm">{patterns.writing_style || "-"}</p>
                 </div>
                 <div className="space-y-1">
@@ -3614,7 +435,7 @@ export default function PersonaDetailPage() {
                   <p className="text-sm">{patterns.tone || "-"}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullanımı</p>
+                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullan\u0131m\u0131</p>
                   <p className="text-sm">
                     {patterns.emoji_usage
                       ? usageLevelLabels[patterns.emoji_usage] || patterns.emoji_usage
@@ -3641,7 +462,7 @@ export default function PersonaDetailPage() {
               <div>
                 <CardTitle className="text-base">Sosyal Hesaplar</CardTitle>
                 <CardDescription>
-                  Personaya bağlı sosyal medya hesapları ve kimlik bilgileri.
+                  Personaya ba\u011Fl\u0131 sosyal medya hesaplar\u0131 ve kimlik bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddSocialOpen(true)}>
@@ -3664,9 +485,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Globe className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Bağlı sosyal hesap yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 sosyal hesap yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henüz sosyal medya hesabı bağlanmamış.
+                    Bu personaya hen\u00FCz sosyal medya hesab\u0131 ba\u011Flanmam\u0131\u015F.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddSocialOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -3678,14 +499,14 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- E-posta Hesapları Tab ---- */}
+        {/* ---- E-posta Hesaplar\u0131 Tab ---- */}
         <TabsContent value="eposta">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">E-posta Hesapları</CardTitle>
+                <CardTitle className="text-base">E-posta Hesaplar\u0131</CardTitle>
                 <CardDescription>
-                  Personaya bağlı e-posta hesapları ve giriş bilgileri.
+                  Personaya ba\u011Fl\u0131 e-posta hesaplar\u0131 ve giri\u015F bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddEmailOpen(true)}>
@@ -3708,9 +529,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Mail className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Bağlı e-posta hesabı yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 e-posta hesab\u0131 yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henüz e-posta hesabı eklenmemiş.
+                    Bu personaya hen\u00FCz e-posta hesab\u0131 eklenmemi\u015F.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddEmailOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -3727,9 +548,9 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">Forum & Portal Üyelikleri</CardTitle>
+                <CardTitle className="text-base">Forum & Portal \u00DCyelikleri</CardTitle>
                 <CardDescription>
-                  Personanın üye olduğu forum ve portallardaki hesap bilgileri.
+                  Personan\u0131n \u00FCye oldu\u011Fu forum ve portallardaki hesap bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddForumOpen(true)}>
@@ -3752,9 +573,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <BookOpen className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Bağlı forum/portal hesabı yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 forum/portal hesab\u0131 yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya henüz forum veya portal hesabı eklenmemiş.
+                    Bu personaya hen\u00FCz forum veya portal hesab\u0131 eklenmemi\u015F.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddForumOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -3775,7 +596,7 @@ export default function PersonaDetailPage() {
                 Roller
               </CardTitle>
               <CardDescription>
-                Personanın karakter özelliklerini belirleyen roller. AI içerik üretiminde kullanılır.
+                Personan\u0131n karakter \u00F6zelliklerini belirleyen roller. AI i\u00E7erik \u00FCretiminde kullan\u0131l\u0131r.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -3790,10 +611,10 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Image className="h-4 w-4" />
-                Medya Kütüphanesi
+                Medya K\u00FCt\u00FCphanesi
               </CardTitle>
               <CardDescription>
-                Personanın görsel, video ve belge dosyaları. İçerik paylaşımlarında kullanılır.
+                Personan\u0131n g\u00F6rsel, video ve belge dosyalar\u0131. \u0130\u00E7erik payla\u015F\u0131mlar\u0131nda kullan\u0131l\u0131r.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -3802,16 +623,16 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- Gönderiler Tab ---- */}
+        {/* ---- G\u00F6nderiler Tab ---- */}
         <TabsContent value="gonderiler">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileText className="h-4 w-4" />
-                Gönderiler
+                G\u00F6nderiler
               </CardTitle>
               <CardDescription>
-                Bu personanın tüm içerikleri ve gönderleri.
+                Bu personan\u0131n t\u00FCm i\u00E7erikleri ve g\u00F6nderleri.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -3820,16 +641,16 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- AI İçerik Tab ---- */}
+        {/* ---- AI \u0130\u00E7erik Tab ---- */}
         <TabsContent value="ai-icerik" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Sparkles className="h-4 w-4" />
-                AI İçerik Üretici
+                AI \u0130\u00E7erik \u00DCretici
               </CardTitle>
               <CardDescription>
-                Persona profiline uygun yapay zeka destekli içerik üretin.
+                Persona profiline uygun yapay zeka destekli i\u00E7erik \u00FCretin.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -3852,14 +673,14 @@ export default function PersonaDetailPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>İçerik Türü</Label>
+                  <Label>\u0130\u00E7erik T\u00FCr\u00FC</Label>
                   <Select value={aiContentType} onValueChange={setAiContentType}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="post">Gönderi</SelectItem>
-                      <SelectItem value="reply">Yanıt</SelectItem>
+                      <SelectItem value="post">G\u00F6nderi</SelectItem>
+                      <SelectItem value="reply">Yan\u0131t</SelectItem>
                       <SelectItem value="comment">Yorum</SelectItem>
                       <SelectItem value="story">Hikaye</SelectItem>
                       <SelectItem value="reel">Reel</SelectItem>
@@ -3875,18 +696,18 @@ export default function PersonaDetailPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value=" ">Persona Dili</SelectItem>
-                      <SelectItem value="tr">Türkçe</SelectItem>
+                      <SelectItem value="tr">T\u00FCrk\u00E7e</SelectItem>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="ar">العربية</SelectItem>
+                      <SelectItem value="ar">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</SelectItem>
                       <SelectItem value="de">Deutsch</SelectItem>
-                      <SelectItem value="fr">Français</SelectItem>
-                      <SelectItem value="es">Español</SelectItem>
-                      <SelectItem value="pt">Português</SelectItem>
+                      <SelectItem value="fr">Fran\u00E7ais</SelectItem>
+                      <SelectItem value="es">Espa\u00F1ol</SelectItem>
+                      <SelectItem value="pt">Portugu\u00EAs</SelectItem>
                       <SelectItem value="it">Italiano</SelectItem>
-                      <SelectItem value="ru">Русский</SelectItem>
-                      <SelectItem value="ja">日本語</SelectItem>
-                      <SelectItem value="ko">한국어</SelectItem>
-                      <SelectItem value="zh">中文</SelectItem>
+                      <SelectItem value="ru">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</SelectItem>
+                      <SelectItem value="ja">\u65E5\u672C\u8A9E</SelectItem>
+                      <SelectItem value="ko">\uD55C\uAD6D\uC5B4</SelectItem>
+                      <SelectItem value="zh">\u4E2D\u6587</SelectItem>
                       <SelectItem value="nl">Nederlands</SelectItem>
                       <SelectItem value="pl">Polski</SelectItem>
                     </SelectContent>
@@ -3897,7 +718,7 @@ export default function PersonaDetailPage() {
               <div className="space-y-2">
                 <Label>Konu (Opsiyonel)</Label>
                 <Input
-                  placeholder="İçeriğin konusu veya teması..."
+                  placeholder="\u0130\u00E7eri\u011Fin konusu veya temas\u0131..."
                   value={aiTopic}
                   onChange={(e) => setAiTopic(e.target.value)}
                 />
@@ -3906,7 +727,7 @@ export default function PersonaDetailPage() {
               <div className="space-y-2">
                 <Label>Ek Talimatlar (Opsiyonel)</Label>
                 <Textarea
-                  placeholder="İçerik üretimi için ek yönergeler..."
+                  placeholder="\u0130\u00E7erik \u00FCretimi i\u00E7in ek y\u00F6nergeler..."
                   value={aiInstructions}
                   onChange={(e) => setAiInstructions(e.target.value)}
                   rows={3}
@@ -3935,7 +756,7 @@ export default function PersonaDetailPage() {
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
-                  İçerik Üret
+                  \u0130\u00E7erik \u00DCret
                 </Button>
               </div>
             </CardContent>
@@ -3944,7 +765,7 @@ export default function PersonaDetailPage() {
           {aiResults.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-sm font-medium">
-                Üretilen İçerikler ({aiResults.length})
+                \u00DCretilen \u0130\u00E7erikler ({aiResults.length})
               </h3>
               {aiResults.map((result, index) => (
                 <Card key={index}>
@@ -3978,7 +799,7 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Etiketler</CardTitle>
-              <CardDescription>Personaya atanan etiketleri yönetin.</CardDescription>
+              <CardDescription>Personaya atanan etiketleri y\u00F6netin.</CardDescription>
             </CardHeader>
             <CardContent>
               <TagsManager
