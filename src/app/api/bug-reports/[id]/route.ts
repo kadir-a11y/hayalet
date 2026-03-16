@@ -22,7 +22,7 @@ export async function PUT(
   };
 
   if (status) {
-    const validStatuses = ["acik", "inceleniyor", "cozuldu", "kapandi"];
+    const validStatuses = ["acik", "inceleniyor", "cozuldu", "kapandi", "yeniden_acildi"];
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: "Gecersiz durum" }, { status: 400 });
     }
@@ -30,10 +30,21 @@ export async function PUT(
     if (status === "cozuldu") {
       updateData.resolvedAt = new Date();
     }
+    if (status === "yeniden_acildi") {
+      updateData.reopenedAt = new Date();
+    }
   }
 
   if (adminNote !== undefined) {
     updateData.adminNote = adminNote;
+  }
+
+  if (body.resolvedNote !== undefined) {
+    updateData.resolvedNote = body.resolvedNote;
+  }
+
+  if (body.reopenNote !== undefined) {
+    updateData.reopenNote = body.reopenNote;
   }
 
   const [updated] = await db

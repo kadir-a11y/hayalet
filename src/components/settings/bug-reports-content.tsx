@@ -39,7 +39,10 @@ interface BugReport {
   priority: string | null;
   status: string | null;
   adminNote: string | null;
+  resolvedNote: string | null;
+  reopenNote: string | null;
   resolvedAt: string | null;
+  reopenedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -50,6 +53,7 @@ const STATUS_OPTIONS = [
   { value: "inceleniyor", label: "Inceleniyor" },
   { value: "cozuldu", label: "Cozuldu" },
   { value: "kapandi", label: "Kapandi" },
+  { value: "yeniden_acildi", label: "Yeniden Acildi" },
 ];
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -71,6 +75,7 @@ const STATUS_COLORS: Record<string, string> = {
   inceleniyor: "bg-blue-100 text-blue-800 border-blue-200",
   cozuldu: "bg-green-100 text-green-800 border-green-200",
   kapandi: "bg-gray-100 text-gray-800 border-gray-200",
+  yeniden_acildi: "bg-red-100 text-red-800 border-red-200",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -78,6 +83,7 @@ const STATUS_LABELS: Record<string, string> = {
   inceleniyor: "Inceleniyor",
   cozuldu: "Cozuldu",
   kapandi: "Kapandi",
+  yeniden_acildi: "Yeniden Acildi",
 };
 
 export default function BugReportsContent({ embedded = false }: { embedded?: boolean }) {
@@ -87,6 +93,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [noteEditId, setNoteEditId] = useState<string | null>(null);
   const [noteText, setNoteText] = useState("");
+  const [noteType, setNoteType] = useState<"admin" | "resolve" | "reopen">("admin");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -134,10 +141,19 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
   const handleSaveNote = async (id: string) => {
     setSaving(true);
     try {
+      const payload: Record<string, unknown> = {};
+      if (noteType === "admin") payload.adminNote = noteText;
+      else if (noteType === "resolve") {
+        payload.resolvedNote = noteText;
+        payload.status = "cozuldu";
+      } else if (noteType === "reopen") {
+        payload.reopenNote = noteText;
+        payload.status = "yeniden_acildi";
+      }
       const res = await fetch(`/api/bug-reports/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ adminNote: noteText }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const updated = await res.json();
@@ -310,75 +326,110 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                         <SelectItem value="inceleniyor">Inceleniyor</SelectItem>
                         <SelectItem value="cozuldu">Cozuldu</SelectItem>
                         <SelectItem value="kapandi">Kapandi</SelectItem>
+                        <SelectItem value="yeniden_acildi">Yeniden Acildi</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
+                  {/* Cozum Notu */}
+                  {report.resolvedNote && (
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium text-green-700">Cozum Notu:</span>
+                      <p className="text-sm bg-green-50 border border-green-200 p-2 rounded">
+                        {report.resolvedNote}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Yeniden Acilma Notu */}
+                  {report.reopenNote && (
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium text-red-700">Yeniden Acilma Notu:</span>
+                      <p className="text-sm bg-red-50 border border-red-200 p-2 rounded">
+                        {report.reopenNote}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Admin Note */}
-                  <div className="space-y-2">
-                    <span className="text-sm font-medium">Admin Notu:</span>
-                    {report.adminNote && noteEditId !== report.id && (
+                  {report.adminNote && noteEditId !== report.id && (
+                    <div className="space-y-1">
+                      <span className="text-sm font-medium">Admin Notu:</span>
                       <p className="text-sm bg-muted/50 p-2 rounded">
                         {report.adminNote}
                       </p>
-                    )}
-                    {noteEditId === report.id ? (
-                      <div className="space-y-2">
-                        <Textarea
-                          value={noteText}
-                          onChange={(e) => setNoteText(e.target.value)}
-                          placeholder="Admin notu ekleyin..."
-                          rows={3}
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveNote(report.id)}
-                            disabled={saving}
-                          >
-                            {saving && (
-                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                            )}
-                            Kaydet
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setNoteEditId(null);
-                              setNoteText("");
-                            }}
-                          >
-                            Iptal
-                          </Button>
-                        </div>
+                    </div>
+                  )}
+
+                  {/* Note Editor */}
+                  {noteEditId === report.id ? (
+                    <div className="space-y-2 border rounded-lg p-3 bg-muted/10">
+                      <span className="text-sm font-medium">
+                        {noteType === "resolve" ? "Cozum Notu Yaz:" : noteType === "reopen" ? "Yeniden Acma Notu:" : "Admin Notu:"}
+                      </span>
+                      <Textarea
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        placeholder={noteType === "resolve" ? "Bu bug nasil cozuldu..." : noteType === "reopen" ? "Bu bug neden yeniden aciliyor..." : "Admin notu ekleyin..."}
+                        rows={3}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleSaveNote(report.id)}
+                          disabled={saving || !noteText.trim()}
+                          variant={noteType === "reopen" ? "destructive" : "default"}
+                        >
+                          {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                          {noteType === "resolve" ? "Coz ve Kaydet" : noteType === "reopen" ? "Yeniden Ac" : "Kaydet"}
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => { setNoteEditId(null); setNoteText(""); }}>
+                          Iptal
+                        </Button>
                       </div>
-                    ) : (
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setNoteEditId(report.id);
-                          setNoteText(report.adminNote || "");
-                        }}
+                        onClick={() => { setNoteEditId(report.id); setNoteText(report.adminNote || ""); setNoteType("admin"); }}
                       >
                         <MessageSquare className="mr-1 h-3 w-3" />
                         {report.adminNote ? "Notu Duzenle" : "Not Ekle"}
                       </Button>
-                    )}
-                  </div>
-
-                  {/* Resolved At */}
-                  {report.resolvedAt && (
-                    <div>
-                      <span className="text-sm font-medium">
-                        Cozulme Tarihi:
-                      </span>{" "}
-                      <span className="text-sm">
-                        {formatDate(report.resolvedAt)}
-                      </span>
+                      {report.status !== "cozuldu" && report.status !== "kapandi" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-green-300 text-green-700 hover:bg-green-50"
+                          onClick={() => { setNoteEditId(report.id); setNoteText(""); setNoteType("resolve"); }}
+                        >
+                          Coz (Notla)
+                        </Button>
+                      )}
+                      {(report.status === "cozuldu" || report.status === "kapandi") && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-700 hover:bg-red-50"
+                          onClick={() => { setNoteEditId(report.id); setNoteText(""); setNoteType("reopen"); }}
+                        >
+                          Yeniden Ac (Notla)
+                        </Button>
+                      )}
                     </div>
                   )}
+
+                  {/* Resolved / Reopened Dates */}
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    {report.resolvedAt && (
+                      <span>Cozulme: {formatDate(report.resolvedAt)}</span>
+                    )}
+                    {report.reopenedAt && (
+                      <span>Yeniden Acilma: {formatDate(report.reopenedAt)}</span>
+                    )}
+                  </div>
 
                   {/* Delete */}
                   <div className="flex justify-end">

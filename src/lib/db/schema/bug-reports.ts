@@ -8,9 +8,12 @@ export const bugReports = pgTable("bug_reports", {
   page: varchar("page", { length: 500 }).notNull(),
   description: text("description").notNull(),
   priority: varchar("priority", { length: 20 }).default("normal"), // dusuk, normal, yuksek, kritik
-  status: varchar("status", { length: 20 }).default("acik"), // acik, inceleniyor, cozuldu, kapandi
+  status: varchar("status", { length: 20 }).default("acik"), // acik, inceleniyor, cozuldu, kapandi, yeniden_acildi
   adminNote: text("admin_note"),
+  resolvedNote: text("resolved_note"),
+  reopenNote: text("reopen_note"),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  reopenedAt: timestamp("reopened_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
