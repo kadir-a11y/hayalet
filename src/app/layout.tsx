@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   title: "Persona - Sosyal Medya Yönetim Platformu",
   description: "Sosyal medya persona yönetim platformu",
   icons: {
-    icon: "/icon",
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+    ],
     apple: "/apple-icon",
   },
 };
