@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { profileUpdateSchema } from "@/lib/validators/settings";
+import { apiError, apiValidationError } from "@/lib/api/response";
 
 export async function GET() {
   const session = await auth();
@@ -37,19 +39,15 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, image } = body;
+  const parsed = profileUpdateSchema.safeParse(body);
+  if (!parsed.success) return apiValidationError(parsed.error);
 
-  if (!name || typeof name !== "string" || name.trim().length === 0) {
-    return NextResponse.json(
-      { error: "Isim alani zorunludur" },
-      { status: 400 }
-    );
-  }
+  const { name, image } = parsed.data;
 
   const [updated] = await db
     .update(users)
     .set({
-      name: name.trim(),
+      name,
       image: image || null,
       updatedAt: new Date(),
     })

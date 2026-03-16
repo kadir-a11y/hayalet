@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { bugReports } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
+import { bugReportCreateSchema } from "@/lib/validators/settings";
+import { apiError, apiValidationError } from "@/lib/api/response";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -35,17 +37,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { page, description, priority } = body;
+  const parsed = bugReportCreateSchema.safeParse(body);
+  if (!parsed.success) return apiValidationError(parsed.error);
 
-  if (!page || !description) {
-    return NextResponse.json(
-      { error: "Sayfa ve aciklama zorunludur" },
-      { status: 400 }
-    );
-  }
-
-  const validPriorities = ["dusuk", "normal", "yuksek", "kritik"];
-  const finalPriority = validPriorities.includes(priority) ? priority : "normal";
+  const { page, description, priority } = parsed.data;
 
   const [report] = await db
     .insert(bugReports)
@@ -54,7 +49,7 @@ export async function POST(req: NextRequest) {
       userName: session.user.name || null,
       page,
       description,
-      priority: finalPriority,
+      priority,
     })
     .returning();
 

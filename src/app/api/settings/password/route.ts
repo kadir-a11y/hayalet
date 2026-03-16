@@ -5,6 +5,8 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { passwordUpdateSchema } from "@/lib/validators/settings";
+import { apiError, apiValidationError } from "@/lib/api/response";
 
 export async function PUT(req: NextRequest) {
   const session = await auth();
@@ -16,21 +18,10 @@ export async function PUT(req: NextRequest) {
   if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const body = await req.json();
-  const { currentPassword, newPassword } = body;
+  const parsed = passwordUpdateSchema.safeParse(body);
+  if (!parsed.success) return apiValidationError(parsed.error);
 
-  if (!currentPassword || !newPassword) {
-    return NextResponse.json(
-      { error: "Mevcut sifre ve yeni sifre zorunludur" },
-      { status: 400 }
-    );
-  }
-
-  if (newPassword.length < 6) {
-    return NextResponse.json(
-      { error: "Yeni sifre en az 6 karakter olmalidir" },
-      { status: 400 }
-    );
-  }
+  const { currentPassword, newPassword } = parsed.data;
 
   const [user] = await db
     .select({ passwordHash: users.passwordHash })
@@ -60,5 +51,5 @@ export async function PUT(req: NextRequest) {
     })
     .where(eq(users.id, session.user.id));
 
-  return NextResponse.json({ message: "Sifre basariyla degistirildi" });
+  return NextResponse.json({ success: true });
 }

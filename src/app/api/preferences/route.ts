@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { userPreferences } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
+import { preferenceSetSchema } from "@/lib/validators/settings";
+import { apiError, apiValidationError } from "@/lib/api/response";
 
 // GET /api/preferences?page=personas
 export async function GET(request: Request) {
@@ -42,14 +44,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { page, key, value } = body;
+  const parsed = preferenceSetSchema.safeParse(body);
+  if (!parsed.success) return apiValidationError(parsed.error);
 
-  if (!page || !key || value === undefined) {
-    return NextResponse.json(
-      { error: "page, key ve value zorunludur" },
-      { status: 400 }
-    );
-  }
+  const { page, key, value } = parsed.data;
 
   const existing = await db
     .select()

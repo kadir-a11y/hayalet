@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recalculateAllInfluenceScores, calculateInfluenceScore } from "@/lib/services/influence-score-service";
+import { influenceScoresSchema } from "@/lib/validators/settings";
+import { apiError, apiValidationError } from "@/lib/api/response";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -9,7 +11,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const personaIds = body.personaIds as string[] | undefined;
+  const parsed = influenceScoresSchema.safeParse(body);
+  if (!parsed.success) return apiValidationError(parsed.error);
+  const { personaIds } = parsed.data;
 
   const updated = await recalculateAllInfluenceScores(personaIds);
 
