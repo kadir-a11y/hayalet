@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { removeTeamMember, updateTeamRole } from "@/lib/services/project-team-service";
+import { canWriteProject } from "@/lib/services/project-service";
 import { teamRoles } from "@/lib/validators/project";
 import { z } from "zod";
 
@@ -17,7 +18,11 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { teamId } = await params;
+  const { id, teamId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json();
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
@@ -41,7 +46,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { teamId } = await params;
+  const { id, teamId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const removed = await removeTeamMember(teamId);
   if (!removed) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

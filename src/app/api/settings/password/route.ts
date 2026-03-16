@@ -4,12 +4,16 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function PUT(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rl = checkRateLimit(session.user.id, "password");
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const body = await req.json();
   const { currentPassword, newPassword } = body;

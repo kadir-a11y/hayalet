@@ -1,5 +1,6 @@
 import { Worker, Job } from "bullmq";
 import { redisConnection } from "../connection";
+import { workspacePublishingQueue } from "../queues";
 import { db } from "@/lib/db";
 import { contentItems, personas, workspaceResponses } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -39,10 +40,15 @@ export function createWorkspacePublishingWorker() {
 
           console.log(
             `[Workspace] Persona ${persona.name} not in active hours (${personaHour}h), ` +
-            `delaying ${hoursUntilActive}h`
+            `rescheduling in ${hoursUntilActive}h`
           );
 
-          throw new Error(`RESCHEDULE:${delayMs}`);
+          await workspacePublishingQueue.add(
+            "workspace-publish-rescheduled",
+            job.data,
+            { delay: delayMs }
+          );
+          return;
         }
       }
 

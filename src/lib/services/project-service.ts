@@ -33,48 +33,35 @@ export async function getProjects(
   }
 
   const projectList = await db
-    .select()
+    .select({
+      id: projects.id,
+      userId: projects.userId,
+      name: projects.name,
+      description: projects.description,
+      type: projects.type,
+      severity: projects.severity,
+      status: projects.status,
+      clientName: projects.clientName,
+      clientInfo: projects.clientInfo,
+      languages: projects.languages,
+      keywords: projects.keywords,
+      severityScore: projects.severityScore,
+      startedAt: projects.startedAt,
+      resolvedAt: projects.resolvedAt,
+      createdAt: projects.createdAt,
+      updatedAt: projects.updatedAt,
+      mentionCount: sql<number>`(SELECT count(*)::int FROM project_mentions WHERE project_id = ${projects.id})`,
+      activeTaskCount: sql<number>`(SELECT count(*)::int FROM project_tasks WHERE project_id = ${projects.id} AND status = 'pending')`,
+      teamCount: sql<number>`(SELECT count(*)::int FROM project_team WHERE project_id = ${projects.id})`,
+    })
     .from(projects)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .orderBy(desc(projects.createdAt));
 
-  // Her proje için özet istatistikleri ekle
-  const enriched = await Promise.all(
-    projectList.map(async (project) => {
-      const [mentionCount] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(projectMentions)
-        .where(eq(projectMentions.projectId, project.id));
-
-      const [taskCount] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(projectTasks)
-        .where(
-          and(
-            eq(projectTasks.projectId, project.id),
-            eq(projectTasks.status, "pending")
-          )
-        );
-
-      const [teamCount] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(projectTeam)
-        .where(eq(projectTeam.projectId, project.id));
-
-      return {
-        ...project,
-        mentionCount: mentionCount?.count ?? 0,
-        activeTaskCount: taskCount?.count ?? 0,
-        teamCount: teamCount?.count ?? 0,
-      };
-    })
-  );
-
-  return enriched;
+  return projectList;
 }
 
 export async function getProjectById(projectId: string, _userId: string, _isAdmin = false) {
-  // Tüm kullanıcılar tüm projelere erişebilir (yetkilendirme sonra eklenecek)
   const [project] = await db
     .select()
     .from(projects)
@@ -82,6 +69,16 @@ export async function getProjectById(projectId: string, _userId: string, _isAdmi
     .limit(1);
 
   return project ?? null;
+}
+
+export async function canWriteProject(projectId: string, userId: string, isAdmin: boolean): Promise<boolean> {
+  if (isAdmin) return true;
+  const [project] = await db
+    .select({ userId: projects.userId })
+    .from(projects)
+    .where(and(eq(projects.id, projectId), eq(projects.userId, userId)))
+    .limit(1);
+  return !!project;
 }
 
 export async function createProject(userId: string, data: ProjectCreateInput) {

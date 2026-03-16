@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getTaskById, updateTask, deleteTask, changeTaskStatus } from "@/lib/services/project-task-service";
+import { canWriteProject } from "@/lib/services/project-service";
 import { projectTaskUpdateSchema, taskStatuses } from "@/lib/validators/project";
 import { z } from "zod";
 
@@ -28,6 +29,10 @@ export async function PATCH(
   }
 
   const { id, taskId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json();
 
   // Durum değişikliği
@@ -58,7 +63,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { taskId } = await params;
+  const { id, taskId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const task = await deleteTask(taskId);
   return task ? NextResponse.json({ success: true }) : NextResponse.json({ error: "Not found" }, { status: 404 });
 }

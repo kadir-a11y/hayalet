@@ -5,12 +5,16 @@ import { mediaLibrary, personas } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { uploadToR2, generateMediaKey } from "@/lib/r2";
 import { getMediaType, getMaxSize } from "@/lib/validators/media";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rl = checkRateLimit(session.user.id, "upload");
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;

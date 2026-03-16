@@ -121,7 +121,7 @@ export async function getActivityStats(userId: string, days = 30, isAdmin = fals
     .where(
       and(
         isAdmin ? undefined : eq(activityLog.userId, userId),
-        sql`${activityLog.createdAt} >= NOW() - INTERVAL '${sql.raw(String(days))} days'`
+        sql`${activityLog.createdAt} >= NOW() - make_interval(days => ${days})`
       )
     )
     .groupBy(sql`DATE(${activityLog.createdAt})`, activityLog.action)

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const projects = pgTable("projects", {
@@ -20,4 +20,6 @@ export const projects = pgTable("projects", {
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  index("projects_user_id_idx").on(table.userId),
+]);

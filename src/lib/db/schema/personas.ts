@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const personas = pgTable("personas", {
@@ -27,4 +27,6 @@ export const personas = pgTable("personas", {
   influenceScore: integer("influence_score").default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  index("personas_user_id_idx").on(table.userId),
+]);

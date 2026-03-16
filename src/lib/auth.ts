@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { authConfig } from "./auth.config";
+import { checkRateLimit } from "./rate-limit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -17,6 +18,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
+        const rl = checkRateLimit(credentials.email as string, "auth");
+        if (!rl.allowed) return null;
 
         const [user] = await db
           .select()

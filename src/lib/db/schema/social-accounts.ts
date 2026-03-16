@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, timestamp, index } from "drizzle-orm/pg-core";
 import { personas } from "./personas";
 
 export const socialAccounts = pgTable("social_accounts", {
@@ -21,4 +21,6 @@ export const socialAccounts = pgTable("social_accounts", {
   isActive: boolean("is_active").default(true),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  index("social_accounts_persona_id_idx").on(table.personaId),
+]);

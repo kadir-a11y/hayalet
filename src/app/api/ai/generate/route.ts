@@ -7,6 +7,7 @@ import { discoveredItems } from "@/lib/db/schema";
 import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const generateSchema = z.object({
   personaId: z.string().uuid(),
@@ -25,6 +26,9 @@ export async function POST(req: NextRequest) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rl = checkRateLimit(session.user.id, "ai");
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const body = await req.json();
   const parsed = generateSchema.safeParse(body);

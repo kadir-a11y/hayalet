@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, index } from "drizzle-orm/pg-core";
 import { projects } from "./projects";
 import { personas } from "./personas";
 import { roles } from "./roles";
@@ -33,4 +33,7 @@ export const projectTasks = pgTable("project_tasks", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  index("project_tasks_project_id_idx").on(table.projectId),
+  index("project_tasks_assigned_persona_id_idx").on(table.assignedPersonaId),
+]);

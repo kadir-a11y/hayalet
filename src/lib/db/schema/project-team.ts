@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, boolean, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, boolean, text, timestamp, index } from "drizzle-orm/pg-core";
 import { projects } from "./projects";
 import { personas } from "./personas";
 import { roles } from "./roles";
@@ -20,4 +20,7 @@ export const projectTeam = pgTable("project_team", {
   isActive: boolean("is_active").default(true),
   notes: text("notes"),
   assignedAt: timestamp("assigned_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => [
+  index("project_team_project_id_idx").on(table.projectId),
+  index("project_team_persona_id_idx").on(table.personaId),
+]);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getMentionById, updateMention, deleteMention, assignMentionResponse, markAsResponded } from "@/lib/services/project-mention-service";
+import { canWriteProject } from "@/lib/services/project-service";
 import { mentionUpdateSchema } from "@/lib/validators/project";
 import { z } from "zod";
 
@@ -31,7 +32,11 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { mentionId } = await params;
+  const { id, mentionId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json();
 
   // Yanıt atama
@@ -71,7 +76,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { mentionId } = await params;
+  const { id, mentionId } = await params;
+  const isAdmin = (session.user as unknown as Record<string, unknown>).isAdmin === true;
+  if (!await canWriteProject(id, session.user.id, isAdmin)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const mention = await deleteMention(mentionId);
   return mention ? NextResponse.json({ success: true }) : NextResponse.json({ error: "Not found" }, { status: 404 });
 }
