@@ -23,13 +23,21 @@ export async function getMentions(
   if (filters?.responseStatus) conditions.push(eq(projectMentions.responseStatus, filters.responseStatus));
   if (filters?.search) conditions.push(ilike(projectMentions.content, `%${filters.search}%`));
 
-  return db
-    .select()
-    .from(projectMentions)
-    .where(and(...conditions))
-    .orderBy(desc(projectMentions.detectedAt))
-    .limit(filters?.limit ?? 50)
-    .offset(filters?.offset ?? 0);
+  const [items, countResult] = await Promise.all([
+    db
+      .select()
+      .from(projectMentions)
+      .where(and(...conditions))
+      .orderBy(desc(projectMentions.detectedAt))
+      .limit(filters?.limit ?? 50)
+      .offset(filters?.offset ?? 0),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(projectMentions)
+      .where(and(...conditions)),
+  ]);
+
+  return { items, total: countResult[0]?.count ?? 0 };
 }
 
 export async function getMentionById(mentionId: string) {

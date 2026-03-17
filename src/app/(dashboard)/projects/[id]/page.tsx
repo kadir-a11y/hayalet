@@ -644,8 +644,8 @@ export default function ProjectDetailPage({
 
   // ── Lazy Tab Data Fetching ───────────────────────────────────────────
 
-  const fetchStats = useCallback(async () => {
-    if (statsLoaded) return;
+  const fetchStats = useCallback(async (force = false) => {
+    if (statsLoaded && !force) return;
     try {
       const [statsRes, mentionStatsRes] = await Promise.all([
         fetch(`/api/projects/${id}/stats`),
@@ -698,7 +698,8 @@ export default function ProjectDetailPage({
       if (mentionFilterResponse !== "all") params.set("responseStatus", mentionFilterResponse);
       const res = await fetch(`/api/projects/${id}/mentions?${params.toString()}`);
       if (res.ok) {
-        setMentions(await res.json());
+        const data = await res.json();
+        setMentions(data.items || data);
         setMentionsLoaded(true);
       }
     } catch (error) {
@@ -1092,7 +1093,7 @@ export default function ProjectDetailPage({
       )}
 
       {/* ── Tabs (3 ana tab) ─────────────────────────────────────────── */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); fetchStats(true); }} className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="workspace" className="gap-2">
             <Zap className="h-4 w-4" />

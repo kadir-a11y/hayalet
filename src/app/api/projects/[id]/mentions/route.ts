@@ -30,8 +30,8 @@ export async function GET(
     offset: searchParams.get("offset") ? (isNaN(parseInt(searchParams.get("offset")!)) ? undefined : parseInt(searchParams.get("offset")!)) : undefined,
   };
 
-  const mentions = await getMentions(id, filters);
-  return NextResponse.json(mentions);
+  const result = await getMentions(id, filters);
+  return NextResponse.json(result);
 }
 
 export async function POST(

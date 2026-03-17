@@ -110,15 +110,16 @@ export default function MentionsTab({
   projectId: string;
 }) {
   const [mentions, setMentions] = useState<Mention[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
 
   // Filters
   const [filterPlatform, setFilterPlatform] = useState("all");
   const [filterSentiment, setFilterSentiment] = useState("all");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Auto-scan
@@ -149,9 +150,9 @@ export default function MentionsTab({
 
       const res = await fetch(`/api/projects/${projectId}/mentions?${params}`);
       if (!res.ok) throw new Error("Fetch failed");
-      const data: Mention[] = await res.json();
-      setMentions(data);
-      setHasMore(data.length === PAGE_SIZE);
+      const data = await res.json();
+      setMentions(Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : []);
+      setTotal(data.total ?? (Array.isArray(data) ? data.length : 0));
     } catch (err) {
       console.error("Mentions fetch error:", err);
     } finally {
@@ -207,8 +208,14 @@ export default function MentionsTab({
       result = result.filter((m) => new Date(m.detectedAt) <= to);
     }
 
+    if (sortOrder === "oldest") {
+      result = [...result].sort((a, b) => new Date(a.detectedAt).getTime() - new Date(b.detectedAt).getTime());
+    }
+
     return result;
-  }, [mentions, searchQuery, filterDateFrom, filterDateTo]);
+  }, [mentions, searchQuery, filterDateFrom, filterDateTo, sortOrder]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "—";
@@ -350,7 +357,7 @@ export default function MentionsTab({
           )}
         </div>
         <span className="text-sm text-muted-foreground ml-auto">
-          {filteredMentions.length} bahsetme
+          {total} bahsetme
         </span>
       </div>
 
@@ -377,6 +384,16 @@ export default function MentionsTab({
             <SelectItem value="positive">Pozitif</SelectItem>
             <SelectItem value="negative">Negatif</SelectItem>
             <SelectItem value="neutral">Nötr</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as "newest" | "oldest")}>
+          <SelectTrigger className="w-[150px] h-8 text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Yeniden Eskiye</SelectItem>
+            <SelectItem value="oldest">Eskiden Yeniye</SelectItem>
           </SelectContent>
         </Select>
 
@@ -523,13 +540,13 @@ export default function MentionsTab({
       )}
 
       {/* Pagination */}
-      {(page > 0 || hasMore) && (
+      {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
             <ChevronLeft className="h-4 w-4 mr-1" /> Önceki
           </Button>
-          <span className="text-sm text-muted-foreground">Sayfa {page + 1}</span>
-          <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>
+          <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>
             Sonraki <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
