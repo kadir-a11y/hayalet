@@ -56,6 +56,16 @@ export const organicActivityQueue = new Queue("organic-activity", {
   },
 });
 
+export const twitterScanQueue = new Queue("twitter-scan", {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: { type: "exponential", delay: 10000 },
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 500 },
+  },
+});
+
 export const relevanceScoringQueue = new Queue("relevance-scoring", {
   connection: redisConnection,
   defaultJobOptions: {

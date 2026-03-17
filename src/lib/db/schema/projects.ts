@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, timestamp, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, integer, boolean, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const projects = pgTable("projects", {
@@ -16,6 +16,8 @@ export const projects = pgTable("projects", {
   languages: jsonb("languages").default(["tr"]),
   keywords: jsonb("keywords").default([]),
   severityScore: integer("severity_score").default(0),
+  twitterAutoScan: boolean("twitter_auto_scan").default(false),
+  lastTwitterScanAt: timestamp("last_twitter_scan_at", { withTimezone: true }),
   startedAt: timestamp("started_at", { withTimezone: true }).defaultNow(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),

@@ -112,6 +112,7 @@ import {
 import WorkspaceTab from "@/components/workspace/WorkspaceTab";
 import OrganicTab from "@/components/organic/OrganicTab";
 import ContentHistoryTab from "@/components/contents/ContentHistoryTab";
+import MentionsTab from "@/components/mentions/MentionsTab";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -1092,10 +1093,14 @@ export default function ProjectDetailPage({
 
       {/* ── Tabs (3 ana tab) ─────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="workspace" className="gap-2">
             <Zap className="h-4 w-4" />
             <span className="hidden sm:inline">Çalışma Alanı</span>
+          </TabsTrigger>
+          <TabsTrigger value="mentions" className="gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <span className="hidden sm:inline">Bahsetmeler</span>
           </TabsTrigger>
           <TabsTrigger value="contents" className="gap-2">
             <Send className="h-4 w-4" />
@@ -1119,7 +1124,14 @@ export default function ProjectDetailPage({
         </TabsContent>
 
         {/* ════════════════════════════════════════════════════════════ */}
-        {/* TAB 2: İÇERİKLER (Contents) — Geçmiş Gönderiler           */}
+        {/* TAB 2: BAHSETMELER (Mentions) — Gelen sosyal medya verisi  */}
+        {/* ════════════════════════════════════════════════════════════ */}
+        <TabsContent value="mentions" className="space-y-4">
+          <MentionsTab projectId={id} />
+        </TabsContent>
+
+        {/* ════════════════════════════════════════════════════════════ */}
+        {/* TAB 3: İÇERİKLER (Contents) — Geçmiş Gönderiler           */}
         {/* ════════════════════════════════════════════════════════════ */}
         <TabsContent value="contents" className="space-y-4">
           <ContentHistoryTab projectId={id} />

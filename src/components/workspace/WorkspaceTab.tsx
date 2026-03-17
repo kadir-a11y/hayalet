@@ -1036,7 +1036,7 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate flex items-center gap-1">
+                        <span className="text-sm font-medium truncate flex items-center gap-1">
                           {persona.isFavorite && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 shrink-0" />}
                           {persona.name}
                           {persona.influenceScore != null && persona.influenceScore > 0 && (
@@ -1052,7 +1052,7 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
                               {persona.influenceScore}
                             </Badge>
                           )}
-                        </p>
+                        </span>
                         <p className="text-xs text-muted-foreground">
                           {persona.language} {persona.country && `· ${persona.country}`}
                         </p>
