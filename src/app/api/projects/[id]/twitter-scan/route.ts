@@ -4,37 +4,23 @@ import { db } from "@/lib/db";
 import { projects, projectMentions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-async function runTwitterScan(projectId: string, keywords: string[]) {
-  if (keywords.length === 0) return { added: 0, skipped: 0 };
+interface TweetData {
+  url: string;
+  author: string;
+  text: string;
+  createdAt: string;
+  views: number;
+  engagement: number;
+}
 
-  const apiKey = process.env.RAPIDAPI_KEY;
-  if (!apiKey) throw new Error("RAPIDAPI_KEY not configured");
+const MAX_PAGES = 10; // Max 10 sayfa = ~500 tweet
 
-  const query = keywords.join(" ");
-  const url = `https://twitter241.p.rapidapi.com/search-v3?type=Latest&count=50&query=${encodeURIComponent(query)}`;
+function parseTweets(data: Record<string, unknown>): { tweets: TweetData[]; cursor: string | null } {
+  const entries =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data as any)?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "x-rapidapi-key": apiKey,
-      "x-rapidapi-host": "twitter241.p.rapidapi.com",
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) throw new Error(`Twitter API error: ${response.status}`);
-
-  const data = await response.json();
-  const entries = data?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
-
-  const tweets: Array<{
-    url: string;
-    author: string;
-    text: string;
-    createdAt: string;
-    views: number;
-    engagement: number;
-  }> = [];
+  const tweets: TweetData[] = [];
 
   for (const entry of entries) {
     const tweet = entry?.content?.content?.tweet_results?.result;
@@ -63,7 +49,64 @@ async function runTwitterScan(projectId: string, keywords: string[]) {
     });
   }
 
-  if (tweets.length === 0) return { added: 0, skipped: 0 };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cursor = (data as any)?.cursor?.bottom || null;
+
+  return { tweets, cursor };
+}
+
+async function runTwitterScan(projectId: string, keywords: string[]) {
+  if (keywords.length === 0) return { added: 0, skipped: 0 };
+
+  const apiKey = process.env.RAPIDAPI_KEY;
+  if (!apiKey) throw new Error("RAPIDAPI_KEY not configured");
+
+  const query = keywords.join(" ");
+  const allTweets: TweetData[] = [];
+  let cursor: string | null = null;
+  const seenIds = new Set<string>();
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    let url = `https://twitter241.p.rapidapi.com/search-v3?type=Latest&count=50&query=${encodeURIComponent(query)}`;
+    if (cursor) {
+      url += `&cursor=${encodeURIComponent(cursor)}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "x-rapidapi-key": apiKey,
+        "x-rapidapi-host": "twitter241.p.rapidapi.com",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`Twitter API error on page ${page + 1}: ${response.status}`);
+      break;
+    }
+
+    const data = await response.json();
+    const result = parseTweets(data);
+
+    // Deduplicate within this scan
+    let newCount = 0;
+    for (const tweet of result.tweets) {
+      if (!seenIds.has(tweet.url)) {
+        seenIds.add(tweet.url);
+        allTweets.push(tweet);
+        newCount++;
+      }
+    }
+
+    console.log(`[TwitterScan] Page ${page + 1}: ${newCount} tweets`);
+
+    // No more pages
+    if (!result.cursor || result.tweets.length === 0) break;
+    cursor = result.cursor;
+  }
+
+  if (allTweets.length === 0) return { added: 0, skipped: 0 };
 
   // Duplikat kontrolü
   const existing = await db
@@ -72,7 +115,7 @@ async function runTwitterScan(projectId: string, keywords: string[]) {
     .where(eq(projectMentions.projectId, projectId));
 
   const existingUrls = new Set(existing.map((m) => m.sourceUrl).filter(Boolean));
-  const newTweets = tweets.filter((t) => !existingUrls.has(t.url));
+  const newTweets = allTweets.filter((t) => !existingUrls.has(t.url));
 
   if (newTweets.length > 0) {
     await db.insert(projectMentions).values(
@@ -98,7 +141,7 @@ async function runTwitterScan(projectId: string, keywords: string[]) {
     .set({ lastTwitterScanAt: new Date(), updatedAt: new Date() })
     .where(eq(projects.id, projectId));
 
-  return { added: newTweets.length, skipped: tweets.length - newTweets.length };
+  return { added: newTweets.length, skipped: allTweets.length - newTweets.length };
 }
 
 // GET — auto-scan durumunu getir
