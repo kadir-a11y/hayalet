@@ -44,7 +44,7 @@ interface Persona {
 }
 
 const LANGUAGES = [
-  { value: "", label: "Persona Dili (Varsayılan)" },
+  { value: "auto", label: "Persona Dili (Varsayılan)" },
   { value: "tr", label: "Türkçe" },
   { value: "en", label: "English" },
   { value: "ar", label: "Arabic" },
@@ -86,7 +86,7 @@ export default function AiContentContent({ embedded = false }: { embedded?: bool
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   const [platform, setPlatform] = useState("twitter");
   const [contentType, setContentType] = useState("post");
-  const [language, setLanguage] = useState("");
+  const [language, setLanguage] = useState("auto");
   const [topic, setTopic] = useState("");
   const [instructions, setInstructions] = useState("");
   const [count, setCount] = useState("1");
@@ -128,7 +128,7 @@ export default function AiContentContent({ embedded = false }: { embedded?: bool
           personaId: selectedPersonaId,
           platform,
           contentType,
-          language: language || undefined,
+          language: language === "auto" ? undefined : language,
           topic: topic || undefined,
           additionalInstructions: instructions || undefined,
           count: parseInt(count),
@@ -285,7 +285,7 @@ export default function AiContentContent({ embedded = false }: { embedded?: bool
                     </SelectTrigger>
                     <SelectContent>
                       {LANGUAGES.map((l) => (
-                        <SelectItem key={l.value || "default"} value={l.value || "default"}>
+                        <SelectItem key={l.value} value={l.value}>
                           {l.label}
                         </SelectItem>
                       ))}

@@ -218,6 +218,47 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
   });
   const [addingContent, setAddingContent] = useState(false);
 
+  // ── Fetch session responses on mount ────────────────────────────────
+
+  const fetchSessionResponses = useCallback(async (sessionId: string) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}/workspace/sessions/${sessionId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.responses && Array.isArray(data.responses)) {
+          setResponses(data.responses);
+        }
+      }
+    } catch {
+      // silently fail
+    }
+  }, [projectId]);
+
+  useEffect(() => {
+    if (activeSessionId) {
+      fetchSessionResponses(activeSessionId);
+    }
+  }, [activeSessionId, fetchSessionResponses]);
+
+  // Restore last session on mount
+  useEffect(() => {
+    const restoreLastSession = async () => {
+      try {
+        const res = await fetch(`/api/projects/${projectId}/workspace/sessions?limit=1`);
+        if (res.ok) {
+          const sessions = await res.json();
+          if (sessions.length > 0 && sessions[0].responses?.length > 0) {
+            setActiveSessionId(sessions[0].id);
+            setResponses(sessions[0].responses);
+          }
+        }
+      } catch {
+        // silently fail
+      }
+    };
+    restoreLastSession();
+  }, [projectId]);
+
   // ── Fetch Functions ────────────────────────────────────────────────
 
   const fetchFeed = useCallback(async () => {
@@ -323,7 +364,12 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
 
       if (genRes.ok) {
         const generatedResponses = await genRes.json();
-        setResponses(generatedResponses);
+        // Bug fix: append new responses instead of replacing (keep previous approved/rejected)
+        setResponses((prev) => {
+          const existingIds = new Set(generatedResponses.map((r: WorkspaceResponse) => r.id));
+          const kept = prev.filter((r) => !existingIds.has(r.id));
+          return [...kept, ...generatedResponses];
+        });
       }
     } catch (error) {
       console.error("Generation failed:", error);
@@ -388,6 +434,29 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
       }
     } catch (error) {
       console.error("Bulk approve failed:", error);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    const pendingIds = responses
+      .filter((r) => r.status === "pending_review")
+      .map((r) => r.id);
+    if (pendingIds.length === 0) return;
+
+    try {
+      for (const id of pendingIds) {
+        await fetch(
+          `/api/projects/${projectId}/workspace/responses/${id}/reject`,
+          { method: "POST" }
+        );
+      }
+      setResponses((prev) =>
+        prev.map((r) =>
+          pendingIds.includes(r.id) ? { ...r, status: "rejected" } : r
+        )
+      );
+    } catch (error) {
+      console.error("Bulk reject failed:", error);
     }
   };
 
@@ -1074,15 +1143,26 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
                   </CardTitle>
                   <div className="flex gap-2">
                     {pendingCount > 0 && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={handleBulkApprove}
-                      >
-                        <CheckCheck className="mr-1 h-3.5 w-3.5" />
-                        Tümünü Onayla ({pendingCount})
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs text-red-600 hover:text-red-700"
+                          onClick={handleBulkReject}
+                        >
+                          <X className="mr-1 h-3.5 w-3.5" />
+                          Tümünü Reddet ({pendingCount})
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-xs"
+                          onClick={handleBulkApprove}
+                        >
+                          <CheckCheck className="mr-1 h-3.5 w-3.5" />
+                          Tümünü Onayla ({pendingCount})
+                        </Button>
+                      </>
                     )}
                     {approvedCount > 0 && (
                       <Button
