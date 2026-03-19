@@ -1,4 +1,8 @@
 import "dotenv/config";
+import { initSentryForWorkers } from "./src/lib/sentry";
+
+initSentryForWorkers();
+
 import { createContentDeliveryWorker } from "./src/lib/queue/workers/content-delivery";
 import { createAIGenerationWorker } from "./src/lib/queue/workers/ai-generation";
 import { createCampaignExecutionWorker } from "./src/lib/queue/workers/campaign-execution";

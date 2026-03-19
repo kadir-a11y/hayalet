@@ -6,6 +6,7 @@ import { contentItems, personas, socialAccounts, workspaceResponses } from "@/li
 import { eq, and } from "drizzle-orm";
 import { getPlatformAdapter } from "@/lib/platforms/registry";
 import "@/lib/platforms/adapters";
+import { captureWorkerError } from "@/lib/sentry";
 
 interface WorkspacePublishingJob {
   contentItemId: string;
@@ -121,6 +122,13 @@ export function createWorkspacePublishingWorker() {
         console.log(`[Workspace] Content ${contentItemId} published on ${platform}`);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Unknown error";
+
+        captureWorkerError(error, {
+          worker: "workspace-publishing",
+          contentItemId,
+          platform,
+          personaId,
+        });
 
         await db
           .update(contentItems)
