@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +30,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   Plus,
   MoreHorizontal,
   Pencil,
@@ -43,7 +51,6 @@ import {
   Play,
   RotateCcw,
   CalendarDays,
-  Users,
   X,
 } from "lucide-react";
 
@@ -96,7 +103,6 @@ export default function TasksPage() {
   const [statusFilter, setStatusFilter] = useState("active");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
 
-  // Create
   const [createOpen, setCreateOpen] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
   const [createDesc, setCreateDesc] = useState("");
@@ -105,7 +111,6 @@ export default function TasksPage() {
   const [createDueDate, setCreateDueDate] = useState("");
   const [createLoading, setCreateLoading] = useState(false);
 
-  // Edit
   const [editOpen, setEditOpen] = useState(false);
   const [editTask, setEditTask] = useState<TeamTask | null>(null);
   const [editTitle, setEditTitle] = useState("");
@@ -116,13 +121,11 @@ export default function TasksPage() {
   const [editResultNote, setEditResultNote] = useState("");
   const [editLoading, setEditLoading] = useState(false);
 
-  // Complete confirmation
   const [completeOpen, setCompleteOpen] = useState(false);
   const [completeTask, setCompleteTask] = useState<TeamTask | null>(null);
   const [completeNote, setCompleteNote] = useState("");
   const [completeLoading, setCompleteLoading] = useState(false);
 
-  // Delete
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTask, setDeleteTask] = useState<TeamTask | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -150,7 +153,6 @@ export default function TasksPage() {
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-  // Filtered tasks
   const filteredTasks = tasks.filter((t) => {
     if (statusFilter === "active" && ["completed", "cancelled"].includes(t.task.status)) return false;
     if (statusFilter !== "active" && statusFilter !== "all" && t.task.status !== statusFilter) return false;
@@ -159,7 +161,6 @@ export default function TasksPage() {
     return true;
   });
 
-  // Stats
   const pendingCount = tasks.filter((t) => t.task.status === "pending").length;
   const inProgressCount = tasks.filter((t) => t.task.status === "in_progress").length;
   const completedCount = tasks.filter((t) => t.task.status === "completed").length;
@@ -255,10 +256,7 @@ export default function TasksPage() {
       await fetch(`/api/team-tasks/${completeTask.task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: "completed",
-          resultNote: completeNote.trim() || null,
-        }),
+        body: JSON.stringify({ status: "completed", resultNote: completeNote.trim() || null }),
       });
       setCompleteOpen(false);
       setCompleteTask(null);
@@ -293,9 +291,9 @@ export default function TasksPage() {
     return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   }
 
+  const userColors = ["bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700", "bg-orange-100 text-orange-700", "bg-pink-100 text-pink-700"];
   const userColorMap: Record<string, string> = {};
-  const colors = ["bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700", "bg-orange-100 text-orange-700", "bg-pink-100 text-pink-700"];
-  teamUsers.forEach((u, i) => { userColorMap[u.id] = colors[i % colors.length]; });
+  teamUsers.forEach((u, i) => { userColorMap[u.id] = userColors[i % userColors.length]; });
 
   if (loading) {
     return (
@@ -306,79 +304,60 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
+      {/* Header — compact */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Genel Görevler</h1>
-          <p className="text-muted-foreground">Ekip görev ataması ve takibi</p>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold tracking-tight">Görevler</h1>
+          <div className="flex items-center gap-2 text-xs">
+            <Badge variant="outline" className="gap-1 h-6">
+              <Clock className="h-3 w-3" /> {pendingCount}
+            </Badge>
+            <Badge variant="outline" className="gap-1 h-6 border-blue-200 text-blue-700">
+              <Play className="h-3 w-3" /> {inProgressCount}
+            </Badge>
+            <Badge variant="outline" className="gap-1 h-6 border-green-200 text-green-700">
+              <CheckCircle2 className="h-3 w-3" /> {completedCount}
+            </Badge>
+          </div>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button size="sm" onClick={() => setCreateOpen(true)}>
+          <Plus className="mr-1 h-4 w-4" />
           Yeni Görev
         </Button>
       </div>
 
-      {/* Team Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Team — compact inline bar */}
+      <div className="flex items-center gap-3 py-2 px-3 rounded-lg border bg-muted/30">
+        <span className="text-xs font-medium text-muted-foreground shrink-0">Ekip:</span>
         {teamUsers.map((user) => {
-          const userTasks = tasks.filter((t) => t.task.assignedTo === user.id);
-          const active = userTasks.filter((t) => ["pending", "in_progress"].includes(t.task.status)).length;
-          const done = userTasks.filter((t) => t.task.status === "completed").length;
-          const role = user.title || "Ekip Üyesi";
-
+          const active = tasks.filter((t) => t.task.assignedTo === user.id && ["pending", "in_progress"].includes(t.task.status)).length;
           return (
-            <Card key={user.id} className="hover:shadow-sm transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-10 w-10 shrink-0 mt-0.5">
-                    <AvatarFallback className={`text-sm font-medium ${userColorMap[user.id] || ""}`}>
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm">{user.name}</p>
-                      <Badge variant="outline" className="text-xs font-normal shrink-0">{role}</Badge>
-                    </div>
-                    {user.responsibilities && (
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        {user.responsibilities}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 mt-2 text-xs">
-                      <span className="flex items-center gap-1 text-blue-600">
-                        <Clock className="h-3 w-3" /> {active} aktif
-                      </span>
-                      <span className="flex items-center gap-1 text-green-600">
-                        <CheckCircle2 className="h-3 w-3" /> {done} bitti
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <button
+              key={user.id}
+              onClick={() => setAssigneeFilter(assigneeFilter === user.id ? "all" : user.id)}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-colors ${assigneeFilter === user.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            >
+              <Avatar className="h-5 w-5">
+                <AvatarFallback className={`text-[9px] font-medium ${userColorMap[user.id] || ""}`}>
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{user.name.split(" ")[0]}</span>
+              {active > 0 && (
+                <span className={`inline-flex items-center justify-center h-4 w-4 rounded-full text-[10px] font-bold ${assigneeFilter === user.id ? "bg-primary-foreground text-primary" : "bg-blue-100 text-blue-700"}`}>
+                  {active}
+                </span>
+              )}
+            </button>
           );
         })}
       </div>
 
-      {/* Stats bar */}
-      <div className="flex items-center gap-4 text-sm">
-        <Badge variant="outline" className="gap-1">
-          <Clock className="h-3 w-3" /> {pendingCount} bekliyor
-        </Badge>
-        <Badge variant="outline" className="gap-1 border-blue-200 text-blue-700">
-          <Play className="h-3 w-3" /> {inProgressCount} devam ediyor
-        </Badge>
-        <Badge variant="outline" className="gap-1 border-green-200 text-green-700">
-          <CheckCircle2 className="h-3 w-3" /> {completedCount} tamamlandı
-        </Badge>
-      </div>
-
       {/* Filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px] h-9 text-xs">
+          <SelectTrigger className="w-[140px] h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -390,32 +369,16 @@ export default function TasksPage() {
             <SelectItem value="cancelled">İptal</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
-          <SelectTrigger className="w-[160px] h-9 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tüm Kişiler</SelectItem>
-            <SelectItem value="unassigned">Atanmamış</SelectItem>
-            {teamUsers.map((u) => (
-              <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         {(statusFilter !== "active" || assigneeFilter !== "all") && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 px-2 text-xs text-muted-foreground"
-            onClick={() => { setStatusFilter("active"); setAssigneeFilter("all"); }}
-          >
-            <X className="mr-1 h-3 w-3" />
-            Temizle
+          <Button variant="ghost" size="sm" className="h-8 px-2 text-xs text-muted-foreground"
+            onClick={() => { setStatusFilter("active"); setAssigneeFilter("all"); }}>
+            <X className="mr-1 h-3 w-3" /> Temizle
           </Button>
         )}
+        <span className="text-xs text-muted-foreground ml-auto">{filteredTasks.length} görev</span>
       </div>
 
-      {/* Task List */}
+      {/* Tasks Table */}
       {filteredTasks.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
@@ -425,132 +388,128 @@ export default function TasksPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {filteredTasks.map((t) => {
-            const statusCfg = STATUS_CONFIG[t.task.status] || STATUS_CONFIG.pending;
-            const priorityCfg = PRIORITY_CONFIG[t.task.priority] || PRIORITY_CONFIG.normal;
-            const isCompleted = t.task.status === "completed";
-            const isPending = t.task.status === "pending";
-            const isInProgress = t.task.status === "in_progress";
-            const isDue = t.task.dueDate && new Date(t.task.dueDate) < new Date() && !isCompleted;
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-8"></TableHead>
+                <TableHead>Görev</TableHead>
+                <TableHead className="w-24">Durum</TableHead>
+                <TableHead className="w-20">Öncelik</TableHead>
+                <TableHead className="w-32">Atanan</TableHead>
+                <TableHead className="w-24">Tarih</TableHead>
+                <TableHead className="w-10"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTasks.map((t) => {
+                const statusCfg = STATUS_CONFIG[t.task.status] || STATUS_CONFIG.pending;
+                const priorityCfg = PRIORITY_CONFIG[t.task.priority] || PRIORITY_CONFIG.normal;
+                const isCompleted = t.task.status === "completed";
+                const isPending = t.task.status === "pending";
+                const isInProgress = t.task.status === "in_progress";
+                const isDue = t.task.dueDate && new Date(t.task.dueDate) < new Date() && !isCompleted;
 
-            return (
-              <Card key={t.task.id} className={`transition-shadow hover:shadow-sm ${isCompleted ? "opacity-60" : ""}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {/* Checkbox for quick complete */}
-                    <div className="mt-0.5">
+                return (
+                  <TableRow key={t.task.id} className={isCompleted ? "opacity-50" : ""}>
+                    <TableCell className="pr-0">
                       <Checkbox
                         checked={isCompleted}
                         onCheckedChange={() => {
-                          if (isCompleted) {
-                            handleStatusChange(t.task.id, "pending");
-                          } else {
-                            openCompleteDialog(t);
-                          }
+                          if (isCompleted) handleStatusChange(t.task.id, "pending");
+                          else openCompleteDialog(t);
                         }}
                       />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className={`font-medium text-sm ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
+                    </TableCell>
+                    <TableCell>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-medium truncate ${isCompleted ? "line-through text-muted-foreground" : ""}`}>
                           {t.task.title}
                         </p>
-                        <Badge variant="outline" className={`text-xs h-5 ${priorityCfg.color}`}>
-                          {priorityCfg.label}
-                        </Badge>
-                        <Badge variant="outline" className={`text-xs h-5 ${statusCfg.color}`}>
-                          {statusCfg.label}
-                        </Badge>
+                        {t.task.description && (
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{t.task.description}</p>
+                        )}
+                        {t.task.resultNote && (
+                          <p className="text-xs text-green-700 mt-0.5 truncate">Sonuç: {t.task.resultNote}</p>
+                        )}
                       </div>
-
-                      {t.task.description && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{t.task.description}</p>
-                      )}
-
-                      {t.task.resultNote && (
-                        <div className="mt-1.5 rounded-md border border-green-200 bg-green-50 px-2.5 py-1.5">
-                          <p className="text-xs text-green-800"><span className="font-medium">Sonuç:</span> {t.task.resultNote}</p>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-[10px] h-5 ${statusCfg.color}`}>
+                        {statusCfg.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-[10px] h-5 ${priorityCfg.color}`}>
+                        {priorityCfg.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {t.assignedName ? (
+                        <div className="flex items-center gap-1.5">
+                          <Avatar className="h-5 w-5">
+                            <AvatarFallback className={`text-[9px] ${userColorMap[t.task.assignedTo || ""] || ""}`}>
+                              {getInitials(t.assignedName)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-xs truncate">{t.assignedName.split(" ")[0]}</span>
                         </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
-
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        {t.assignedName && (
-                          <span className="flex items-center gap-1">
-                            <Avatar className="h-4 w-4">
-                              <AvatarFallback className={`text-[8px] ${userColorMap[t.task.assignedTo || ""] || ""}`}>
-                                {getInitials(t.assignedName)}
-                              </AvatarFallback>
-                            </Avatar>
-                            {t.assignedName}
-                          </span>
-                        )}
-                        {t.task.dueDate && (
-                          <span className={`flex items-center gap-1 ${isDue ? "text-red-500 font-medium" : ""}`}>
-                            <CalendarDays className="h-3 w-3" />
-                            {formatDate(t.task.dueDate)}
-                            {isDue && " (gecikmiş)"}
-                          </span>
-                        )}
-                        {t.task.completedAt && (
-                          <span className="flex items-center gap-1 text-green-600">
-                            <CheckCircle2 className="h-3 w-3" />
-                            {formatDate(t.task.completedAt)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(t)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Düzenle
-                        </DropdownMenuItem>
-                        {isPending && (
-                          <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "in_progress")}>
-                            <Play className="mr-2 h-4 w-4" /> Başla
+                    </TableCell>
+                    <TableCell>
+                      <span className={`text-xs ${isDue ? "text-red-500 font-medium" : "text-muted-foreground"}`}>
+                        {t.task.dueDate ? formatDate(t.task.dueDate) : "—"}
+                        {isDue && " !"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEdit(t)}>
+                            <Pencil className="mr-2 h-3.5 w-3.5" /> Düzenle
                           </DropdownMenuItem>
-                        )}
-                        {(isPending || isInProgress) && (
-                          <DropdownMenuItem onClick={() => openCompleteDialog(t)}>
-                            <CheckCircle2 className="mr-2 h-4 w-4" /> Tamamla
+                          {isPending && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "in_progress")}>
+                              <Play className="mr-2 h-3.5 w-3.5" /> Başla
+                            </DropdownMenuItem>
+                          )}
+                          {(isPending || isInProgress) && (
+                            <DropdownMenuItem onClick={() => openCompleteDialog(t)}>
+                              <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Tamamla
+                            </DropdownMenuItem>
+                          )}
+                          {isCompleted && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "pending")}>
+                              <RotateCcw className="mr-2 h-3.5 w-3.5" /> Yeniden Aç
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive"
+                            onClick={() => { setDeleteTask(t); setDeleteOpen(true); }}>
+                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Sil
                           </DropdownMenuItem>
-                        )}
-                        {isCompleted && (
-                          <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "pending")}>
-                            <RotateCcw className="mr-2 h-4 w-4" /> Yeniden Aç
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => { setDeleteTask(t); setDeleteOpen(true); }}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Sil
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       )}
 
       {/* Create Dialog */}
       <Dialog open={createOpen} onOpenChange={(o) => { setCreateOpen(o); if (!o) resetCreate(); }}>
         <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Yeni Görev</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Yeni Görev</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Görev Başlığı</Label>
@@ -567,9 +526,7 @@ export default function TasksPage() {
                   <SelectTrigger><SelectValue placeholder="Kişi seçin..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Atanmamış</SelectItem>
-                    {teamUsers.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                    ))}
+                    {teamUsers.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
@@ -603,9 +560,7 @@ export default function TasksPage() {
       {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditTask(null); }}>
         <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Görevi Düzenle</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Görevi Düzenle</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Görev Başlığı</Label>
@@ -622,9 +577,7 @@ export default function TasksPage() {
                   <SelectTrigger><SelectValue placeholder="Kişi seçin..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Atanmamış</SelectItem>
-                    {teamUsers.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                    ))}
+                    {teamUsers.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
@@ -662,32 +615,20 @@ export default function TasksPage() {
       {/* Complete Confirmation */}
       <Dialog open={completeOpen} onOpenChange={(o) => { setCompleteOpen(o); if (!o) { setCompleteTask(null); setCompleteNote(""); } }}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Görevi Tamamla</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Görevi Tamamla</DialogTitle></DialogHeader>
           {completeTask && (
             <div className="space-y-4 py-2">
               <div className="rounded-md border bg-muted/50 p-3">
                 <p className="font-medium text-sm">{completeTask.task.title}</p>
-                {completeTask.assignedName && (
-                  <p className="text-xs text-muted-foreground mt-1">{completeTask.assignedName}</p>
-                )}
               </div>
               <div className="space-y-2">
                 <Label>Sonuç Notu (opsiyonel)</Label>
-                <Textarea
-                  value={completeNote}
-                  onChange={(e) => setCompleteNote(e.target.value)}
-                  rows={3}
-                  placeholder="Görev sonucu hakkında not ekleyin..."
-                />
+                <Textarea value={completeNote} onChange={(e) => setCompleteNote(e.target.value)} rows={3} placeholder="Görev sonucu hakkında not..." />
               </div>
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setCompleteOpen(false); setCompleteTask(null); setCompleteNote(""); }}>
-              Vazgeç
-            </Button>
+            <Button variant="outline" onClick={() => { setCompleteOpen(false); setCompleteTask(null); setCompleteNote(""); }}>Vazgeç</Button>
             <Button onClick={handleComplete} disabled={completeLoading} className="bg-green-600 hover:bg-green-700 text-white">
               {completeLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
               Tamamla
@@ -699,9 +640,7 @@ export default function TasksPage() {
       {/* Delete Confirmation */}
       <Dialog open={deleteOpen} onOpenChange={(o) => { if (!deleteLoading) { setDeleteOpen(o); if (!o) setDeleteTask(null); } }}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Görevi Sil</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Görevi Sil</DialogTitle></DialogHeader>
           <p className="text-sm text-muted-foreground">Bu görevi silmek istediğinize emin misiniz?</p>
           {deleteTask && (
             <div className="rounded-md border bg-muted/50 p-3 text-sm">
@@ -709,14 +648,8 @@ export default function TasksPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDeleteOpen(false); setDeleteTask(null); }} disabled={deleteLoading}>
-              Vazgeç
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteLoading}
-            >
+            <Button variant="outline" onClick={() => { setDeleteOpen(false); setDeleteTask(null); }} disabled={deleteLoading}>Vazgeç</Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleteLoading}>
               {deleteLoading ? "Siliniyor..." : "Sil"}
             </Button>
           </DialogFooter>
