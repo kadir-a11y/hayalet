@@ -24,7 +24,7 @@ export function createCampaignSchedulerWorker() {
           .from(campaigns)
           .where(and(
             eq(campaigns.status, "scheduled"),
-            lte(campaigns.scheduledAt, now)
+            lte(campaigns.scheduledStart, now)
           ));
 
         if (dueCampaigns.length === 0) {
