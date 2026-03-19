@@ -165,14 +165,14 @@ export function EditPersonaDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Personay\u0131 D\u00FCzenle</DialogTitle>
+          <DialogTitle>Personayı Düzenle</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Basic info */}
           <div className="space-y-2">
             <Label htmlFor="edit-name">
-              Kullan\u0131c\u0131 Ad\u0131 <span className="text-destructive">*</span>
+              Kullanıcı Adı <span className="text-destructive">*</span>
             </Label>
             <Input
               id="edit-name"
@@ -207,12 +207,12 @@ export function EditPersonaDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kadın">Kad\u0131n</SelectItem>
+                  <SelectItem value="kadın">Kadın</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-birthdate">Do\u011Fum Tarihi</Label>
+              <Label htmlFor="edit-birthdate">Doğum Tarihi</Label>
               <Input
                 id="edit-birthdate"
                 type="date"
@@ -226,7 +226,7 @@ export function EditPersonaDialog({
           {/* Country & City */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>\u00DClke</Label>
+              <Label>Ülke</Label>
               <Select
                 value={formData.country}
                 onValueChange={(v) =>
@@ -245,7 +245,7 @@ export function EditPersonaDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>\u015Eehir</Label>
+              <Label>Şehir</Label>
               <Select
                 value={formData.city}
                 onValueChange={(v) =>
@@ -282,7 +282,7 @@ export function EditPersonaDialog({
 
           {/* Personality Traits */}
           <div className="space-y-2">
-            <Label>Ki\u015Filik \u00D6zellikleri</Label>
+            <Label>Kişilik Özellikleri</Label>
             <div className="flex flex-wrap gap-1.5">
               {formData.personalityTraits.map((t) => (
                 <Badge key={t} variant="secondary" className="gap-1">
@@ -318,7 +318,7 @@ export function EditPersonaDialog({
 
           {/* Interests */}
           <div className="space-y-2">
-            <Label>\u0130lgi Alanlar\u0131</Label>
+            <Label>İlgi Alanları</Label>
             <div className="flex flex-wrap gap-1.5">
               {formData.interests.map((i) => (
                 <Badge key={i} variant="outline" className="gap-1">
@@ -356,11 +356,11 @@ export function EditPersonaDialog({
 
           {/* Behavioral patterns */}
           <div className="space-y-3">
-            <Label>Davran\u0131\u015Fsal Kal\u0131plar</Label>
+            <Label>Davranışsal Kalıplar</Label>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="edit-writingStyle" className="text-xs text-muted-foreground">
-                  Yaz\u0131m Stili
+                  Yazım Stili
                 </Label>
                 <Input
                   id="edit-writingStyle"
@@ -394,7 +394,7 @@ export function EditPersonaDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-emojiUsage" className="text-xs text-muted-foreground">
-                  Emoji Kullan\u0131m\u0131
+                  Emoji Kullanımı
                 </Label>
                 <Select
                   value={formData.behavioralPatterns.emoji_usage || "none"}
@@ -410,10 +410,10 @@ export function EditPersonaDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Hi\u00E7</SelectItem>
+                    <SelectItem value="none">Hiç</SelectItem>
                     <SelectItem value="minimal">Minimal</SelectItem>
                     <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yo\u011Fun</SelectItem>
+                    <SelectItem value="heavy">Yoğun</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -435,10 +435,10 @@ export function EditPersonaDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Hi\u00E7</SelectItem>
+                    <SelectItem value="none">Hiç</SelectItem>
                     <SelectItem value="minimal">Minimal</SelectItem>
                     <SelectItem value="moderate">Orta</SelectItem>
-                    <SelectItem value="heavy">Yo\u011Fun</SelectItem>
+                    <SelectItem value="heavy">Yoğun</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -493,7 +493,7 @@ export function EditPersonaDialog({
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="edit-activeStart">Aktif Ba\u015Flang\u0131\u00E7</Label>
+              <Label htmlFor="edit-activeStart">Aktif Başlangıç</Label>
               <Input
                 id="edit-activeStart"
                 type="number"
@@ -507,7 +507,7 @@ export function EditPersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-activeEnd">Aktif Biti\u015F</Label>
+              <Label htmlFor="edit-activeEnd">Aktif Bitiş</Label>
               <Input
                 id="edit-activeEnd"
                 type="number"
@@ -521,7 +521,7 @@ export function EditPersonaDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-maxPosts">Maks. G\u00F6nderi</Label>
+              <Label htmlFor="edit-maxPosts">Maks. Gönderi</Label>
               <Input
                 id="edit-maxPosts"
                 type="number"
@@ -550,7 +550,7 @@ export function EditPersonaDialog({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              \u0130ptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (

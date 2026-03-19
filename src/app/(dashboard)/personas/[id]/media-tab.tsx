@@ -171,7 +171,7 @@ export function MediaTab({ personaId }: { personaId: string }) {
             ) : (
               <Upload className="mr-1.5 h-3.5 w-3.5" />
             )}
-            Y\u00FCkle
+            Yükle
           </Button>
         </div>
       </div>
@@ -189,7 +189,7 @@ export function MediaTab({ personaId }: { personaId: string }) {
             {media.length === 0 ? "Henüz medya yok" : "Bu filtrede medya yok"}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            G\u00F6rsel, video veya belge y\u00FCkleyin.
+            Görsel, video veya belge yükleyin.
           </p>
           {media.length === 0 && (
             <Button
@@ -198,7 +198,7 @@ export function MediaTab({ personaId }: { personaId: string }) {
               onClick={() => document.getElementById("media-upload")?.click()}
             >
               <Upload className="mr-1.5 h-3.5 w-3.5" />
-              Dosya Y\u00FCkle
+              Dosya Yükle
             </Button>
           )}
         </div>
@@ -258,13 +258,13 @@ export function MediaTab({ personaId }: { personaId: string }) {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Dosyay\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
+                      <AlertDialogTitle>Dosyayı silmek istediğinize emin misiniz?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        &ldquo;{item.filename}&rdquo; kal\u0131c\u0131 olarak silinecektir.
+                        &ldquo;{item.filename}&rdquo; kalıcı olarak silinecektir.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
+                      <AlertDialogCancel>İptal</AlertDialogCancel>
                       <AlertDialogAction onClick={() => handleDelete(item.id)}>
                         Sil
                       </AlertDialogAction>

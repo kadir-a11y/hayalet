@@ -134,14 +134,14 @@ export function AddEmailAccountDialog({
     >
       <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>E-posta Hesab\u0131 Ekle</DialogTitle>
+          <DialogTitle>E-posta Hesabı Ekle</DialogTitle>
           <DialogDescription>E-posta hesap bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Sa\u011Flay\u0131c\u0131</Label>
+              <Label className="text-xs font-medium">Sağlayıcı</Label>
               <Select value={provider} onValueChange={setProvider} disabled={isSubmitting}>
                 <SelectTrigger className="h-9 text-sm">
                   <SelectValue />
@@ -152,7 +152,7 @@ export function AddEmailAccountDialog({
                   <SelectItem value="yandex">Yandex</SelectItem>
                   <SelectItem value="protonmail">ProtonMail</SelectItem>
                   <SelectItem value="icloud">iCloud</SelectItem>
-                  <SelectItem value="other">Di\u011Fer</SelectItem>
+                  <SelectItem value="other">Diğer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -161,7 +161,7 @@ export function AddEmailAccountDialog({
               <Input className="h-9 text-sm" type="email" placeholder="hesap@hotmail.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">\u015Eifre</Label>
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
                 <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -177,7 +177,7 @@ export function AddEmailAccountDialog({
               <Input className="h-9 text-sm" placeholder="+90 5xx" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kurtarma E-postas\u0131</Label>
+              <Label className="text-xs font-medium">Kurtarma E-postası</Label>
               <Input className="h-9 text-sm" type="email" placeholder="recovery@email.com" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
@@ -197,7 +197,7 @@ export function AddEmailAccountDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              \u0130ptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -271,10 +271,10 @@ export function EmailAccountCard({
   if (isEditing) {
     return (
       <div className="rounded-lg border p-4 space-y-3">
-        <p className="text-sm font-medium">E-posta Hesab\u0131 \u2014 D\u00FCzenle</p>
+        <p className="text-sm font-medium">E-posta Hesabı — Düzenle</p>
         <div className="grid gap-3">
           <div className="space-y-1">
-            <Label className="text-xs">Sa\u011Flay\u0131c\u0131</Label>
+            <Label className="text-xs">Sağlayıcı</Label>
             <Select value={editData.provider} onValueChange={(v) => setEditData((d) => ({ ...d, provider: v }))}>
               <SelectTrigger className="h-8 text-sm">
                 <SelectValue />
@@ -285,7 +285,7 @@ export function EmailAccountCard({
                 <SelectItem value="yandex">Yandex</SelectItem>
                 <SelectItem value="protonmail">ProtonMail</SelectItem>
                 <SelectItem value="icloud">iCloud</SelectItem>
-                <SelectItem value="other">Di\u011Fer</SelectItem>
+                <SelectItem value="other">Diğer</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -295,7 +295,7 @@ export function EmailAccountCard({
               <Input className="h-8 text-sm" value={editData.email} onChange={(e) => setEditData((d) => ({ ...d, email: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">\u015Eifre</Label>
+              <Label className="text-xs">Şifre</Label>
               <Input className="h-8 text-sm" value={editData.password} onChange={(e) => setEditData((d) => ({ ...d, password: e.target.value }))} />
             </div>
           </div>
@@ -305,7 +305,7 @@ export function EmailAccountCard({
               <Input className="h-8 text-sm" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Kurtarma E-postas\u0131</Label>
+              <Label className="text-xs">Kurtarma E-postası</Label>
               <Input className="h-8 text-sm" value={editData.recoveryEmail} onChange={(e) => setEditData((d) => ({ ...d, recoveryEmail: e.target.value }))} />
             </div>
           </div>
@@ -315,7 +315,7 @@ export function EmailAccountCard({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>\u0130ptal</Button>
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
             Kaydet
@@ -352,13 +352,13 @@ export function EmailAccountCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Hesab\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu e-posta hesap bilgileri kal\u0131c\u0131 olarak silinecektir.
+                  Bu e-posta hesap bilgileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -370,7 +370,7 @@ export function EmailAccountCard({
         {account.password && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Key className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">\u015Eifre: </span>
+            <span className="text-xs">Şifre: </span>
             <span className="font-mono text-xs">
               {showPassword ? account.password : "••••••••"}
             </span>

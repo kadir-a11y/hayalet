@@ -99,9 +99,9 @@ export function RolesManager({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <Shield className="h-8 w-8 text-muted-foreground" />
-        <h3 className="mt-4 text-sm font-semibold">Hen\u00FCz rol tan\u0131mlanmam\u0131\u015F</h3>
+        <h3 className="mt-4 text-sm font-semibold">Henüz rol tanımlanmamış</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          \u00D6ncelikle &ldquo;Roller&rdquo; sayfas\u0131ndan rol ve kategori olu\u015Fturun.
+          Öncelikle &ldquo;Roller&rdquo; sayfasından rol ve kategori oluşturun.
         </p>
       </div>
     );
@@ -131,7 +131,7 @@ export function RolesManager({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istedi\u011Finiz rolleri se\u00E7in. AI i\u00E7erik \u00FCretiminde bu roller dikkate al\u0131nacakt\u0131r.
+        Bu personaya atamak istediğiniz rolleri seçin. AI içerik üretiminde bu roller dikkate alınacaktır.
       </p>
 
       {Array.from(grouped.entries()).map(([catId, group]) => (
@@ -172,7 +172,7 @@ export function RolesManager({
       {uncategorized.length > 0 && (
         <div className="space-y-2">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Di\u011Fer
+            Diğer
           </span>
           <div className="flex flex-wrap gap-2">
             {uncategorized.map((role) => {

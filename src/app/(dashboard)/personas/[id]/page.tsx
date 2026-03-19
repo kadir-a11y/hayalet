@@ -222,7 +222,7 @@ export default function PersonaDetailPage() {
               {error || "Persona bulunamadı"}
             </h3>
             <Button variant="outline" className="mt-6" onClick={() => router.push("/personas")}>
-              Personas Listesine D\u00F6n
+              Personas Listesine Dön
             </Button>
           </CardContent>
         </Card>
@@ -248,7 +248,7 @@ export default function PersonaDetailPage() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            D\u00FCzenle
+            Düzenle
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -263,14 +263,14 @@ export default function PersonaDetailPage() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Personay\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Personayı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu i\u015Flem geri al\u0131namaz. &ldquo;{persona.name}&rdquo; persanas\u0131 ve ili\u015Fkili
-                  t\u00FCm verileri kal\u0131c\u0131 olarak silinecektir.
+                  Bu işlem geri alınamaz. &ldquo;{persona.name}&rdquo; persanası ve ilişkili
+                  tüm verileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -369,8 +369,8 @@ export default function PersonaDetailPage() {
           <TabsTrigger value="forumlar">Forum & Portallar</TabsTrigger>
           <TabsTrigger value="roller">Roller</TabsTrigger>
           <TabsTrigger value="medya">Medya</TabsTrigger>
-          <TabsTrigger value="gonderiler">G\u00F6nderiler</TabsTrigger>
-          <TabsTrigger value="ai-icerik">AI \u0130\u00E7erik</TabsTrigger>
+          <TabsTrigger value="gonderiler">Gönderiler</TabsTrigger>
+          <TabsTrigger value="ai-icerik">AI İçerik</TabsTrigger>
           <TabsTrigger value="etiketler">Etiketler</TabsTrigger>
           <TabsTrigger value="ayarlar">Ayarlar</TabsTrigger>
         </TabsList>
@@ -381,7 +381,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <User className="h-4 w-4" />
-                Ki\u015Filik \u00D6zellikleri
+                Kişilik Özellikleri
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -392,7 +392,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Hen\u00FCz ki\u015Filik \u00F6zelli\u011Fi eklenmemi\u015F.</p>
+                <p className="text-sm text-muted-foreground">Henüz kişilik özelliği eklenmemiş.</p>
               )}
             </CardContent>
           </Card>
@@ -401,7 +401,7 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <MessageSquare className="h-4 w-4" />
-                \u0130lgi Alanlar\u0131
+                İlgi Alanları
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -412,7 +412,7 @@ export default function PersonaDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Hen\u00FCz ilgi alan\u0131 eklenmemi\u015F.</p>
+                <p className="text-sm text-muted-foreground">Henüz ilgi alanı eklenmemiş.</p>
               )}
             </CardContent>
           </Card>
@@ -421,13 +421,13 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Pen className="h-4 w-4" />
-                Davran\u0131\u015Fsal Kal\u0131plar
+                Davranışsal Kalıplar
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Yaz\u0131m Stili</p>
+                  <p className="text-xs font-medium text-muted-foreground">Yazım Stili</p>
                   <p className="text-sm">{patterns.writing_style || "-"}</p>
                 </div>
                 <div className="space-y-1">
@@ -435,7 +435,7 @@ export default function PersonaDetailPage() {
                   <p className="text-sm">{patterns.tone || "-"}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullan\u0131m\u0131</p>
+                  <p className="text-xs font-medium text-muted-foreground">Emoji Kullanımı</p>
                   <p className="text-sm">
                     {patterns.emoji_usage
                       ? usageLevelLabels[patterns.emoji_usage] || patterns.emoji_usage
@@ -462,7 +462,7 @@ export default function PersonaDetailPage() {
               <div>
                 <CardTitle className="text-base">Sosyal Hesaplar</CardTitle>
                 <CardDescription>
-                  Personaya ba\u011Fl\u0131 sosyal medya hesaplar\u0131 ve kimlik bilgileri.
+                  Personaya bağlı sosyal medya hesapları ve kimlik bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddSocialOpen(true)}>
@@ -485,9 +485,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Globe className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 sosyal hesap yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Bağlı sosyal hesap yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya hen\u00FCz sosyal medya hesab\u0131 ba\u011Flanmam\u0131\u015F.
+                    Bu personaya henüz sosyal medya hesabı bağlanmamış.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddSocialOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -499,14 +499,14 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- E-posta Hesaplar\u0131 Tab ---- */}
+        {/* ---- E-posta Hesapları Tab ---- */}
         <TabsContent value="eposta">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">E-posta Hesaplar\u0131</CardTitle>
+                <CardTitle className="text-base">E-posta Hesapları</CardTitle>
                 <CardDescription>
-                  Personaya ba\u011Fl\u0131 e-posta hesaplar\u0131 ve giri\u015F bilgileri.
+                  Personaya bağlı e-posta hesapları ve giriş bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddEmailOpen(true)}>
@@ -529,9 +529,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <Mail className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 e-posta hesab\u0131 yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Bağlı e-posta hesabı yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya hen\u00FCz e-posta hesab\u0131 eklenmemi\u015F.
+                    Bu personaya henüz e-posta hesabı eklenmemiş.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddEmailOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -548,9 +548,9 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base">Forum & Portal \u00DCyelikleri</CardTitle>
+                <CardTitle className="text-base">Forum & Portal Üyelikleri</CardTitle>
                 <CardDescription>
-                  Personan\u0131n \u00FCye oldu\u011Fu forum ve portallardaki hesap bilgileri.
+                  Personanın üye olduğu forum ve portallardaki hesap bilgileri.
                 </CardDescription>
               </div>
               <Button size="sm" onClick={() => setAddForumOpen(true)}>
@@ -573,9 +573,9 @@ export default function PersonaDetailPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-12">
                   <BookOpen className="h-8 w-8 text-muted-foreground" />
-                  <h3 className="mt-4 text-sm font-semibold">Ba\u011Fl\u0131 forum/portal hesab\u0131 yok</h3>
+                  <h3 className="mt-4 text-sm font-semibold">Bağlı forum/portal hesabı yok</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Bu personaya hen\u00FCz forum veya portal hesab\u0131 eklenmemi\u015F.
+                    Bu personaya henüz forum veya portal hesabı eklenmemiş.
                   </p>
                   <Button size="sm" className="mt-4" onClick={() => setAddForumOpen(true)}>
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -596,7 +596,7 @@ export default function PersonaDetailPage() {
                 Roller
               </CardTitle>
               <CardDescription>
-                Personan\u0131n karakter \u00F6zelliklerini belirleyen roller. AI i\u00E7erik \u00FCretiminde kullan\u0131l\u0131r.
+                Personanın karakter özelliklerini belirleyen roller. AI içerik üretiminde kullanılır.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -611,10 +611,10 @@ export default function PersonaDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Image className="h-4 w-4" />
-                Medya K\u00FCt\u00FCphanesi
+                Medya Kütüphanesi
               </CardTitle>
               <CardDescription>
-                Personan\u0131n g\u00F6rsel, video ve belge dosyalar\u0131. \u0130\u00E7erik payla\u015F\u0131mlar\u0131nda kullan\u0131l\u0131r.
+                Personanın görsel, video ve belge dosyaları. İçerik paylaşımlarında kullanılır.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -623,16 +623,16 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- G\u00F6nderiler Tab ---- */}
+        {/* ---- Gönderiler Tab ---- */}
         <TabsContent value="gonderiler">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileText className="h-4 w-4" />
-                G\u00F6nderiler
+                Gönderiler
               </CardTitle>
               <CardDescription>
-                Bu personan\u0131n t\u00FCm i\u00E7erikleri ve g\u00F6nderleri.
+                Bu personanın tüm içerikleri ve gönderleri.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -641,16 +641,16 @@ export default function PersonaDetailPage() {
           </Card>
         </TabsContent>
 
-        {/* ---- AI \u0130\u00E7erik Tab ---- */}
+        {/* ---- AI İçerik Tab ---- */}
         <TabsContent value="ai-icerik" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Sparkles className="h-4 w-4" />
-                AI \u0130\u00E7erik \u00DCretici
+                AI İçerik Üretici
               </CardTitle>
               <CardDescription>
-                Persona profiline uygun yapay zeka destekli i\u00E7erik \u00FCretin.
+                Persona profiline uygun yapay zeka destekli içerik üretin.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -673,14 +673,14 @@ export default function PersonaDetailPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>\u0130\u00E7erik T\u00FCr\u00FC</Label>
+                  <Label>İçerik Türü</Label>
                   <Select value={aiContentType} onValueChange={setAiContentType}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="post">G\u00F6nderi</SelectItem>
-                      <SelectItem value="reply">Yan\u0131t</SelectItem>
+                      <SelectItem value="post">Gönderi</SelectItem>
+                      <SelectItem value="reply">Yanıt</SelectItem>
                       <SelectItem value="comment">Yorum</SelectItem>
                       <SelectItem value="story">Hikaye</SelectItem>
                       <SelectItem value="reel">Reel</SelectItem>
@@ -696,18 +696,18 @@ export default function PersonaDetailPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value=" ">Persona Dili</SelectItem>
-                      <SelectItem value="tr">T\u00FCrk\u00E7e</SelectItem>
+                      <SelectItem value="tr">Türkçe</SelectItem>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="ar">\u0627\u0644\u0639\u0631\u0628\u064A\u0629</SelectItem>
+                      <SelectItem value="ar">العربية</SelectItem>
                       <SelectItem value="de">Deutsch</SelectItem>
-                      <SelectItem value="fr">Fran\u00E7ais</SelectItem>
-                      <SelectItem value="es">Espa\u00F1ol</SelectItem>
-                      <SelectItem value="pt">Portugu\u00EAs</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="pt">Português</SelectItem>
                       <SelectItem value="it">Italiano</SelectItem>
-                      <SelectItem value="ru">\u0420\u0443\u0441\u0441\u043A\u0438\u0439</SelectItem>
-                      <SelectItem value="ja">\u65E5\u672C\u8A9E</SelectItem>
-                      <SelectItem value="ko">\uD55C\uAD6D\uC5B4</SelectItem>
-                      <SelectItem value="zh">\u4E2D\u6587</SelectItem>
+                      <SelectItem value="ru">Русский</SelectItem>
+                      <SelectItem value="ja">日本語</SelectItem>
+                      <SelectItem value="ko">한국어</SelectItem>
+                      <SelectItem value="zh">中文</SelectItem>
                       <SelectItem value="nl">Nederlands</SelectItem>
                       <SelectItem value="pl">Polski</SelectItem>
                     </SelectContent>
@@ -756,7 +756,7 @@ export default function PersonaDetailPage() {
                   ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                   )}
-                  \u0130\u00E7erik \u00DCret
+                  İçerik Üret
                 </Button>
               </div>
             </CardContent>
@@ -765,7 +765,7 @@ export default function PersonaDetailPage() {
           {aiResults.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-sm font-medium">
-                \u00DCretilen \u0130\u00E7erikler ({aiResults.length})
+                Üretilen İçerikler ({aiResults.length})
               </h3>
               {aiResults.map((result, index) => (
                 <Card key={index}>
@@ -799,7 +799,7 @@ export default function PersonaDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Etiketler</CardTitle>
-              <CardDescription>Personaya atanan etiketleri y\u00F6netin.</CardDescription>
+              <CardDescription>Personaya atanan etiketleri yönetin.</CardDescription>
             </CardHeader>
             <CardContent>
               <TagsManager

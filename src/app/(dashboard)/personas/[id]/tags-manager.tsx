@@ -76,7 +76,7 @@ export function TagsManager({
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <p className="text-sm text-muted-foreground">
-          Hen\u00FCz etiket olu\u015Fturulmam\u0131\u015F.
+          Henüz etiket oluşturulmamış.
         </p>
       </div>
     );
@@ -85,7 +85,7 @@ export function TagsManager({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Bu personaya atamak istedi\u011Finiz etiketleri se\u00E7in.
+        Bu personaya atamak istediğiniz etiketleri seçin.
       </p>
       <div className="flex flex-wrap gap-2">
         {allTags.map((tag) => {

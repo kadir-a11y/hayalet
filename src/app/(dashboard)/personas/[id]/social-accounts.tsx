@@ -163,7 +163,7 @@ export function AddSocialAccountDialog({
     >
       <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Sosyal Medya Hesab\u0131 Ekle</DialogTitle>
+          <DialogTitle>Sosyal Medya Hesabı Ekle</DialogTitle>
           <DialogDescription>Platform hesap bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
@@ -183,11 +183,11 @@ export function AddSocialAccountDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kullan\u0131c\u0131 Ad\u0131</Label>
+              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
               <Input className="h-9 text-sm" placeholder="@kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">\u015Eifre</Label>
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
                 <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -263,7 +263,7 @@ export function AddSocialAccountDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Proxy \u00DClke</Label>
+              <Label className="text-xs font-medium">Proxy Ülke</Label>
               <Input className="h-9 text-sm" placeholder="TR, US, DE..." value={proxyCountry} onChange={(e) => setProxyCountry(e.target.value)} disabled={isSubmitting} />
             </div>
           </div>
@@ -287,7 +287,7 @@ export function AddSocialAccountDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              \u0130ptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -388,7 +388,7 @@ export function SocialAccountCard({
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold">
               {platformIcon(editData.platform)}
             </div>
-            <p className="text-sm font-medium">D\u00FCzenle</p>
+            <p className="text-sm font-medium">Düzenle</p>
           </div>
         </div>
 
@@ -490,7 +490,7 @@ export function SocialAccountCard({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Proxy \u00DClke</Label>
+              <Label className="text-xs">Proxy Ülke</Label>
               <Input className="h-8 text-sm" placeholder="TR, US..." value={editData.proxyCountry} onChange={(e) => setEditData((d) => ({ ...d, proxyCountry: e.target.value }))} />
             </div>
           </div>
@@ -507,7 +507,7 @@ export function SocialAccountCard({
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>\u0130ptal</Button>
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
             Kaydet
@@ -555,13 +555,13 @@ export function SocialAccountCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Hesab\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu sosyal medya hesap bilgileri kal\u0131c\u0131 olarak silinecektir.
+                  Bu sosyal medya hesap bilgileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -586,7 +586,7 @@ export function SocialAccountCard({
         {account.platformPassword && (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Key className="h-3.5 w-3.5 shrink-0" />
-            <span className="text-xs">\u015Eifre: </span>
+            <span className="text-xs">Şifre: </span>
             <span className="font-mono text-xs">
               {showPassword ? account.platformPassword : "••••••••"}
             </span>
@@ -665,7 +665,7 @@ export function SocialAccountCard({
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
-          Son kullan\u0131m: {formatShortDate(account.lastUsedAt)}
+          Son kullanım: {formatShortDate(account.lastUsedAt)}
         </p>
       )}
     </div>

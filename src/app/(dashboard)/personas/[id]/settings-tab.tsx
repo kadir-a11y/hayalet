@@ -83,7 +83,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Settings2 className="h-4 w-4" />
-            Ayarlar \u2014 D\u00FCzenle
+            Ayarlar — Düzenle
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -105,16 +105,16 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kadın">Kad\u0131n</SelectItem>
+                  <SelectItem value="kadın">Kadın</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Do\u011Fum Tarihi</Label>
+              <Label className="text-xs">Doğum Tarihi</Label>
               <Input className="h-8 text-sm" type="date" value={data.birthDate} onChange={(e) => setData((d) => ({ ...d, birthDate: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">\u00DClke</Label>
+              <Label className="text-xs">Ülke</Label>
               <Select value={data.country} onValueChange={(v) => setData((d) => ({ ...d, country: v, city: "" }))}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
                 <SelectContent>
@@ -125,7 +125,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">\u015Eehir</Label>
+              <Label className="text-xs">Şehir</Label>
               {cityList.length > 0 ? (
                 <Select value={data.city} onValueChange={(v) => setData((d) => ({ ...d, city: v }))}>
                   <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
@@ -144,15 +144,15 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
               <Input className="h-8 text-sm" value={data.timezone} onChange={(e) => setData((d) => ({ ...d, timezone: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Aktif Saat Ba\u015Flang\u0131\u00E7</Label>
+              <Label className="text-xs">Aktif Saat Başlangıç</Label>
               <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursStart} onChange={(e) => setData((d) => ({ ...d, activeHoursStart: parseInt(e.target.value) || 0 }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Aktif Saat Biti\u015F</Label>
+              <Label className="text-xs">Aktif Saat Bitiş</Label>
               <Input className="h-8 text-sm" type="number" min={0} max={23} value={data.activeHoursEnd} onChange={(e) => setData((d) => ({ ...d, activeHoursEnd: parseInt(e.target.value) || 0 }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">G\u00FCnl\u00FCk Maks. G\u00F6nderi</Label>
+              <Label className="text-xs">Günlük Maks. Gönderi</Label>
               <Input className="h-8 text-sm" type="number" min={1} max={50} value={data.maxPostsPerDay} onChange={(e) => setData((d) => ({ ...d, maxPostsPerDay: parseInt(e.target.value) || 1 }))} />
             </div>
             <div className="flex items-center gap-3 pt-4">
@@ -165,7 +165,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-6">
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>\u0130ptal</Button>
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
             <Button size="sm" onClick={handleSave} disabled={isSaving}>
               {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
               Kaydet
@@ -185,7 +185,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
         </CardTitle>
         <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
           <Edit className="mr-1.5 h-3.5 w-3.5" />
-          D\u00FCzenle
+          Düzenle
         </Button>
       </CardHeader>
       <CardContent>
@@ -199,7 +199,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
             <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Do\u011Fum Tarihi</p>
+            <p className="text-xs font-medium text-muted-foreground">Doğum Tarihi</p>
             <p className="text-sm">{persona.birthDate || "-"}</p>
           </div>
           <div className="space-y-1">
@@ -219,7 +219,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">G\u00FCnl\u00FCk Maks. G\u00F6nderi</p>
+            <p className="text-xs font-medium text-muted-foreground">Günlük Maks. Gönderi</p>
             <p className="text-sm">{persona.maxPostsPerDay ?? 5}</p>
           </div>
           <div className="space-y-1">
@@ -230,17 +230,17 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
               </Badge>
               {persona.isVerified && (
                 <Badge variant="outline" className="text-blue-500 border-blue-500">
-                  \u2713 Onayl\u0131
+                  ✓ Onaylı
                 </Badge>
               )}
             </div>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Son G\u00FCncelleme</p>
+            <p className="text-xs font-medium text-muted-foreground">Son Güncelleme</p>
             <p className="text-sm">{formatDate(persona.updatedAt)}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Olu\u015Fturulma</p>
+            <p className="text-xs font-medium text-muted-foreground">Oluşturulma</p>
             <p className="text-sm">{formatDate(persona.createdAt)}</p>
           </div>
         </div>

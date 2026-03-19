@@ -79,9 +79,9 @@ export default function ReportsContent({ embedded = false }: { embedded?: boolea
     <div className="space-y-6">
       {!embedded && (
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Raporlar & D\u0131\u015fa Aktar\u0131m</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Raporlar & Dışa Aktarım</h1>
           <p className="text-muted-foreground mt-1">
-            Verilerinizi CSV format\u0131nda d\u0131\u015fa aktar\u0131n
+            Verilerinizi CSV formatında dışa aktarın
           </p>
         </div>
       )}

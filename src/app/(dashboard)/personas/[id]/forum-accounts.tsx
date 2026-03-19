@@ -141,14 +141,14 @@ export function AddForumAccountDialog({
     >
       <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Forum / Portal Hesab\u0131 Ekle</DialogTitle>
-          <DialogDescription>Forum veya portal \u00FCyelik bilgilerini girin.</DialogDescription>
+          <DialogTitle>Forum / Portal Hesabı Ekle</DialogTitle>
+          <DialogDescription>Forum veya portal üyelik bilgilerini girin.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto pr-1 flex-1">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Portal Ad\u0131 *</Label>
+              <Label className="text-xs font-medium">Portal Adı *</Label>
               <Input className="h-9 text-sm" placeholder="Technopat, r10.net" value={portalName} onChange={(e) => setPortalName(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
@@ -159,11 +159,11 @@ export function AddForumAccountDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Kullan\u0131c\u0131 Ad\u0131</Label>
+              <Label className="text-xs font-medium">Kullanıcı Adı</Label>
               <Input className="h-9 text-sm" placeholder="kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">\u015Eifre</Label>
+              <Label className="text-xs font-medium">Şifre</Label>
               <div className="relative">
                 <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -229,7 +229,7 @@ export function AddForumAccountDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              \u0130ptal
+              İptal
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -317,11 +317,11 @@ export function ForumAccountCard({
   if (isEditing) {
     return (
       <div className="rounded-lg border p-4 space-y-3">
-        <p className="text-sm font-medium">Forum / Portal \u2014 D\u00FCzenle</p>
+        <p className="text-sm font-medium">Forum / Portal — Düzenle</p>
         <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Portal Ad\u0131</Label>
+              <Label className="text-xs">Portal Adı</Label>
               <Input className="h-8 text-sm" value={editData.portalName} onChange={(e) => setEditData((d) => ({ ...d, portalName: e.target.value }))} />
             </div>
             <div className="space-y-1">
@@ -331,11 +331,11 @@ export function ForumAccountCard({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Kullan\u0131c\u0131 Ad\u0131</Label>
+              <Label className="text-xs">Kullanıcı Adı</Label>
               <Input className="h-8 text-sm" value={editData.username} onChange={(e) => setEditData((d) => ({ ...d, username: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">\u015Eifre</Label>
+              <Label className="text-xs">Şifre</Label>
               <Input className="h-8 text-sm" value={editData.password} onChange={(e) => setEditData((d) => ({ ...d, password: e.target.value }))} />
             </div>
           </div>
@@ -381,7 +381,7 @@ export function ForumAccountCard({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>\u0130ptal</Button>
+          <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={isSaving}>İptal</Button>
           <Button size="sm" onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
             Kaydet
@@ -430,13 +430,13 @@ export function ForumAccountCard({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Hesab\u0131 silmek istedi\u011Finize emin misiniz?</AlertDialogTitle>
+                <AlertDialogTitle>Hesabı silmek istediğinize emin misiniz?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bu forum/portal hesap bilgileri kal\u0131c\u0131 olarak silinecektir.
+                  Bu forum/portal hesap bilgileri kalıcı olarak silinecektir.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>\u0130ptal</AlertDialogCancel>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -523,7 +523,7 @@ export function ForumAccountCard({
 
       {account.lastUsedAt && (
         <p className="text-xs text-muted-foreground">
-          Son kullan\u0131m: {formatShortDate(account.lastUsedAt)}
+          Son kullanım: {formatShortDate(account.lastUsedAt)}
         </p>
       )}
     </div>
