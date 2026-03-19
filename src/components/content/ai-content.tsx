@@ -352,7 +352,7 @@ export default function AiContentContent({ embedded = false }: { embedded?: bool
         {/* Right: Results */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Uretilen Icerikler</h2>
+            <h2 className="text-lg font-semibold">Üretilen İçerikler</h2>
             {results.length > 0 && (
               <Button
                 variant="outline"

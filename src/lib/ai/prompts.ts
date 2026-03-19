@@ -438,7 +438,7 @@ export function buildDefenseContentPrompt(
   const defenseContext = `
 PROJE BAGLAMI:
 - Proje: ${project.projectName}
-${project.projectDescription ? `- Aciklama: ${project.projectDescription}` : ""}
+${project.projectDescription ? `- Açıklama: ${project.projectDescription}` : ""}
 ${project.clientName ? `- Musteri: ${project.clientName}` : ""}
 - Anahtar kelimeler: ${project.keywords.join(", ") || "belirtilmemis"}
 ${mentionExamples}

@@ -51,7 +51,7 @@ const STATUS_OPTIONS = [
   { value: "all", label: "Tumu" },
   { value: "acik", label: "Acik" },
   { value: "inceleniyor", label: "Inceleniyor" },
-  { value: "cozuldu", label: "Cozuldu" },
+  { value: "cozuldu", label: "Çözüldü" },
   { value: "kapandi", label: "Kapandi" },
   { value: "yeniden_acildi", label: "Yeniden Acildi" },
 ];
@@ -81,7 +81,7 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   acik: "Acik",
   inceleniyor: "Inceleniyor",
-  cozuldu: "Cozuldu",
+  cozuldu: "Çözüldü",
   kapandi: "Kapandi",
   yeniden_acildi: "Yeniden Acildi",
 };
@@ -240,7 +240,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
           {/* Table Header */}
           <div className="grid grid-cols-[1fr_2fr_100px_100px_140px_100px] gap-2 px-4 py-3 bg-muted/50 text-sm font-medium text-muted-foreground">
             <div>Sayfa</div>
-            <div>Aciklama</div>
+            <div>Açıklama</div>
             <div>Oncelik</div>
             <div>Durum</div>
             <div>Tarih</div>
@@ -302,7 +302,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                   </div>
 
                   <div>
-                    <span className="text-sm font-medium">Tam Aciklama:</span>
+                    <span className="text-sm font-medium">Tam Açıklama:</span>
                     <p className="text-sm mt-1 whitespace-pre-wrap">
                       {report.description}
                     </p>
@@ -324,7 +324,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                       <SelectContent>
                         <SelectItem value="acik">Acik</SelectItem>
                         <SelectItem value="inceleniyor">Inceleniyor</SelectItem>
-                        <SelectItem value="cozuldu">Cozuldu</SelectItem>
+                        <SelectItem value="cozuldu">Çözüldü</SelectItem>
                         <SelectItem value="kapandi">Kapandi</SelectItem>
                         <SelectItem value="yeniden_acildi">Yeniden Acildi</SelectItem>
                       </SelectContent>
@@ -370,7 +370,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                       <Textarea
                         value={noteText}
                         onChange={(e) => setNoteText(e.target.value)}
-                        placeholder={noteType === "resolve" ? "Bu bug nasil cozuldu..." : noteType === "reopen" ? "Bu bug neden yeniden aciliyor..." : "Admin notu ekleyin..."}
+                        placeholder={noteType === "resolve" ? "Bu bug nasıl çözüldü..." : noteType === "reopen" ? "Bu bug neden yeniden açılıyor..." : "Admin notu ekleyin..."}
                         rows={3}
                       />
                       <div className="flex gap-2">
@@ -384,7 +384,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                           {noteType === "resolve" ? "Coz ve Kaydet" : noteType === "reopen" ? "Yeniden Ac" : "Kaydet"}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => { setNoteEditId(null); setNoteText(""); }}>
-                          Iptal
+                          İptal
                         </Button>
                       </div>
                     </div>
@@ -462,7 +462,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete}>Sil</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

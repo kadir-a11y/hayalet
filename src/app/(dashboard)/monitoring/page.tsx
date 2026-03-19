@@ -214,7 +214,7 @@ export default function MonitoringPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setCreateOpen(false)}>
-                Iptal
+                İptal
               </Button>
               <Button
                 onClick={handleCreate}

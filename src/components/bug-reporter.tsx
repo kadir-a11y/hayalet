@@ -134,7 +134,7 @@ export function BugReporter() {
           {!success && (
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                Iptal
+                İptal
               </Button>
               <Button
                 onClick={handleSubmit}
