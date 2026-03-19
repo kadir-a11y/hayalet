@@ -118,6 +118,7 @@ interface Persona {
   socialAccountCount: number;
   forumAccountCount: number;
   emailAccountCount: number;
+  suspendedAccountCount: number;
 }
 
 interface CreateFormData {
@@ -357,12 +358,20 @@ function PersonaRow({
       )}
       {visibleColumns.includes("status") && (
         <TableCell>
-          <Badge
-            variant={persona.isActive ? "default" : "secondary"}
-            className="text-xs"
-          >
-            {persona.isActive ? "Aktif" : "Pasif"}
-          </Badge>
+          <div className="flex items-center gap-1">
+            <Badge
+              variant={persona.isActive ? "default" : "secondary"}
+              className="text-xs"
+            >
+              {persona.isActive ? "Aktif" : "Pasif"}
+            </Badge>
+            {(persona.suspendedAccountCount || 0) > 0 && (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0 gap-0.5">
+                <AlertTriangle className="h-3 w-3" />
+                {persona.suspendedAccountCount}
+              </Badge>
+            )}
+          </div>
         </TableCell>
       )}
       {visibleColumns.includes("tags") && (
@@ -1427,6 +1436,7 @@ function PersonasPage() {
         if (af === "has_forum" && p.forumAccountCount === 0) return false;
         if (af === "no_forum" && p.forumAccountCount > 0) return false;
         if (af === "no_accounts" && (p.emailAccountCount + p.socialAccountCount + p.forumAccountCount) > 0) return false;
+        if (af === "has_suspended" && (p.suspendedAccountCount || 0) === 0) return false;
       }
       return true;
     })
@@ -1730,6 +1740,7 @@ function PersonasPage() {
                     { value: "has_forum", label: "Forum Hesabı Var" },
                     { value: "no_forum", label: "Forum Hesabı Yok" },
                     { value: "no_accounts", label: "Hiç Hesap Yok" },
+                    { value: "has_suspended", label: "Askıya Alınmış Hesap Var" },
                   ].map((opt) => (
                     <label
                       key={opt.value}
@@ -1800,11 +1811,19 @@ function PersonasPage() {
 
       {/* Filter summary */}
       {!isLoading && !error && (
-        <p className="text-xs text-muted-foreground">
-          {filteredPersonas.length === personas.length
-            ? `${personas.length} persona`
-            : `${filteredPersonas.length} / ${personas.length} persona gösteriliyor`}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-muted-foreground">
+            {filteredPersonas.length === personas.length
+              ? `${personas.length} persona`
+              : `${filteredPersonas.length} / ${personas.length} persona gösteriliyor`}
+          </p>
+          {personas.reduce((sum, p) => sum + (p.suspendedAccountCount || 0), 0) > 0 && (
+            <Badge variant="destructive" className="text-xs gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              {personas.reduce((sum, p) => sum + (p.suspendedAccountCount || 0), 0)} askıya alınmış hesap
+            </Badge>
+          )}
+        </div>
       )}
 
       {/* Error state */}

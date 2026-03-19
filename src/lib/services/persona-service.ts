@@ -230,9 +230,23 @@ export async function getPersonasWithTags(userId: string, isAdmin = false) {
     .where(inArray(emailAccounts.personaId, personaIds))
     .groupBy(emailAccounts.personaId);
 
+  // Count suspended/restricted/banned accounts
+  const suspendedCounts = await db
+    .select({
+      personaId: socialAccounts.personaId,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(socialAccounts)
+    .where(and(
+      inArray(socialAccounts.personaId, personaIds),
+      sql`${socialAccounts.accountStatus} IS NOT NULL AND ${socialAccounts.accountStatus} != 'active'`
+    ))
+    .groupBy(socialAccounts.personaId);
+
   const socialCountMap = new Map(socialCounts.map((s) => [s.personaId, s.count]));
   const forumCountMap = new Map(forumCounts.map((f) => [f.personaId, f.count]));
   const emailCountMap = new Map(emailCounts.map((e) => [e.personaId, e.count]));
+  const suspendedCountMap = new Map(suspendedCounts.map((s) => [s.personaId, s.count]));
 
   return allPersonas.map((p) => ({
     ...p,
@@ -241,5 +255,6 @@ export async function getPersonasWithTags(userId: string, isAdmin = false) {
     socialAccountCount: socialCountMap.get(p.id) || 0,
     forumAccountCount: forumCountMap.get(p.id) || 0,
     emailAccountCount: emailCountMap.get(p.id) || 0,
+    suspendedAccountCount: suspendedCountMap.get(p.id) || 0,
   }));
 }
