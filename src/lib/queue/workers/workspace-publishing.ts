@@ -4,7 +4,8 @@ import { workspacePublishingQueue } from "../queues";
 import { db } from "@/lib/db";
 import { contentItems, personas, socialAccounts, workspaceResponses } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { postTweet, postThread, splitIntoThread } from "@/lib/platforms/twitter";
+import { getPlatformAdapter } from "@/lib/platforms/registry";
+import "@/lib/platforms/adapters";
 
 interface WorkspacePublishingJob {
   contentItemId: string;
@@ -81,49 +82,31 @@ export function createWorkspacePublishingWorker() {
 
       try {
         const content = job.data.content;
+        const adapter = getPlatformAdapter(platform);
 
-        if (platform === "twitter") {
-          // Real Twitter API posting
-          const chunks = splitIntoThread(content);
-          let result;
-
-          if (chunks.length === 1) {
-            result = await postTweet(personaId, chunks[0]);
-          } else {
-            result = await postThread(personaId, chunks);
-          }
-
-          if (!result.success) {
-            throw new Error(result.error || "Twitter posting failed");
-          }
-
-          // Mark as published with external IDs
-          await db
-            .update(contentItems)
-            .set({
-              status: "published",
-              publishedAt: new Date(),
-              externalPostId: result.externalPostId || null,
-              externalPostUrl: result.externalPostUrl || null,
-              updatedAt: new Date(),
-            })
-            .where(eq(contentItems.id, contentItemId));
-        } else {
-          // Other platforms — log for now until implemented
-          console.log(
-            `[Workspace] Publishing on ${platform} for persona ${personaId}: ` +
-            `${content.substring(0, 50)}...`
-          );
-
-          await db
-            .update(contentItems)
-            .set({
-              status: "published",
-              publishedAt: new Date(),
-              updatedAt: new Date(),
-            })
-            .where(eq(contentItems.id, contentItemId));
+        if (!adapter) {
+          throw new Error(`No adapter registered for platform: ${platform}`);
         }
+
+        const chunks = adapter.splitContent(content);
+        const result = chunks.length === 1
+          ? await adapter.post(personaId, chunks[0])
+          : await adapter.postThread(personaId, chunks);
+
+        if (!result.success) {
+          throw new Error(result.error || `${platform} posting failed`);
+        }
+
+        await db
+          .update(contentItems)
+          .set({
+            status: "published",
+            publishedAt: new Date(),
+            externalPostId: result.externalPostId || null,
+            externalPostUrl: result.externalPostUrl || null,
+            updatedAt: new Date(),
+          })
+          .where(eq(contentItems.id, contentItemId));
 
         // Update workspace response
         await db
@@ -144,7 +127,7 @@ export function createWorkspacePublishingWorker() {
           .set({
             status: "failed",
             errorMessage: message,
-            platformError: platform === "twitter" ? message : null,
+            platformError: message,
             updatedAt: new Date(),
           })
           .where(eq(contentItems.id, contentItemId));
