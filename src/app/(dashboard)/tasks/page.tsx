@@ -65,6 +65,7 @@ const STATUS_CFG: Record<string, { label: string; color: string; icon: React.Ele
   completed: { label: "Tamamlandı", color: "bg-green-100 text-green-700", icon: CheckCircle2 },
   on_hold: { label: "Beklemede", color: "bg-orange-100 text-orange-700", icon: Pause },
   cancelled: { label: "İptal", color: "bg-gray-100 text-gray-500", icon: AlertTriangle },
+  discussion: { label: "Tartışma", color: "bg-violet-100 text-violet-700", icon: ListTodo },
 };
 
 const PRIORITY_CFG: Record<string, { label: string; color: string }> = {
@@ -143,7 +144,7 @@ export default function TasksPage() {
   // Filter logic
   const filtered = useMemo(() => {
     return tasks.filter((t) => {
-      if (statusFilter === "active" && ["completed", "cancelled"].includes(t.task.status)) return false;
+      if (statusFilter === "active" && ["completed", "cancelled", "discussion"].includes(t.task.status)) return false;
       if (statusFilter !== "active" && statusFilter !== "all" && t.task.status !== statusFilter) return false;
       if (categoryFilter !== "all" && t.task.category !== categoryFilter) return false;
       if (phaseFilter !== "all" && t.task.phase !== phaseFilter) return false;
@@ -168,6 +169,7 @@ export default function TasksPage() {
     inProgress: tasks.filter((t) => t.task.status === "in_progress").length,
     completed: tasks.filter((t) => t.task.status === "completed").length,
     onHold: tasks.filter((t) => t.task.status === "on_hold").length,
+    discussion: tasks.filter((t) => t.task.status === "discussion").length,
     total: tasks.length,
   }), [tasks]);
 
@@ -296,6 +298,7 @@ export default function TasksPage() {
           { key: "in_progress", count: stats.inProgress, icon: Play, label: "Devam Ediyor", color: "border-blue-200 text-blue-700" },
           { key: "on_hold", count: stats.onHold, icon: Pause, label: "Beklemede", color: "border-orange-200 text-orange-700" },
           { key: "completed", count: stats.completed, icon: CheckCircle2, label: "Tamamlandı", color: "border-green-200 text-green-700" },
+          { key: "discussion", count: stats.discussion, icon: ListTodo, label: "Tartışma", color: "border-violet-200 text-violet-700" },
         ].map((s) => (
           <button key={s.key} onClick={() => setStatusFilter(statusFilter === s.key ? "active" : s.key)}
             className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors ${statusFilter === s.key ? "bg-primary text-primary-foreground border-primary" : s.color || ""}`}>

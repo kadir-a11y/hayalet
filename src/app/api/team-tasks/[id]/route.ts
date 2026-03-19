@@ -9,7 +9,7 @@ const updateSchema = z.object({
   taskCode: z.string().max(20).nullable().optional(),
   title: z.string().min(1).optional(),
   description: z.string().nullable().optional(),
-  status: z.enum(["pending", "in_progress", "completed", "cancelled", "on_hold"]).optional(),
+  status: z.enum(["pending", "in_progress", "completed", "cancelled", "on_hold", "discussion"]).optional(),
   priority: z.enum(["low", "normal", "high", "urgent"]).optional(),
   phase: z.string().max(50).nullable().optional(),
   category: z.enum(["dev", "team", "bug", "ops"]).optional(),
