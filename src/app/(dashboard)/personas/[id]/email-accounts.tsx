@@ -53,7 +53,7 @@ const emailProviderNames: Record<string, string> = {
   yandex: "Yandex",
   protonmail: "ProtonMail",
   icloud: "iCloud",
-  other: "Di\u011Fer",
+  other: "Diğer",
 };
 
 export function AddEmailAccountDialog({
@@ -118,7 +118,7 @@ export function AddEmailAccountDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +163,7 @@ export function AddEmailAccountDialog({
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">\u015Eifre</Label>
               <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="\u015Eifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -372,7 +372,7 @@ export function EmailAccountCard({
             <Key className="h-3.5 w-3.5 shrink-0" />
             <span className="text-xs">\u015Eifre: </span>
             <span className="font-mono text-xs">
-              {showPassword ? account.password : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+              {showPassword ? account.password : "••••••••"}
             </span>
             <button
               onClick={() => setShowPassword(!showPassword)}

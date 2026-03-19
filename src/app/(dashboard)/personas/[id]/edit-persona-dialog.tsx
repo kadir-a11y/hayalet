@@ -148,14 +148,14 @@ export function EditPersonaDialog({
         throw new Error(
           data?.error?.fieldErrors
             ? Object.values(data.error.fieldErrors).flat().join(", ")
-            : "G\u00FCncelleme ba\u015Far\u0131s\u0131z."
+            : "Güncelleme başarısız."
         );
       }
 
       onOpenChange(false);
       onUpdated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -203,11 +203,11 @@ export function EditPersonaDialog({
                 disabled={isSubmitting}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Se\u00E7in" />
+                  <SelectValue placeholder="Seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kad\u0131n">Kad\u0131n</SelectItem>
+                  <SelectItem value="kadın">Kad\u0131n</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -235,7 +235,7 @@ export function EditPersonaDialog({
                 disabled={isSubmitting}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="\u00DClke se\u00E7in" />
+                  <SelectValue placeholder="Ülke seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
@@ -254,7 +254,7 @@ export function EditPersonaDialog({
                 disabled={isSubmitting || !formData.country}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="\u015Eehir se\u00E7in" />
+                  <SelectValue placeholder="Şehir seçin" />
                 </SelectTrigger>
                 <SelectContent>
                   {getCitiesByCountry(formData.country).map((city) => (
@@ -299,7 +299,7 @@ export function EditPersonaDialog({
             </div>
             <div className="flex gap-2">
               <Input
-                placeholder="Yeni \u00F6zellik ekle..."
+                placeholder="Yeni özellik ekle..."
                 value={newTrait}
                 onChange={(e) => setNewTrait(e.target.value)}
                 onKeyDown={(e) => {
@@ -335,7 +335,7 @@ export function EditPersonaDialog({
             </div>
             <div className="flex gap-2">
               <Input
-                placeholder="Yeni ilgi alan\u0131 ekle..."
+                placeholder="Yeni ilgi alanı ekle..."
                 value={newInterest}
                 onChange={(e) => setNewInterest(e.target.value)}
                 onKeyDown={(e) => {
@@ -364,7 +364,7 @@ export function EditPersonaDialog({
                 </Label>
                 <Input
                   id="edit-writingStyle"
-                  placeholder="\u00F6rne\u011Fin: resmi, samimi..."
+                  placeholder="örneğin: resmi, samimi..."
                   value={formData.behavioralPatterns.writing_style || ""}
                   onChange={(e) =>
                     setFormData((f) => ({
@@ -381,7 +381,7 @@ export function EditPersonaDialog({
                 </Label>
                 <Input
                   id="edit-tone"
-                  placeholder="\u00F6rne\u011Fin: ciddi, e\u011Flenceli..."
+                  placeholder="örneğin: ciddi, eğlenceli..."
                   value={formData.behavioralPatterns.tone || ""}
                   onChange={(e) =>
                     setFormData((f) => ({

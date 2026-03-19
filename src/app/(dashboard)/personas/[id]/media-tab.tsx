@@ -86,12 +86,12 @@ export function MediaTab({ personaId }: { personaId: string }) {
 
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Y\u00FCkleme ba\u015Far\u0131s\u0131z.");
+          throw new Error(err.error || "Yükleme başarısız.");
         }
       }
       fetchMedia();
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Y\u00FCkleme ba\u015Far\u0131s\u0131z.");
+      setUploadError(err instanceof Error ? err.message : "Yükleme başarısız.");
     } finally {
       setIsUploading(false);
       e.target.value = "";
@@ -139,8 +139,8 @@ export function MediaTab({ personaId }: { personaId: string }) {
               onClick={() => setFilter(t)}
               className="text-xs"
             >
-              {t === "all" && "T\u00FCm\u00FC"}
-              {t === "image" && "G\u00F6rseller"}
+              {t === "all" && "Tümü"}
+              {t === "image" && "Görseller"}
               {t === "video" && "Videolar"}
               {t === "document" && "Belgeler"}
               {counts[t] > 0 && (
@@ -186,7 +186,7 @@ export function MediaTab({ personaId }: { personaId: string }) {
         <div className="flex flex-col items-center justify-center py-12">
           <Image className="h-8 w-8 text-muted-foreground" />
           <h3 className="mt-4 text-sm font-semibold">
-            {media.length === 0 ? "Hen\u00FCz medya yok" : "Bu filtrede medya yok"}
+            {media.length === 0 ? "Henüz medya yok" : "Bu filtrede medya yok"}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
             G\u00F6rsel, video veya belge y\u00FCkleyin.

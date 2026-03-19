@@ -105,7 +105,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="erkek">Erkek</SelectItem>
-                  <SelectItem value="kad\u0131n">Kad\u0131n</SelectItem>
+                  <SelectItem value="kadın">Kad\u0131n</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -116,7 +116,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
             <div className="space-y-1">
               <Label className="text-xs">\u00DClke</Label>
               <Select value={data.country} onValueChange={(v) => setData((d) => ({ ...d, country: v, city: "" }))}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Se\u00E7in" /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
                     <SelectItem key={c.code} value={c.name}>{c.name}</SelectItem>
@@ -128,7 +128,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
               <Label className="text-xs">\u015Eehir</Label>
               {cityList.length > 0 ? (
                 <Select value={data.city} onValueChange={(v) => setData((d) => ({ ...d, city: v }))}>
-                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Se\u00E7in" /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Seçin" /></SelectTrigger>
                   <SelectContent>
                     {cityList.map((c) => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -136,7 +136,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
                   </SelectContent>
                 </Select>
               ) : (
-                <Input className="h-8 text-sm" value={data.city} onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))} placeholder="\u015Eehir" />
+                <Input className="h-8 text-sm" value={data.city} onChange={(e) => setData((d) => ({ ...d, city: e.target.value }))} placeholder="Şehir" />
               )}
             </div>
             <div className="space-y-1">
@@ -161,7 +161,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
             </div>
             <div className="flex items-center gap-3 pt-4">
               <Switch checked={data.isVerified} onCheckedChange={(v) => setData((d) => ({ ...d, isVerified: v }))} />
-              <Label className="text-xs">{data.isVerified ? "Onayl\u0131 \u2713" : "Onays\u0131z"}</Label>
+              <Label className="text-xs">{data.isVerified ? "Onaylı ✓" : "Onaysız"}</Label>
             </div>
           </div>
           <div className="flex justify-end gap-2 mt-6">
@@ -196,7 +196,7 @@ export function SettingsTab({ persona, onUpdated }: { persona: Persona; onUpdate
           </div>
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground">Cinsiyet</p>
-            <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kad\u0131n" ? "Kad\u0131n" : "-"}</p>
+            <p className="text-sm">{persona.gender === "erkek" ? "Erkek" : persona.gender === "kadın" ? "Kadın" : "-"}</p>
           </div>
           <div className="space-y-1">
             <p className="text-xs font-medium text-muted-foreground">Do\u011Fum Tarihi</p>

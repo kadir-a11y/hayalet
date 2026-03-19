@@ -159,15 +159,15 @@ export default function PersonaDetailPage() {
       if (res.ok) {
         const data = await res.json();
         setAiResults(data.results || []);
-        toast({ title: "\u0130\u00E7erik \u00FCretildi", description: `${(data.results || []).length} i\u00E7erik ba\u015Far\u0131yla olu\u015Fturuldu.` });
+        toast({ title: "İçerik üretildi", description: `${(data.results || []).length} içerik başarıyla oluşturuldu.` });
       } else {
         const err = await res.json().catch(() => ({}));
         console.error("AI generation failed:", err);
-        toast({ title: "\u0130\u00E7erik \u00FCretilemedi", description: err.details || err.error || "Bir hata olu\u015Ftu. L\u00FCtfen tekrar deneyin.", variant: "destructive" });
+        toast({ title: "İçerik üretilemedi", description: err.details || err.error || "Bir hata oluştu. Lütfen tekrar deneyin.", variant: "destructive" });
       }
     } catch (error) {
       console.error("AI generation failed:", error);
-      toast({ title: "Ba\u011Flant\u0131 hatas\u0131", description: "Sunucuya ba\u011Flan\u0131lamad\u0131. L\u00FCtfen tekrar deneyin.", variant: "destructive" });
+      toast({ title: "Bağlantı hatası", description: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.", variant: "destructive" });
     } finally {
       setAiLoading(false);
     }
@@ -178,14 +178,14 @@ export default function PersonaDetailPage() {
       setError("");
       const res = await fetch(`/api/personas/${id}`);
       if (res.status === 404) {
-        setError("Persona bulunamad\u0131.");
+        setError("Persona bulunamadı.");
         return;
       }
-      if (!res.ok) throw new Error("Persona y\u00FCklenemedi.");
+      if (!res.ok) throw new Error("Persona yüklenemedi.");
       const data = await res.json();
       setPersona(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -199,7 +199,7 @@ export default function PersonaDetailPage() {
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/personas/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Silme ba\u015Far\u0131s\u0131z.");
+      if (!res.ok) throw new Error("Silme başarısız.");
       router.push("/personas");
     } catch {
       setIsDeleting(false);
@@ -219,7 +219,7 @@ export default function PersonaDetailPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <User className="h-10 w-10 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">
-              {error || "Persona bulunamad\u0131"}
+              {error || "Persona bulunamadı"}
             </h3>
             <Button variant="outline" className="mt-6" onClick={() => router.push("/personas")}>
               Personas Listesine D\u00F6n
@@ -337,7 +337,7 @@ export default function PersonaDetailPage() {
               {persona.gender && (
                 <span className="flex items-center gap-1">
                   <User className="h-3.5 w-3.5" />
-                  {persona.gender === "erkek" ? "Erkek" : "Kad\u0131n"}
+                  {persona.gender === "erkek" ? "Erkek" : "Kadın"}
                 </span>
               )}
               {persona.birthDate && (
@@ -718,7 +718,7 @@ export default function PersonaDetailPage() {
               <div className="space-y-2">
                 <Label>Konu (Opsiyonel)</Label>
                 <Input
-                  placeholder="\u0130\u00E7eri\u011Fin konusu veya temas\u0131..."
+                  placeholder="İçeriğin konusu veya teması..."
                   value={aiTopic}
                   onChange={(e) => setAiTopic(e.target.value)}
                 />
@@ -727,7 +727,7 @@ export default function PersonaDetailPage() {
               <div className="space-y-2">
                 <Label>Ek Talimatlar (Opsiyonel)</Label>
                 <Textarea
-                  placeholder="\u0130\u00E7erik \u00FCretimi i\u00E7in ek y\u00F6nergeler..."
+                  placeholder="İçerik üretimi için ek yönergeler..."
                   value={aiInstructions}
                   onChange={(e) => setAiInstructions(e.target.value)}
                   rows={3}

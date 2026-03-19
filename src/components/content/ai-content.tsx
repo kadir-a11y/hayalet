@@ -137,15 +137,15 @@ export default function AiContentContent({ embedded = false }: { embedded?: bool
       if (res.ok) {
         const data = await res.json();
         setResults(data.results || []);
-        toast({ title: "\u0130\u00e7erik \u00fcretildi", description: `${(data.results || []).length} i\u00e7erik ba\u015far\u0131yla olu\u015fturuldu.` });
+        toast({ title: "İçerik üretildi", description: `${(data.results || []).length} içerik başarıyla oluşturuldu.` });
       } else {
         const err = await res.json().catch(() => ({}));
         console.error("Generation failed:", err);
-        toast({ title: "\u0130\u00e7erik \u00fcretilemedi", description: err.details || err.error || "Bir hata olu\u015ftu. L\u00fctfen tekrar deneyin.", variant: "destructive" });
+        toast({ title: "İçerik üretilemedi", description: err.details || err.error || "Bir hata oluştu. Lütfen tekrar deneyin.", variant: "destructive" });
       }
     } catch (error) {
       console.error("AI generation failed:", error);
-      toast({ title: "Ba\u011flant\u0131 hatas\u0131", description: "Sunucuya ba\u011flan\u0131lamad\u0131. L\u00fctfen tekrar deneyin.", variant: "destructive" });
+      toast({ title: "Bağlantı hatası", description: "Sunucuya bağlanılamadı. Lütfen tekrar deneyin.", variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -206,7 +206,7 @@ export function RolesManager({
               Kaydediliyor...
             </>
           ) : (
-            "De\u011Fi\u015Fiklikleri Kaydet"
+            "Değişiklikleri Kaydet"
           )}
         </Button>
       )}

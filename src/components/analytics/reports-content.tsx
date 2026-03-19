@@ -21,7 +21,7 @@ interface ExportCard {
 const exportCards: ExportCard[] = [
   {
     title: "Persona Raporu",
-    description: "T\u00fcm persona verilerini CSV olarak indirin",
+    description: "Tüm persona verilerini CSV olarak indirin",
     endpoint: "/api/export/personas",
     icon: Users,
   },
@@ -32,14 +32,14 @@ const exportCards: ExportCard[] = [
     icon: Megaphone,
   },
   {
-    title: "\u0130\u00e7erik Raporu",
-    description: "\u0130\u00e7erik verilerini CSV olarak indirin",
+    title: "İçerik Raporu",
+    description: "İçerik verilerini CSV olarak indirin",
     endpoint: "/api/export/content",
     icon: FileText,
   },
   {
     title: "Aktivite Raporu",
-    description: "Aktivite loglar\u0131n\u0131 CSV olarak indirin",
+    description: "Aktivite loglarını CSV olarak indirin",
     endpoint: "/api/export/analytics",
     icon: Activity,
   },
@@ -113,7 +113,7 @@ export default function ReportsContent({ embedded = false }: { embedded?: boolea
                   ) : (
                     <FileDown className="mr-2 h-4 w-4" />
                   )}
-                  {isLoading ? "\u0130ndiriliyor..." : "CSV \u0130ndir"}
+                  {isLoading ? "İndiriliyor..." : "CSV İndir"}
                 </Button>
               </CardContent>
             </Card>

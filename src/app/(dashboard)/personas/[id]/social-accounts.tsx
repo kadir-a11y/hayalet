@@ -147,7 +147,7 @@ export function AddSocialAccountDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -184,12 +184,12 @@ export function AddSocialAccountDialog({
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Kullan\u0131c\u0131 Ad\u0131</Label>
-              <Input className="h-9 text-sm" placeholder="@kullan\u0131c\u0131ad\u0131" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
+              <Input className="h-9 text-sm" placeholder="@kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">\u015Eifre</Label>
               <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap \u015Fifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -250,7 +250,7 @@ export function AddSocialAccountDialog({
               <Label className="text-xs font-medium">Proxy Tipi</Label>
               <Select value={proxyType} onValueChange={setProxyType} disabled={isSubmitting}>
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Se\u00E7in..." />
+                  <SelectValue placeholder="Seçin..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="http">HTTP</SelectItem>
@@ -477,7 +477,7 @@ export function SocialAccountCard({
               <Label className="text-xs">Proxy Tipi</Label>
               <Select value={editData.proxyType} onValueChange={(v) => setEditData((d) => ({ ...d, proxyType: v }))}>
                 <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Se\u00E7in..." />
+                  <SelectValue placeholder="Seçin..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="http">HTTP</SelectItem>
@@ -588,7 +588,7 @@ export function SocialAccountCard({
             <Key className="h-3.5 w-3.5 shrink-0" />
             <span className="text-xs">\u015Eifre: </span>
             <span className="font-mono text-xs">
-              {showPassword ? account.platformPassword : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+              {showPassword ? account.platformPassword : "••••••••"}
             </span>
             <button
               onClick={() => setShowPassword(!showPassword)}
@@ -614,28 +614,28 @@ export function SocialAccountCard({
             <div className="flex items-center gap-2 text-muted-foreground">
               <Key className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">API Key: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiKey : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
             </div>
           )}
           {account.apiSecretKey && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Key className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">API Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
             </div>
           )}
           {account.accessToken && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">Access Token: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessToken : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
             </div>
           )}
           {account.accessTokenSecret && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">Token Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
             </div>
           )}
         </div>
@@ -648,7 +648,7 @@ export function SocialAccountCard({
           {account.proxyUrl && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Globe className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-mono text-xs truncate">{showPassword ? account.proxyUrl : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs truncate">{showPassword ? account.proxyUrl : "••••••••"}</span>
               {account.proxyType && <Badge variant="outline" className="text-[10px] h-4">{account.proxyType.toUpperCase()}</Badge>}
               {account.proxyCountry && <Badge variant="outline" className="text-[10px] h-4">{account.proxyCountry}</Badge>}
               {account.proxyRotation && <Badge variant="outline" className="text-[10px] h-4 bg-green-50">Rotasyon</Badge>}

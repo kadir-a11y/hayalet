@@ -92,7 +92,7 @@ export function AddForumAccountDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!portalName.trim()) {
-      setError("Portal ad\u0131 zorunludur.");
+      setError("Portal adı zorunludur.");
       return;
     }
     setError("");
@@ -125,7 +125,7 @@ export function AddForumAccountDialog({
       onOpenChange(false);
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olu\u015Ftu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     } finally {
       setIsSubmitting(false);
     }
@@ -160,12 +160,12 @@ export function AddForumAccountDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Kullan\u0131c\u0131 Ad\u0131</Label>
-              <Input className="h-9 text-sm" placeholder="kullan\u0131c\u0131ad\u0131" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
+              <Input className="h-9 text-sm" placeholder="kullanıcıadı" value={username} onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting} />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">\u015Eifre</Label>
               <div className="relative">
-                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap \u015Fifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
+                <Input className="h-9 text-sm pr-8" type={showPassword ? "text" : "password"} placeholder="Hesap şifresi" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
@@ -462,7 +462,7 @@ export function ForumAccountCard({
           <div className="flex items-center gap-2 text-muted-foreground">
             <Key className="h-3.5 w-3.5 shrink-0" />
             <span className="font-mono text-xs">
-              {showPassword ? account.password : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+              {showPassword ? account.password : "••••••••"}
             </span>
             <button
               onClick={() => setShowPassword(!showPassword)}
@@ -494,28 +494,28 @@ export function ForumAccountCard({
             <div className="flex items-center gap-2 text-muted-foreground">
               <Key className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">API Key: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiKey : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.apiKey : "••••••••"}</span>
             </div>
           )}
           {account.apiSecretKey && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Key className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">API Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.apiSecretKey : "••••••••"}</span>
             </div>
           )}
           {account.accessToken && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">Access Token: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessToken : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.accessToken : "••••••••"}</span>
             </div>
           )}
           {account.accessTokenSecret && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Shield className="h-3.5 w-3.5 shrink-0" />
               <span className="text-xs">Token Secret: </span>
-              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}</span>
+              <span className="font-mono text-xs">{showPassword ? account.accessTokenSecret : "••••••••"}</span>
             </div>
           )}
         </div>
