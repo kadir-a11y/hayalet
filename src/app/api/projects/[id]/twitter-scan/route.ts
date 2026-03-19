@@ -17,8 +17,8 @@ const MAX_PAGES = 10; // Max 10 sayfa = ~500 tweet
 
 function parseTweets(data: Record<string, unknown>): { tweets: TweetData[]; cursor: string | null } {
   const entries =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (data as any)?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
+    (data as Record<string, unknown> as { result?: { timeline_response?: { timeline?: { instructions?: Array<{ entries?: unknown[] }> } } } })
+      ?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
 
   const tweets: TweetData[] = [];
 
@@ -49,8 +49,7 @@ function parseTweets(data: Record<string, unknown>): { tweets: TweetData[]; curs
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cursor = (data as any)?.cursor?.bottom || null;
+  const cursor = (data as Record<string, unknown> as { cursor?: { bottom?: string } })?.cursor?.bottom || null;
 
   return { tweets, cursor };
 }
