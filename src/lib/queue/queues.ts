@@ -85,3 +85,12 @@ export const metricsCollectionQueue = new Queue("metrics-collection", {
     removeOnFail: { count: 1000 },
   },
 });
+
+export const campaignSchedulerQueue = new Queue("campaign-scheduler", {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 1,
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 100 },
+  },
+});

@@ -11,6 +11,8 @@ import { createRelevanceScoringWorker } from "./src/lib/queue/workers/relevance-
 import { createWorkspacePublishingWorker } from "./src/lib/queue/workers/workspace-publishing";
 import { createOrganicActivityWorker } from "./src/lib/queue/workers/organic-activity";
 import { createTwitterScanWorker } from "./src/lib/queue/workers/twitter-scan";
+import { createCampaignSchedulerWorker } from "./src/lib/queue/workers/campaign-scheduler";
+import { campaignSchedulerQueue } from "./src/lib/queue/queues";
 import { monitoringQueue, organicActivityQueue } from "./src/lib/queue/queues";
 
 console.log("Starting Persona workers...");
@@ -23,6 +25,7 @@ const relevanceScoringWorker = createRelevanceScoringWorker();
 const workspacePublishingWorker = createWorkspacePublishingWorker();
 const organicActivityWorker = createOrganicActivityWorker();
 const twitterScanWorker = createTwitterScanWorker();
+const campaignSchedulerWorker = createCampaignSchedulerWorker();
 
 // Schedule repeatable monitoring job every 15 minutes
 monitoringQueue.add("monitoring-cron", {}, {
@@ -36,6 +39,12 @@ organicActivityQueue.add("organic-activity-cron", {}, {
   jobId: "organic-activity-cron",
 });
 
+// Schedule campaign scheduler every 5 minutes
+campaignSchedulerQueue.add("campaign-scheduler-cron", {}, {
+  repeat: { every: 5 * 60 * 1000 },
+  jobId: "campaign-scheduler-cron",
+});
+
 console.log("Workers started:");
 console.log("  - content-delivery (concurrency: 5)");
 console.log("  - ai-generation (concurrency: 3)");
@@ -45,6 +54,7 @@ console.log("  - relevance-scoring (concurrency: 5)");
 console.log("  - workspace-publishing (concurrency: 3)");
 console.log("  - organic-activity (concurrency: 2, every 30min)");
 console.log("  - twitter-scan (concurrency: 2)");
+console.log("  - campaign-scheduler (concurrency: 1, every 5min)");
 
 // Graceful shutdown
 async function shutdown() {
@@ -58,6 +68,7 @@ async function shutdown() {
     workspacePublishingWorker.close(),
     organicActivityWorker.close(),
     twitterScanWorker.close(),
+    campaignSchedulerWorker.close(),
   ]);
   process.exit(0);
 }
