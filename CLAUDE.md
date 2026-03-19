@@ -7,115 +7,111 @@ Repo: github.com/kadir-a11y/persona (private)
 
 ---
 
-## ⚠️ Session Başlangıç — BUNU ATLA DEMEDİKÇE SIRASI İLE YAP
+## Session Başlangıç — BUNU ATLA DEMEDİKÇE SIRASI İLE YAP
 
-1. Bu dosyayı oku ✓ (zaten okudun)
-2. `.env` dosyası var mı kontrol et. YOKSA → aşağıdaki "İlk Kurulum" bölümüne git, ÖNCE onu çöz.
+1. Bu dosyayı oku (zaten okudun)
+2. `.env` dosyası var mı kontrol et. YOKSA → aşağıdaki "İlk Kurulum" bölümüne git
 3. `git log --oneline -20` çalıştır → ne yapılmış gör
-4. Notion Handoff Log'un **EN ÜSTTEKİ** kaydını oku:
-   → https://www.notion.so/323dccfc21ee8185aee7e4f31747bffb
-5. **Notion Görev Takibi DB'yi kontrol et** — hangi görevler "Tamamlandı", hangileri "Yapılacak":
-   → https://www.notion.so/e9a281ceb8724c76a519b93f80b67295
-   **KURAL: "Tamamlandı" olan görevleri TEKRAR ÖNERMEYECEKSİN. Sadece "Yapılacak" ve "Devam Ediyor" görevlerle ilgilen.**
-   **Çelişirse: git log > Görev DB > Handoff Log (bu sıra)**
-6. Kullanıcıya şu formatla başla — TAHMİN ETME, HANDOFF + DB'DEN OKU:
+4. **`HANDOFF.md` oku** → en üstteki kaydı oku, son durumu anla
+5. **`TASKS.md` oku** → "Yapılacak" görevleri gör
+6. Kullanıcıya şu formatla başla:
    ```
-   Son session: [tarih — başlık]
-   Tamamlanan görevler: [DB'den oku]
-   Kalan görevler: [DB'den oku — "Yapılacak" olanları listele]
-   Önerilen adım: [kalan görevlerden en yüksek öncelikli]
-   
+   Son session: [tarih — başlık — kim]
+   Kalan görevler: [TASKS.md'den Yapılacak olanları listele]
+   Önerilen adım: [en yüksek öncelikli görev]
+
    Bununla devam edelim mi, yoksa farklı bir şey mi yapalım?
    ```
 7. Kullanıcı onay verene kadar kod yazma.
 
-Gerekirse ek bilgi için:
-- Claude Context (iş kuralları, tuzaklar): https://www.notion.so/323dccfc21ee81b3b248df22166f42aa
-- Görev Takibi: https://www.notion.so/e9a281ceb8724c76a519b93f80b67295
-- Teknik Spec: https://www.notion.so/323dccfc21ee81b193a0c8d99a4bb9ff
-
 ---
 
-## 🔧 İlk Kurulum (sadece yeni bilgisayar veya .env yoksa)
+## İlk Kurulum (sadece yeni bilgisayar veya .env yoksa)
 
 `.env` dosyası git'e dahil değildir. Yeni bir ortamda çalışırken:
 
-1. Notion Altyapı & Erişim sayfasını oku: https://www.notion.so/323dccfc21ee8143a7eaf864effacbee
-2. Oradaki değerleri kullanarak proje kök dizininde `.env` dosyası oluştur
+1. `ARCHITECTURE.md`'deki Env Değişkenleri bölümünü oku
+2. Oradaki değişkenleri kullanarak proje kök dizininde `.env` dosyası oluştur
 3. Docker servislerini başlat: `docker compose up -d`
 4. Uygulamayı test et: `pnpm dev`
 
-SSH bağlantısı gerekiyorsa:
-- Host: 46.225.216.104 | User: root | Key: ~/.ssh/coolify_key
-- SSH config yoksa: `ssh -i ~/.ssh/coolify_key root@46.225.216.104`
+SSH bağlantısı gerekiyorsa → `ARCHITECTURE.md`'deki Altyapı bölümüne bak.
 
 Bu adımlar sadece 1 kere yapılır. `.env` oluşturulduktan sonra bu bölüm atlanır.
 
 ---
 
-## 🔴 ZORUNLU: Görev Takibi Güncellemesi
+## ZORUNLU: Görev Takibi
 
-**Her görev tamamlandığında ANINDA Notion Görev Takibi DB'sini güncelle.**
-Bu kural session sonu beklenmez — görev biter bitmez yapılır.
+**Tüm görev takibi repo içinde yapılır. Notion KULLANILMAZ.**
 
-### Kural:
-- Bir göreve başladığında → Durum: "Devam Ediyor" olarak güncelle
-- Bir görevi bitirdiğinde → Durum: "Tamamlandı" olarak güncelle
-- Blocker varsa → Durum: "Beklemede" olarak güncelle
+### Dosyalar:
+| Dosya | İçerik | Boyut Kontrolü |
+|---|---|---|
+| `TASKS.md` | Aktif görevler (yapılacak + beklemede) | Tamamlananları `docs/tasks-completed.md`'ye taşı |
+| `HANDOFF.md` | Son 5 session kaydı | Eskileri `docs/handoff-archive.md`'ye taşı |
+| `ARCHITECTURE.md` | Sistem bilgisi, deploy, env, mimari kararlar | Nadiren değişir |
+| `docs/tasks-completed.md` | Tamamlanan görevler arşivi | Sadece arşiv |
+| `docs/handoff-archive.md` | Eski handoff kayıtları | Sadece arşiv |
+
+### Görev Güncelleme Kuralları:
+- Göreve başladığında → TASKS.md'de durumu güncelle
+- Görev bitince → `docs/tasks-completed.md`'ye taşı (tarih + commit hash ile)
+- Yeni görev eklerken → TASKS.md'deki ID formatını takip et (MON-X, AI-X, OTO-X, SEC-X, ANL-X, API-X)
 - ASLA "toplu güncelleme yaparım" deme — HER GÖREVİ TEK TEK güncelle
-- Görev Takibi DB: https://www.notion.so/e9a281ceb8724c76a519b93f80b67295
-
-### Güncelleme yöntemi:
-Notion MCP ile görev sayfasını bul ve Durum property'sini güncelle.
-Bulamıyorsan kullanıcıya söyle, sessizce geçme.
+- Çelişki varsa: `git log` > `TASKS.md` > `HANDOFF.md`
 
 ---
 
-## 🔴 ZORUNLU: Session İçi Akış
+## ZORUNLU: Session İçi Akış
 
-- Görev bitti → commit et → Notion'da Tamamlandı yap → sıradaki göreve GEÇ. Soru sorma, liste sunma.
+- Görev bitti → commit et → TASKS.md güncelle → sıradaki göreve GEÇ. Soru sorma, liste sunma.
 - Sadece BLOCKER varsa veya KARAR GEREKİYORSA dur ve sor.
 - "Başlayayım mı?" diye sorma — başla.
-- Her 3 commit sonrası → Handoff Log güncelle (kısa da olsa).
+- Her 3 commit sonrası → HANDOFF.md güncelle (kısa da olsa).
+- Commit sonrası otomatik push et.
 
 ---
 
-## 🔴 ZORUNLU: Session Bitiş — BUNLARI YAPMADAN SESSION BİTMEZ
+## ZORUNLU: Session Bitiş — BUNLARI YAPMADAN SESSION BİTMEZ
 
-Kullanıcı "bitti", "tamam", "kapat", "son", "bitir" veya benzeri bir şey derse:
-ÖNCE aşağıdakileri yap, SONRA session'ı bitir.
+Kullanıcı "bitti", "tamam", "kapat", "son", "bitir" derse:
 
-### Adım 1: Handoff Log'a kayıt yaz
-Notion'a yeni kayıt ekle (en üste):
+### Adım 1: HANDOFF.md'ye kayıt yaz (en üste)
 ```
-### [TARİH] — [Başlık]
+### [TARİH] — [Kim] — [Başlık]
 **Durum:** Tamamlandı / Kodlandı (deploy bekliyor) / Devam edecek
 **PC:** Ev / Ofis
 **Ne yapıldı:** [bullet list]
 **Nerede kalındı:** [net açıklama]
 **Blocker:** [varsa / Yok]
-**Önerilen sonraki adım:** [somut, spesifik — "devam et" yazmak YASAK]
-**Son commit:** [hash + mesaj]
+**Önerilen sonraki adım:** [somut, spesifik]
+**Son commit:** [hash]
 **Deploy:** [Evet / Hayır — neden]
-**Değişen dosyalar:** [liste]
 ```
 
-Ayrıca sayfanın en üstündeki "Son durum" tablosunu güncelle:
-- Aktif branch, Son commit, Deploy durumu, Son çalışılan PC
+"Son durum" tablosunu güncelle (branch, commit, deploy, PC).
 
-### Adım 2: Görev Takibi'ni güncelle
-- Tamamlanan görevleri "Tamamlandı" yap
+### Adım 2: TASKS.md güncelle
+- Tamamlananları `docs/tasks-completed.md`'ye taşı
 - Yeni çıkan görevleri ekle
 - Durum değişikliklerini işle
 
-### Adım 3: Kullanıcıya onayla
+### Adım 3: Commit et
+```bash
+git add TASKS.md HANDOFF.md docs/
+git commit -m "docs: update tasks and handoff"
+git push
+```
+
+### Adım 4: Kullanıcıya onayla
 "Handoff yazıldı, görevler güncellendi. Başka bir şey var mı?"
 
-**Kullanıcı session'ı bitirmek isteyip handoff'u reddederse bile en az 2 cümlelik kısa handoff yaz.**
+**Session'ı bitirmek isteyip handoff'u reddederse bile en az 2 cümlelik kısa handoff yaz.**
 
 ---
 
-## 🔴 ZORUNLU: Uzun Session Kuralı
+## ZORUNLU: Uzun Session Kuralı
 
 Her 30 dakikada bir VEYA büyük bir görev tamamlandığında:
 → "Handoff güncellemeli miyim?" diye sor.
@@ -123,56 +119,35 @@ Kullanıcı hayır derse devam et ama session sonunda mutlaka yaz.
 
 ---
 
-## Notion Sayfa Linkleri
-
-| Sayfa | Link |
-|---|---|
-| Proje Ana Sayfa | https://www.notion.so/323dccfc21ee811d881cf291e428bb4f |
-| Claude Context | https://www.notion.so/323dccfc21ee81b3b248df22166f42aa |
-| Handoff Log | https://www.notion.so/323dccfc21ee8185aee7e4f31747bffb |
-| Görev Takibi (DB) | https://www.notion.so/e9a281ceb8724c76a519b93f80b67295 |
-| Teknik Spec | https://www.notion.so/323dccfc21ee81b193a0c8d99a4bb9ff |
-| Altyapı & Erişim | https://www.notion.so/323dccfc21ee8143a7eaf864effacbee |
-| Strateji & Vizyon | https://www.notion.so/323dccfc21ee81bdaad4e19898c60ebe |
-| Gelecek Fikirler | https://www.notion.so/323dccfc21ee81b5aa0be865d01e64bc |
-| Notlar & Arşiv | https://www.notion.so/323dccfc21ee812ca06ff7ff33550c4c |
-
----
-
 ## Global Kurallar
 
 ### Temel İlkeler
-- **Önce oku, sonra yap.** Dosyayı düzenlemeden önce tamamını oku. Kısmi okuma = hata.
-- **Önce planla, sonra kodla.** Karmaşık işlemlerde adımları yaz, onay al, sonra uygula.
+- **Önce oku, sonra yap.** Dosyayı düzenlemeden önce tamamını oku.
+- **Önce planla, sonra kodla.** Karmaşık işlemlerde adımları yaz, onay al.
 - **Tek kaynak, tek dosya.** Mevcut dosyayı güncelle, aynı isimde yeni oluşturma.
 - **Emin değilsen varsayma, sor.**
 
 ### Yapma
 - Dosyayı kısmen okuyup işlem yapma
-- Aynı isimde yeni dosya oluşturma
 - Onay almadan büyük değişiklik yapma
 - Hata alınca aynı yöntemi tekrar deneme — farklı yaklaşım öner
-- Uzun dosyaları tek seferde yazmaya çalışma
 - Commented-out kod bırakma
 - Console.log production'da bırakma
 - Empty catch block ile error yutma
 
 ### Yap
 - Dosya işlemlerinde tam yol kullan
-- Her işlem öncesi mevcut durumu özetle
 - Karmaşık işleri adımlara böl
 - Input validation, XSS prevention, SQL injection prevention
 - Type safety ve error handling zorunlu
 - DRY prensibi
+- Türkçe string'lerde doğru Türkçe karakter kullan (ş, ğ, ü, ö, ç, ı, İ, Ş, Ğ, Ü, Ö, Ç)
 
 ### Commit
 - Format: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 - İngilizce, tek mantıksal değişiklik per commit
 - Branch: `main` (production), `feat/[isim]`, `fix/[isim]`
-
-### Notion Kuralları
-- Yeni sayfa oluşturmadan ÖNCE `notion-search` ile mevcut sayfayı ara
-- Duplicate sayfa oluşturma — varsa güncelle
+- Commit sonrası otomatik push
 
 ### 4 Aşamalı Workflow
 1. **Analiz** — Görevi anla, mevcut kodu incele
