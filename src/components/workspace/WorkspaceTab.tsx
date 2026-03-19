@@ -67,6 +67,7 @@ interface Persona {
   influenceScore: number | null;
   tags: { id: string; name: string; color: string }[];
   roles: { id: string; name: string }[];
+  suspendedPlatforms: string[];
 }
 
 interface WorkspaceResponse {
@@ -572,22 +573,39 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
   };
 
   const selectAllPersonas = () => {
-    const visibleIds = filteredPersonas.map((p) => p.id);
-    const allVisibleSelected = visibleIds.every((id) => selectedPersonaIds.has(id));
-    if (allVisibleSelected) {
+    // Exclude personas with suspended accounts on selected platform
+    const selectableIds = filteredPersonas
+      .filter((p) => !(p.suspendedPlatforms || []).includes(selectedPlatform))
+      .map((p) => p.id);
+    const allSelected = selectableIds.every((id) => selectedPersonaIds.has(id));
+    if (allSelected) {
       setSelectedPersonaIds((prev) => {
         const next = new Set(prev);
-        visibleIds.forEach((id) => next.delete(id));
+        selectableIds.forEach((id) => next.delete(id));
         return next;
       });
     } else {
       setSelectedPersonaIds((prev) => {
         const next = new Set(prev);
-        visibleIds.forEach((id) => next.add(id));
+        selectableIds.forEach((id) => next.add(id));
         return next;
       });
     }
   };
+
+  // Deselect suspended personas when platform changes
+  useEffect(() => {
+    setSelectedPersonaIds((prev) => {
+      const next = new Set(prev);
+      for (const id of prev) {
+        const persona = personas.find((p) => p.id === id);
+        if (persona && (persona.suspendedPlatforms || []).includes(selectedPlatform)) {
+          next.delete(id);
+        }
+      }
+      return next.size !== prev.size ? next : prev;
+    });
+  }, [selectedPlatform, personas]);
 
   // ── Computed ───────────────────────────────────────────────────────
 
@@ -1082,52 +1100,66 @@ export default function WorkspaceTab({ projectId }: { projectId: string }) {
                       : "Aktif persona bulunamadı"}
                   </p>
                 ) : (
-                  filteredPersonas.map((persona) => (
-                    <div
-                      key={persona.id}
-                      className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors ${
-                        selectedPersonaIds.has(persona.id)
-                          ? "bg-primary/10 border border-primary/20"
-                          : "hover:bg-muted/50"
-                      }`}
-                      onClick={() => togglePersona(persona.id)}
-                    >
-                      <Checkbox
-                        checked={selectedPersonaIds.has(persona.id)}
-                        className="pointer-events-none"
-                      />
-                      <Avatar className="h-7 w-7">
-                        {persona.avatarUrl && (
-                          <AvatarImage src={persona.avatarUrl} alt={persona.name} />
-                        )}
-                        <AvatarFallback className="text-xs">
-                          {getInitials(persona.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0 flex-1">
-                        <span className="text-sm font-medium truncate flex items-center gap-1">
-                          {persona.isFavorite && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 shrink-0" />}
-                          {persona.name}
-                          {persona.influenceScore != null && persona.influenceScore > 0 && (
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] px-1 py-0 ml-1 shrink-0 ${
-                                persona.influenceScore >= 81 ? "border-purple-500 text-purple-500" :
-                                persona.influenceScore >= 51 ? "border-orange-500 text-orange-500" :
-                                persona.influenceScore >= 21 ? "border-blue-500 text-blue-500" :
-                                "border-muted-foreground text-muted-foreground"
-                              }`}
-                            >
-                              {persona.influenceScore}
-                            </Badge>
+                  filteredPersonas.map((persona) => {
+                    const isSuspendedOnPlatform = (persona.suspendedPlatforms || []).includes(selectedPlatform);
+                    return (
+                      <div
+                        key={persona.id}
+                        className={`flex items-center gap-2 p-2 rounded-md transition-colors ${
+                          isSuspendedOnPlatform
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        } ${
+                          selectedPersonaIds.has(persona.id)
+                            ? "bg-primary/10 border border-primary/20"
+                            : isSuspendedOnPlatform ? "bg-red-50/50" : "hover:bg-muted/50"
+                        }`}
+                        onClick={() => !isSuspendedOnPlatform && togglePersona(persona.id)}
+                        title={isSuspendedOnPlatform ? `Bu personanın ${selectedPlatform} hesabı askıya alınmış` : undefined}
+                      >
+                        <Checkbox
+                          checked={selectedPersonaIds.has(persona.id)}
+                          disabled={isSuspendedOnPlatform}
+                          className="pointer-events-none"
+                        />
+                        <Avatar className="h-7 w-7">
+                          {persona.avatarUrl && (
+                            <AvatarImage src={persona.avatarUrl} alt={persona.name} />
                           )}
-                        </span>
-                        <p className="text-xs text-muted-foreground">
-                          {persona.language} {persona.country && `· ${persona.country}`}
-                        </p>
+                          <AvatarFallback className="text-xs">
+                            {getInitials(persona.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-sm font-medium truncate flex items-center gap-1">
+                            {persona.isFavorite && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 shrink-0" />}
+                            {persona.name}
+                            {isSuspendedOnPlatform && (
+                              <Badge variant="destructive" className="text-[9px] px-1 py-0 ml-1 shrink-0">
+                                Askıda
+                              </Badge>
+                            )}
+                            {persona.influenceScore != null && persona.influenceScore > 0 && !isSuspendedOnPlatform && (
+                              <Badge
+                                variant="outline"
+                                className={`text-[10px] px-1 py-0 ml-1 shrink-0 ${
+                                  persona.influenceScore >= 81 ? "border-purple-500 text-purple-500" :
+                                  persona.influenceScore >= 51 ? "border-orange-500 text-orange-500" :
+                                  persona.influenceScore >= 21 ? "border-blue-500 text-blue-500" :
+                                  "border-muted-foreground text-muted-foreground"
+                                }`}
+                              >
+                                {persona.influenceScore}
+                              </Badge>
+                            )}
+                          </span>
+                          <p className="text-xs text-muted-foreground">
+                            {persona.language} {persona.country && `· ${persona.country}`}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </CardContent>
             </Card>

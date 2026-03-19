@@ -133,10 +133,33 @@ export async function filterPersonas(
     rolesByPersona.set(pr.personaId, existing);
   }
 
+  // Fetch suspended platform accounts
+  const suspendedAccounts = await db
+    .select({
+      personaId: socialAccounts.personaId,
+      platform: socialAccounts.platform,
+      accountStatus: socialAccounts.accountStatus,
+    })
+    .from(socialAccounts)
+    .where(
+      and(
+        inArray(socialAccounts.personaId, finalIds),
+        sql`${socialAccounts.accountStatus} IS NOT NULL AND ${socialAccounts.accountStatus} != 'active'`
+      )
+    );
+
+  const suspendedByPersona = new Map<string, string[]>();
+  for (const sa of suspendedAccounts) {
+    const existing = suspendedByPersona.get(sa.personaId) || [];
+    existing.push(sa.platform);
+    suspendedByPersona.set(sa.personaId, existing);
+  }
+
   return result.map((p) => ({
     ...p,
     tags: tagsByPersona.get(p.id) || [],
     roles: rolesByPersona.get(p.id) || [],
+    suspendedPlatforms: suspendedByPersona.get(p.id) || [],
   }));
 }
 
