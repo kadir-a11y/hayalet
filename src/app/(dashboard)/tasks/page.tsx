@@ -22,8 +22,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus, MoreHorizontal, Pencil, Trash2, CheckCircle2, Clock, AlertTriangle,
-  Loader2, ListTodo, Play, RotateCcw, CalendarDays, X, Search, ChevronDown,
-  Pause, Eye,
+  Loader2, ListTodo, Play, CalendarDays, X, Search,
+  Pause,
 } from "lucide-react";
 
 interface TaskData {
@@ -377,18 +377,27 @@ export default function TasksPage() {
 
                     return (
                       <TableRow key={t.task.id}
-                        className={`cursor-pointer text-xs ${done ? "opacity-50" : ""} ${isSelected ? "bg-muted" : "hover:bg-muted/50"}`}
+                        className={`cursor-pointer text-xs ${isSelected ? "bg-muted" : "hover:bg-muted/50"}`}
                         onClick={() => setSelectedTask(isSelected ? null : t)}>
                         <TableCell className="font-mono text-[10px] text-muted-foreground">
                           {t.task.taskCode || "—"}
                         </TableCell>
                         <TableCell>
-                          <p className={`font-medium truncate ${done ? "line-through text-muted-foreground" : ""}`}>
+                          <p className="font-medium truncate">
                             {t.task.title}
                           </p>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={`text-[10px] h-5 ${st.color}`}>{st.label}</Badge>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Select value={t.task.status} onValueChange={(v) => handleStatusChange(t.task.id, v)}>
+                            <SelectTrigger className={`h-6 w-full border-0 bg-transparent p-0 text-[10px] font-medium ${st.color} [&>svg]:h-3 [&>svg]:w-3`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(STATUS_CFG).map(([k, v]) => (
+                                <SelectItem key={k} value={k} className="text-xs">{v.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
                           <span className={`text-[10px] font-medium ${pr.color}`}>{pr.label}</span>
@@ -425,11 +434,6 @@ export default function TasksPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => openEdit(t)}><Pencil className="mr-2 h-3.5 w-3.5" /> Düzenle</DropdownMenuItem>
-                              {t.task.status === "pending" && <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "in_progress")}><Play className="mr-2 h-3.5 w-3.5" /> Başla</DropdownMenuItem>}
-                              {["pending", "in_progress"].includes(t.task.status) && <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "on_hold")}><Pause className="mr-2 h-3.5 w-3.5" /> Beklet</DropdownMenuItem>}
-                              {["pending", "in_progress"].includes(t.task.status) && <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "completed")}><CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Tamamla</DropdownMenuItem>}
-                              {t.task.status === "on_hold" && <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "pending")}><RotateCcw className="mr-2 h-3.5 w-3.5" /> Devam Et</DropdownMenuItem>}
-                              {done && <DropdownMenuItem onClick={() => handleStatusChange(t.task.id, "pending")}><RotateCcw className="mr-2 h-3.5 w-3.5" /> Yeniden Aç</DropdownMenuItem>}
                               <DropdownMenuSeparator />
                               <DropdownMenuItem className="text-destructive" onClick={() => { setDeleteTask(t); setDeleteOpen(true); }}><Trash2 className="mr-2 h-3.5 w-3.5" /> Sil</DropdownMenuItem>
                             </DropdownMenuContent>
@@ -462,9 +466,19 @@ export default function TasksPage() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <p className="text-muted-foreground mb-1">Durum</p>
-                <Badge variant="outline" className={`${STATUS_CFG[selectedTask.task.status]?.color}`}>
-                  {STATUS_CFG[selectedTask.task.status]?.label}
-                </Badge>
+                <Select value={selectedTask.task.status} onValueChange={(v) => {
+                  handleStatusChange(selectedTask.task.id, v);
+                  setSelectedTask({ ...selectedTask, task: { ...selectedTask.task, status: v } });
+                }}>
+                  <SelectTrigger className={`h-7 text-xs ${STATUS_CFG[selectedTask.task.status]?.color}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(STATUS_CFG).map(([k, v]) => (
+                      <SelectItem key={k} value={k} className="text-xs">{v.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <p className="text-muted-foreground mb-1">Öncelik</p>
