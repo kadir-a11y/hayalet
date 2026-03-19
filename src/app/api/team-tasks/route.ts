@@ -6,11 +6,15 @@ import { eq, desc, asc } from "drizzle-orm";
 import { z } from "zod";
 
 const createSchema = z.object({
+  taskCode: z.string().max(20).optional(),
   title: z.string().min(1),
   description: z.string().optional(),
   priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  phase: z.string().max(50).optional(),
+  category: z.enum(["dev", "team", "bug", "ops"]).default("dev"),
   assignedTo: z.string().uuid().optional(),
   dueDate: z.string().datetime().optional(),
+  dependency: z.string().optional(),
 });
 
 export async function GET() {
@@ -51,12 +55,16 @@ export async function POST(req: NextRequest) {
   const [task] = await db
     .insert(teamTasks)
     .values({
+      taskCode: parsed.data.taskCode,
       title: parsed.data.title,
       description: parsed.data.description,
       priority: parsed.data.priority,
+      phase: parsed.data.phase,
+      category: parsed.data.category,
       assignedTo: parsed.data.assignedTo,
       createdBy: session.user.id,
       dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
+      dependency: parsed.data.dependency,
     })
     .returning();
 

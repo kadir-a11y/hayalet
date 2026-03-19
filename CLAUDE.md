@@ -13,11 +13,11 @@ Repo: github.com/kadir-a11y/persona (private)
 2. `.env` dosyası var mı kontrol et. YOKSA → aşağıdaki "İlk Kurulum" bölümüne git
 3. `git log --oneline -20` çalıştır → ne yapılmış gör
 4. **`HANDOFF.md` oku** → en üstteki kaydı oku, son durumu anla
-5. **`TASKS.md` oku** → "Yapılacak" görevleri gör
+5. **`GET /api/team-tasks` çağır veya `/tasks` sayfasını kontrol et** → aktif görevleri gör
 6. Kullanıcıya şu formatla başla:
    ```
    Son session: [tarih — başlık — kim]
-   Kalan görevler: [TASKS.md'den Yapılacak olanları listele]
+   Kalan görevler: [DB'den aktif görevleri listele]
    Önerilen adım: [en yüksek öncelikli görev]
 
    Bununla devam edelim mi, yoksa farklı bir şey mi yapalım?
@@ -48,18 +48,19 @@ Bu adımlar sadece 1 kere yapılır. `.env` oluşturulduktan sonra bu bölüm at
 ### Dosyalar:
 | Dosya | İçerik | Boyut Kontrolü |
 |---|---|---|
-| `TASKS.md` | Aktif görevler (yapılacak + beklemede) | Tamamlananları `docs/tasks-completed.md`'ye taşı |
+| `/tasks` sayfası (DB) | Tüm görevler — yapılacak, devam eden, beklemede, tamamlanan | Veritabanında |
 | `HANDOFF.md` | Son 5 session kaydı | Eskileri `docs/handoff-archive.md`'ye taşı |
 | `ARCHITECTURE.md` | Sistem bilgisi, deploy, env, mimari kararlar | Nadiren değişir |
-| `docs/tasks-completed.md` | Tamamlanan görevler arşivi | Sadece arşiv |
+| `docs/tasks-completed.md` | Tamamlanan görevlerin geçmiş arşivi | Sadece referans |
 | `docs/handoff-archive.md` | Eski handoff kayıtları | Sadece arşiv |
 
 ### Görev Güncelleme Kuralları:
-- Göreve başladığında → TASKS.md'de durumu güncelle
-- Görev bitince → `docs/tasks-completed.md`'ye taşı (tarih + commit hash ile)
-- Yeni görev eklerken → TASKS.md'deki ID formatını takip et (MON-X, AI-X, OTO-X, SEC-X, ANL-X, API-X)
+- Görevler **veritabanında** tutulur — `/tasks` sayfası veya `GET /api/team-tasks` API ile erişilir
+- Göreve başladığında → API ile durumu `in_progress` yap
+- Görev bitince → API ile durumu `completed` yap, `solution` alanına ne yapıldığını yaz
+- Yeni görev eklerken → `POST /api/team-tasks` ile ekle, `taskCode` formatı: MON-X, AI-X, OTO-X, SEC-X, ANL-X, API-X
 - ASLA "toplu güncelleme yaparım" deme — HER GÖREVİ TEK TEK güncelle
-- Çelişki varsa: `git log` > `TASKS.md` > `HANDOFF.md`
+- Çelişki varsa: `git log` > DB (API) > `HANDOFF.md`
 
 ---
 
@@ -92,15 +93,15 @@ Kullanıcı "bitti", "tamam", "kapat", "son", "bitir" derse:
 
 "Son durum" tablosunu güncelle (branch, commit, deploy, PC).
 
-### Adım 2: TASKS.md güncelle
-- Tamamlananları `docs/tasks-completed.md`'ye taşı
-- Yeni çıkan görevleri ekle
+### Adım 2: Görevleri güncelle
+- Tamamlanan görevleri API ile `completed` yap, `solution` alanına commit hash ve açıklama yaz
+- Yeni çıkan görevleri API ile ekle
 - Durum değişikliklerini işle
 
 ### Adım 3: Commit et
 ```bash
-git add TASKS.md HANDOFF.md docs/
-git commit -m "docs: update tasks and handoff"
+git add HANDOFF.md docs/
+git commit -m "docs: update handoff"
 git push
 ```
 
