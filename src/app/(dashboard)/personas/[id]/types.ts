@@ -74,6 +74,9 @@ export interface ContentItem {
   status: string;
   scheduledAt: string | null;
   publishedAt: string | null;
+  externalPostId: string | null;
+  externalPostUrl: string | null;
+  errorMessage: string | null;
   aiGenerated: boolean;
   createdAt: string | null;
 }
