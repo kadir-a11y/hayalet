@@ -20,6 +20,7 @@ export const socialAccountCreateSchema = z.object({
   proxyRotation: z.boolean().default(false),
   userAgent: z.string().optional(),
   fingerprint: z.string().optional(),
+  accountStatus: z.enum(["active", "suspended", "restricted", "banned"]).default("active"),
   isActive: z.boolean().default(true),
 });
 

@@ -27,6 +27,7 @@ export const socialAccounts = pgTable("social_accounts", {
   proxyRotation: boolean("proxy_rotation").default(false),
   userAgent: text("user_agent"),
   fingerprint: text("fingerprint"),
+  accountStatus: varchar("account_status", { length: 30 }).default("active"),
   isActive: boolean("is_active").default(true),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),

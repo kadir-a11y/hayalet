@@ -48,6 +48,20 @@ import {
 import type { SocialAccount } from "./types";
 import { platformNames, platformIcon, formatShortDate } from "./utils";
 
+const accountStatusLabels: Record<string, string> = {
+  active: "Aktif",
+  suspended: "Askıya Alındı",
+  restricted: "Kısıtlandı",
+  banned: "Yasaklandı",
+};
+
+const accountStatusColors: Record<string, string> = {
+  active: "default",
+  suspended: "destructive",
+  restricted: "secondary",
+  banned: "destructive",
+};
+
 export function AddSocialAccountDialog({
   open,
   onOpenChange,
@@ -315,6 +329,7 @@ export function SocialAccountCard({
     proxyCountry: account.proxyCountry || "",
     proxyRotation: account.proxyRotation || false,
     userAgent: account.userAgent || "",
+    accountStatus: account.accountStatus || "active",
   });
 
   async function handleDelete() {
@@ -352,6 +367,7 @@ export function SocialAccountCard({
           proxyCountry: editData.proxyCountry || undefined,
           proxyRotation: editData.proxyRotation || undefined,
           userAgent: editData.userAgent || undefined,
+          accountStatus: editData.accountStatus,
         }),
       });
       if (!res.ok) throw new Error();
@@ -390,14 +406,27 @@ export function SocialAccountCard({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Kullan\u0131c\u0131 Ad\u0131</Label>
+              <Label className="text-xs">Kullanıcı Adı</Label>
               <Input className="h-8 text-sm" value={editData.platformUsername} onChange={(e) => setEditData((d) => ({ ...d, platformUsername: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">\u015Eifre</Label>
+              <Label className="text-xs">Şifre</Label>
               <Input className="h-8 text-sm" value={editData.platformPassword} onChange={(e) => setEditData((d) => ({ ...d, platformPassword: e.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Hesap Durumu</Label>
+              <Select value={editData.accountStatus} onValueChange={(v) => setEditData((d) => ({ ...d, accountStatus: v }))}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(accountStatusLabels).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -507,6 +536,11 @@ export function SocialAccountCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {account.accountStatus && account.accountStatus !== "active" && (
+            <Badge variant={accountStatusColors[account.accountStatus] as "default" | "secondary" | "destructive" || "secondary"}>
+              {accountStatusLabels[account.accountStatus] || account.accountStatus}
+            </Badge>
+          )}
           <Badge variant={account.isActive ? "default" : "secondary"}>
             {account.isActive ? "Aktif" : "Pasif"}
           </Badge>

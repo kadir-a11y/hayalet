@@ -23,6 +23,7 @@ export interface SocialAccount {
   proxyRotation: boolean | null;
   userAgent: string | null;
   fingerprint: string | null;
+  accountStatus: string | null;
   isActive: boolean | null;
   lastUsedAt: string | null;
   createdAt: string | null;

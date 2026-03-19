@@ -2,8 +2,8 @@ import { Worker, Job } from "bullmq";
 import { redisConnection } from "../connection";
 import { workspacePublishingQueue } from "../queues";
 import { db } from "@/lib/db";
-import { contentItems, personas, workspaceResponses } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { contentItems, personas, socialAccounts, workspaceResponses } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 import { postTweet, postThread, splitIntoThread } from "@/lib/platforms/twitter";
 
 interface WorkspacePublishingJob {
@@ -25,6 +25,26 @@ export function createWorkspacePublishingWorker() {
         .from(personas)
         .where(eq(personas.id, personaId))
         .limit(1);
+
+      // Check account status before publishing
+      const [account] = await db
+        .select()
+        .from(socialAccounts)
+        .where(and(
+          eq(socialAccounts.personaId, personaId),
+          eq(socialAccounts.platform, platform)
+        ))
+        .limit(1);
+
+      if (account && account.accountStatus && account.accountStatus !== "active") {
+        const msg = `Account ${account.platformUsername || personaId} is ${account.accountStatus}, skipping publish`;
+        console.log(`[Workspace] ${msg}`);
+        await db
+          .update(contentItems)
+          .set({ status: "failed", errorMessage: msg, updatedAt: new Date() })
+          .where(eq(contentItems.id, contentItemId));
+        return;
+      }
 
       if (persona) {
         const now = new Date();
