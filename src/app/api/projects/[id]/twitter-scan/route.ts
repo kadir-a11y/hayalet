@@ -16,9 +16,9 @@ interface TweetData {
 const MAX_PAGES = 10; // Max 10 sayfa = ~500 tweet
 
 function parseTweets(data: Record<string, unknown>): { tweets: TweetData[]; cursor: string | null } {
-  const entries =
-    (data as Record<string, unknown> as { result?: { timeline_response?: { timeline?: { instructions?: Array<{ entries?: unknown[] }> } } } })
-      ?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
+  // Twitter API response has deeply nested dynamic structure — typed access not feasible
+  const d = data as Record<string, any>;
+  const entries: Record<string, any>[] = d?.result?.timeline_response?.timeline?.instructions?.[0]?.entries || [];
 
   const tweets: TweetData[] = [];
 
@@ -49,7 +49,7 @@ function parseTweets(data: Record<string, unknown>): { tweets: TweetData[]; curs
     });
   }
 
-  const cursor = (data as Record<string, unknown> as { cursor?: { bottom?: string } })?.cursor?.bottom || null;
+  const cursor = d?.cursor?.bottom || null;
 
   return { tweets, cursor };
 }
