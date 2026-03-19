@@ -105,10 +105,10 @@ const PIE_COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b
 const STATUS_LABELS: Record<string, string> = {
   new: "Yeni",
   pending_approval: "Onay Bekliyor",
-  approved: "Onaylandi",
-  auto_posted: "Otomatik Paylasim",
+  approved: "Onaylandı",
+  auto_posted: "Otomatik Paylaşım",
   rejected: "Reddedildi",
-  posted: "Paylasildi",
+  posted: "Paylaşıldı",
 };
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -239,11 +239,11 @@ export default function MonitoringDashboardPage() {
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch("/api/monitoring/stats");
-      if (!res.ok) throw new Error("Istatistik verileri yuklenemedi.");
+      if (!res.ok) throw new Error("İstatistik verileri yüklenemedi.");
       const json = await res.json();
       setStats(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     }
   }, []);
 
@@ -274,12 +274,12 @@ export default function MonitoringDashboardPage() {
       }
 
       const res = await fetch(`/api/monitoring/discovered?${params.toString()}`);
-      if (!res.ok) throw new Error("Icerikler yuklenemedi.");
+      if (!res.ok) throw new Error("İçerikler yüklenemedi.");
       const json: DiscoveredResponse = await res.json();
       setItems(json.items);
       setItemsTotal(json.total);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bir hata oluştu.");
     }
   }, [currentPage, filterTopic, filterSource, filterStatus, filterScoreMin]);
 
@@ -405,16 +405,16 @@ export default function MonitoringDashboardPage() {
               description="izlenen konu"
             />
             <StatCard
-              title="Bugun Kesfedilen"
+              title="Bugün Keşfedilen"
               value={stats.todayDiscovered}
               icon={Search}
-              description="bugun bulunan icerik"
+              description="bugün bulunan içerik"
             />
             <StatCard
-              title="Otomatik Paylasim"
+              title="Otomatik Paylaşım"
               value={stats.todayAutoPosted}
               icon={Zap}
-              description="bugun otomatik paylasilan"
+              description="bugün otomatik paylaşılan"
             />
             <StatCard
               title="Onay Bekleyen"
@@ -429,7 +429,7 @@ export default function MonitoringDashboardPage() {
             {/* Live Feed Panel (left) */}
             <Card className="lg:col-span-1">
               <CardHeader>
-                <CardTitle className="text-base">Son Kesfedilenler</CardTitle>
+                <CardTitle className="text-base">Son Keşfedilenler</CardTitle>
                 <CardDescription>En son bulunan icerikler</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -441,7 +441,7 @@ export default function MonitoringDashboardPage() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-medium leading-tight line-clamp-2">
-                          {item.title || "Basliks icerik"}
+                          {item.title || "Başlıksız içerik"}
                         </p>
                         {item.url && (
                           <a
@@ -513,13 +513,13 @@ export default function MonitoringDashboardPage() {
                           stroke="#3b82f6"
                           strokeWidth={2}
                           dot={{ r: 4 }}
-                          name="Kesfedilen"
+                          name="Keşfedilen"
                         />
                       </LineChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
-                      Henuz veri yok
+                      Henüz veri yok
                     </div>
                   )}
                 </CardContent>
@@ -561,7 +561,7 @@ export default function MonitoringDashboardPage() {
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-                        Henuz veri yok
+                        Henüz veri yok
                       </div>
                     )}
                   </CardContent>
@@ -581,7 +581,7 @@ export default function MonitoringDashboardPage() {
                           <XAxis dataKey="range" tick={{ fontSize: 12 }} />
                           <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
                           <Tooltip />
-                          <Bar dataKey="count" name="Icerik" radius={[4, 4, 0, 0]}>
+                          <Bar dataKey="count" name="İçerik" radius={[4, 4, 0, 0]}>
                             {stats.scoreDistribution.map((entry, index) => (
                               <Cell
                                 key={`score-${index}`}
@@ -593,7 +593,7 @@ export default function MonitoringDashboardPage() {
                       </ResponsiveContainer>
                     ) : (
                       <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-                        Henuz veri yok
+                        Henüz veri yok
                       </div>
                     )}
                   </CardContent>
@@ -607,7 +607,7 @@ export default function MonitoringDashboardPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base">Kesfedilen Icerikler</CardTitle>
+                  <CardTitle className="text-base">Keşfedilen İçerikler</CardTitle>
                   <CardDescription>
                     Toplam {itemsTotal} icerik
                   </CardDescription>
@@ -664,23 +664,23 @@ export default function MonitoringDashboardPage() {
                     <SelectItem value="new">Yeni</SelectItem>
                     <SelectItem value="pending_approval">Onay Bekliyor</SelectItem>
                     <SelectItem value="approved">Onaylandi</SelectItem>
-                    <SelectItem value="auto_posted">Otomatik Paylasim</SelectItem>
+                    <SelectItem value="auto_posted">Otomatik Paylaşım</SelectItem>
                     <SelectItem value="rejected">Reddedildi</SelectItem>
-                    <SelectItem value="posted">Paylasildi</SelectItem>
+                    <SelectItem value="posted">Paylaşıldı</SelectItem>
                   </SelectContent>
                 </Select>
 
                 {/* Score range filter */}
                 <Select value={filterScoreMin} onValueChange={(v) => { setFilterScoreMin(v); setCurrentPage(1); }}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Skor Araligi" />
+                    <SelectValue placeholder="Skor Aralığı" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tum Skorlar</SelectItem>
-                    <SelectItem value="80-100">Yuksek (80-100)</SelectItem>
+                    <SelectItem value="all">Tüm Skorlar</SelectItem>
+                    <SelectItem value="80-100">Yüksek (80-100)</SelectItem>
                     <SelectItem value="50-79">Orta (50-79)</SelectItem>
-                    <SelectItem value="20-49">Dusuk (20-49)</SelectItem>
-                    <SelectItem value="0-19">Cok Dusuk (0-19)</SelectItem>
+                    <SelectItem value="20-49">Düşük (20-49)</SelectItem>
+                    <SelectItem value="0-19">Çok Düşük (0-19)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -716,7 +716,7 @@ export default function MonitoringDashboardPage() {
                           <TableRow key={item.id}>
                             <TableCell>
                               <p className="text-sm font-medium line-clamp-1">
-                                {item.title || "Basliks icerik"}
+                                {item.title || "Başlıksız içerik"}
                               </p>
                               {item.summary && (
                                 <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">

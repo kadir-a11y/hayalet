@@ -131,16 +131,16 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setProfile((prev) => (prev ? { ...prev, ...data } : prev));
-        setProfileMessage({ type: "success", text: "Profil guncellendi" });
+        setProfileMessage({ type: "success", text: "Profil güncellendi" });
       } else {
         const err = await res.json();
         setProfileMessage({
           type: "error",
-          text: err.error || "Bir hata olustu",
+          text: err.error || "Bir hata oluştu",
         });
       }
     } catch {
-      setProfileMessage({ type: "error", text: "Bir hata olustu" });
+      setProfileMessage({ type: "error", text: "Bir hata oluştu" });
     } finally {
       setProfileSaving(false);
     }
@@ -152,7 +152,7 @@ export default function SettingsPage() {
     if (newPassword !== confirmPassword) {
       setPasswordMessage({
         type: "error",
-        text: "Yeni sifreler eslesmiyor",
+        text: "Yeni şifreler eşleşmiyor",
       });
       return;
     }
@@ -160,7 +160,7 @@ export default function SettingsPage() {
     if (newPassword.length < 6) {
       setPasswordMessage({
         type: "error",
-        text: "Yeni sifre en az 6 karakter olmalidir",
+        text: "Yeni şifre en az 6 karakter olmalıdır",
       });
       return;
     }
@@ -175,7 +175,7 @@ export default function SettingsPage() {
       if (res.ok) {
         setPasswordMessage({
           type: "success",
-          text: "Sifre basariyla degistirildi",
+          text: "Şifre başarıyla değiştirildi",
         });
         setCurrentPassword("");
         setNewPassword("");
@@ -184,11 +184,11 @@ export default function SettingsPage() {
         const err = await res.json();
         setPasswordMessage({
           type: "error",
-          text: err.error || "Bir hata olustu",
+          text: err.error || "Bir hata oluştu",
         });
       }
     } catch {
-      setPasswordMessage({ type: "error", text: "Bir hata olustu" });
+      setPasswordMessage({ type: "error", text: "Bir hata oluştu" });
     } finally {
       setPasswordSaving(false);
     }
@@ -372,35 +372,35 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="current-password">Mevcut Sifre</Label>
+                <Label htmlFor="current-password">Mevcut Şifre</Label>
                 <Input
                   id="current-password"
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Mevcut sifreniz"
+                  placeholder="Mevcut şifreniz"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="new-password">Yeni Sifre</Label>
+                <Label htmlFor="new-password">Yeni Şifre</Label>
                 <Input
                   id="new-password"
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Yeni sifreniz"
+                  placeholder="Yeni şifreniz"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Yeni Sifre (Tekrar)</Label>
+                <Label htmlFor="confirm-password">Yeni Şifre (Tekrar)</Label>
                 <Input
                   id="confirm-password"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Yeni sifrenizi tekrarlayin"
+                  placeholder="Yeni şifrenizi tekrarlayın"
                 />
               </div>
 
@@ -546,7 +546,7 @@ export default function SettingsPage() {
                     <SelectValue placeholder="Dil secin" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="tr">Turkce</SelectItem>
+                    <SelectItem value="tr">Türkçe</SelectItem>
                     <SelectItem value="en">English</SelectItem>
                   </SelectContent>
                 </Select>

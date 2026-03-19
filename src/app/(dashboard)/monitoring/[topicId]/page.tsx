@@ -117,9 +117,9 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   new: "Yeni",
   reviewed: "Incelendi",
-  auto_posted: "Oto Paylasim",
+  auto_posted: "Oto Paylaşım",
   ignored: "Yoksayildi",
-  manual_posted: "Manuel Paylasim",
+  manual_posted: "Manuel Paylaşım",
 };
 
 export default function TopicDetailPage() {
@@ -286,7 +286,7 @@ export default function TopicDetailPage() {
   if (loading || !topic) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Yukleniyor...</p>
+        <p className="text-muted-foreground">Yükleniyor...</p>
       </div>
     );
   }
@@ -330,7 +330,7 @@ export default function TopicDetailPage() {
             }}
           >
             <Edit className="mr-2 h-4 w-4" />
-            Duzenle
+            Düzenle
           </Button>
           <Button
             variant="destructive"
@@ -369,7 +369,7 @@ export default function TopicDetailPage() {
           {filteredItems.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Bulunan icerik yok. Kaynak ekleyin ve kontrol baslatin.
+                Bulunan içerik yok. Kaynak ekleyin ve kontrol başlatın.
               </CardContent>
             </Card>
           ) : (
@@ -405,7 +405,7 @@ export default function TopicDetailPage() {
                             <SelectItem value="new">Yeni</SelectItem>
                             <SelectItem value="reviewed">Incelendi</SelectItem>
                             <SelectItem value="ignored">Yoksay</SelectItem>
-                            <SelectItem value="manual_posted">Paylasildi</SelectItem>
+                            <SelectItem value="manual_posted">Paylaşıldı</SelectItem>
                           </SelectContent>
                         </Select>
                         {item.url && (
@@ -437,7 +437,7 @@ export default function TopicDetailPage() {
           {topic.sources.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Henuz kaynak eklenmemis.
+                Henüz kaynak eklenmemiş.
               </CardContent>
             </Card>
           ) : (
@@ -482,7 +482,7 @@ export default function TopicDetailPage() {
           {topic.rules.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Henuz otomatik paylasim kurali eklenmemis.
+                Henüz otomatik paylaşım kuralı eklenmemiş.
               </CardContent>
             </Card>
           ) : (
@@ -520,7 +520,7 @@ export default function TopicDetailPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Konuyu Duzenle</DialogTitle>
+            <DialogTitle>Konuyu Düzenle</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -533,7 +533,7 @@ export default function TopicDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>Iptal</Button>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>İptal</Button>
             <Button onClick={handleEdit} disabled={editLoading}>
               {editLoading ? "Kaydediliyor..." : "Kaydet"}
             </Button>
@@ -600,7 +600,7 @@ export default function TopicDetailPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSourceOpen(false)}>Iptal</Button>
+            <Button variant="outline" onClick={() => setSourceOpen(false)}>İptal</Button>
             <Button onClick={handleAddSource} disabled={sourceLoading}>
               {sourceLoading ? "Ekleniyor..." : "Ekle"}
             </Button>
@@ -612,7 +612,7 @@ export default function TopicDetailPage() {
       <Dialog open={ruleOpen} onOpenChange={setRuleOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Otomatik Paylasim Kurali</DialogTitle>
+            <DialogTitle>Otomatik Paylaşım Kuralı</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -641,7 +641,7 @@ export default function TopicDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRuleOpen(false)}>Iptal</Button>
+            <Button variant="outline" onClick={() => setRuleOpen(false)}>İptal</Button>
             <Button onClick={handleAddRule} disabled={ruleLoading}>
               {ruleLoading ? "Ekleniyor..." : "Ekle"}
             </Button>
@@ -655,11 +655,11 @@ export default function TopicDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Konuyu Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              &ldquo;{topic.name}&rdquo; konusunu ve tum bagli kaynak, icerik ve kurallari silmek istediginize emin misiniz?
+              &ldquo;{topic.name}&rdquo; konusunu ve tüm bağlı kaynak, içerik ve kuralları silmek istediğinize emin misiniz?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteLoading}>Iptal</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteLoading}>İptal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteLoading}

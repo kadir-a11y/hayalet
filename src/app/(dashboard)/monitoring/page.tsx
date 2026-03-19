@@ -106,14 +106,14 @@ export default function MonitoringPage() {
   }
 
   function formatTimeAgo(dateStr: string | null) {
-    if (!dateStr) return "Henuz kontrol edilmedi";
+    if (!dateStr) return "Henüz kontrol edilmedi";
     const diff = Date.now() - new Date(dateStr).getTime();
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return "Az once";
-    if (minutes < 60) return `${minutes} dk once`;
+    if (minutes < 1) return "Az önce";
+    if (minutes < 60) return `${minutes} dk önce`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} saat once`;
-    return `${Math.floor(hours / 24)} gun once`;
+    if (hours < 24) return `${hours} saat önce`;
+    return `${Math.floor(hours / 24)} gün önce`;
   }
 
   // Stats
@@ -125,7 +125,7 @@ export default function MonitoringPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Yukleniyor...</p>
+        <p className="text-muted-foreground">Yükleniyor...</p>
       </div>
     );
   }
@@ -135,9 +135,9 @@ export default function MonitoringPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Icerik Izleme</h1>
+          <h1 className="text-3xl font-bold tracking-tight">İçerik İzleme</h1>
           <p className="text-muted-foreground">
-            Konulari tanimlayin, kaynaklari ekleyin ve otomatik icerik kesfini baslatin.
+            Konuları tanımlayın, kaynakları ekleyin ve otomatik içerik keşfini başlatın.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function MonitoringPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="tr">Turkce</SelectItem>
+                      <SelectItem value="tr">Türkçe</SelectItem>
                       <SelectItem value="en">English</SelectItem>
                       <SelectItem value="ar">Arabic</SelectItem>
                       <SelectItem value="de">Deutsch</SelectItem>
@@ -220,7 +220,7 @@ export default function MonitoringPage() {
                 onClick={handleCreate}
                 disabled={createLoading || !createName.trim() || !createKeywords.trim()}
               >
-                {createLoading ? "Olusturuluyor..." : "Olustur"}
+                {createLoading ? "Oluşturuluyor..." : "Oluştur"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -252,7 +252,7 @@ export default function MonitoringPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Bulunan Icerik</CardTitle>
+            <CardTitle className="text-sm font-medium">Bulunan İçerik</CardTitle>
             <Search className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -286,9 +286,9 @@ export default function MonitoringPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Radar className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-semibold">Henuz izleme konusu yok</h3>
+            <h3 className="mt-4 text-lg font-semibold">Henüz izleme konusu yok</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Icerik izlemeye baslamak icin bir konu olusturun.
+              İçerik izlemeye başlamak için bir konu oluşturun.
             </p>
             <Button className="mt-4" onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />

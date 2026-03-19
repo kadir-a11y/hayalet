@@ -77,9 +77,9 @@ const CAMPAIGN_STATUS_COLORS: Record<string, string> = {
 const CAMPAIGN_STATUS_LABELS: Record<string, string> = {
   draft: "Taslak",
   active: "Aktif",
-  paused: "Duraklatilmis",
-  completed: "Tamamlandi",
-  cancelled: "Iptal Edildi",
+  paused: "Duraklatılmış",
+  completed: "Tamamlandı",
+  cancelled: "İptal Edildi",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -92,9 +92,9 @@ const PLATFORM_LABELS: Record<string, string> = {
 
 const STAT_CARDS = [
   { status: "draft", label: "Taslak", icon: FileText, color: "text-gray-600" },
-  { status: "scheduled", label: "Zamanlanmis", icon: Clock, color: "text-blue-600" },
-  { status: "published", label: "Yayinda", icon: CheckCircle, color: "text-green-600" },
-  { status: "failed", label: "Basarisiz", icon: AlertTriangle, color: "text-red-600" },
+  { status: "scheduled", label: "Zamanlanmış", icon: Clock, color: "text-blue-600" },
+  { status: "published", label: "Yayında", icon: CheckCircle, color: "text-green-600" },
+  { status: "failed", label: "Başarısız", icon: AlertTriangle, color: "text-red-600" },
 ];
 
 export default function CampaignDetailPage({

@@ -44,13 +44,13 @@ interface Persona {
 }
 
 const LANGUAGES = [
-  { value: "", label: "Persona Dili (Varsayilan)" },
-  { value: "tr", label: "Turkce" },
+  { value: "", label: "Persona Dili (Varsayılan)" },
+  { value: "tr", label: "Türkçe" },
   { value: "en", label: "English" },
   { value: "ar", label: "Arabic" },
   { value: "de", label: "Deutsch" },
-  { value: "fr", label: "Francais" },
-  { value: "es", label: "Espanol" },
+  { value: "fr", label: "Français" },
+  { value: "es", label: "Español" },
   { value: "pt", label: "Portugues" },
   { value: "it", label: "Italiano" },
   { value: "ru", label: "Russian" },

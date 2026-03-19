@@ -320,8 +320,8 @@ export default function PersonaDetailPage() {
                 }`}
               >
                 {(persona.influenceScore ?? 0) >= 81 ? "Elit" :
-                 (persona.influenceScore ?? 0) >= 51 ? "Yuksek" :
-                 (persona.influenceScore ?? 0) >= 21 ? "Orta" : "Dusuk"}
+                 (persona.influenceScore ?? 0) >= 51 ? "Yüksek" :
+                 (persona.influenceScore ?? 0) >= 21 ? "Orta" : "Düşük"}
                 {" "}{persona.influenceScore ?? 0}
                 </Badge>
             </div>

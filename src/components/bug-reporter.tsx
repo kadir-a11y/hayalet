@@ -104,7 +104,7 @@ export function BugReporter() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bug-description">Aciklama *</Label>
+                <Label htmlFor="bug-description">Açıklama *</Label>
                 <Textarea
                   id="bug-description"
                   placeholder="Hatayı detaylı bir sekilde aciklayiniz..."
@@ -121,9 +121,9 @@ export function BugReporter() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dusuk">Dusuk</SelectItem>
+                    <SelectItem value="dusuk">Düşük</SelectItem>
                     <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="yuksek">Yuksek</SelectItem>
+                    <SelectItem value="yuksek">Yüksek</SelectItem>
                     <SelectItem value="kritik">Kritik</SelectItem>
                   </SelectContent>
                 </Select>

@@ -65,9 +65,9 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 const PRIORITY_LABELS: Record<string, string> = {
   kritik: "Kritik",
-  yuksek: "Yuksek",
+  yuksek: "Yüksek",
   normal: "Normal",
-  dusuk: "Dusuk",
+  dusuk: "Düşük",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -396,7 +396,7 @@ export default function BugReportsContent({ embedded = false }: { embedded?: boo
                         onClick={() => { setNoteEditId(report.id); setNoteText(report.adminNote || ""); setNoteType("admin"); }}
                       >
                         <MessageSquare className="mr-1 h-3 w-3" />
-                        {report.adminNote ? "Notu Duzenle" : "Not Ekle"}
+                        {report.adminNote ? "Notu Düzenle" : "Not Ekle"}
                       </Button>
                       {report.status !== "cozuldu" && report.status !== "kapandi" && (
                         <Button

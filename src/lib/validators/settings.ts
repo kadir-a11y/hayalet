@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const profileUpdateSchema = z.object({
-  name: z.string().min(1, "Isim zorunludur").max(255).transform((v) => v.trim()),
+  name: z.string().min(1, "İsim zorunludur").max(255).transform((v) => v.trim()),
   image: z.string().url().nullable().optional(),
 });
 
 export const passwordUpdateSchema = z.object({
-  currentPassword: z.string().min(1, "Mevcut sifre zorunludur"),
-  newPassword: z.string().min(6, "Yeni sifre en az 6 karakter olmalidir"),
+  currentPassword: z.string().min(1, "Mevcut şifre zorunludur"),
+  newPassword: z.string().min(6, "Yeni şifre en az 6 karakter olmalıdır"),
 });
 
 export const preferenceSetSchema = z.object({
@@ -18,7 +18,7 @@ export const preferenceSetSchema = z.object({
 
 export const bugReportCreateSchema = z.object({
   page: z.string().min(1, "Sayfa zorunludur"),
-  description: z.string().min(1, "Aciklama zorunludur"),
+  description: z.string().min(1, "Açıklama zorunludur"),
   priority: z.enum(["dusuk", "normal", "yuksek", "kritik"]).default("normal"),
 });
 

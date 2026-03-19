@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("R2 upload error:", err);
     return NextResponse.json(
-      { error: "Dosya yuklenemedi." },
+      { error: "Dosya yüklenemedi." },
       { status: 500 }
     );
   }

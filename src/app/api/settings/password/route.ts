@@ -36,7 +36,7 @@ export async function PUT(req: NextRequest) {
   const isValid = await compare(currentPassword, user.passwordHash);
   if (!isValid) {
     return NextResponse.json(
-      { error: "Mevcut sifre yanlis" },
+      { error: "Mevcut şifre yanlış" },
       { status: 400 }
     );
   }

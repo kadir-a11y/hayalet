@@ -194,9 +194,9 @@ Icerik tipi: ${contentType}
 ${topic ? `Konu: ${wrapUserInput(topic, "user-topic")}` : ""}
 ${additionalInstructions ? `Ek talimatlar: ${wrapUserInput(additionalInstructions, "user-instructions")}` : ""}
 
-Dil: ${persona.language === "tr" ? "Turkce" : persona.language}
+Dil: ${persona.language === "tr" ? "Türkçe" : persona.language}
 
-Bu karaktere uygun, dogal gorunen bir ${contentType} yaz. Sadece icerigi yaz, baska aciklama ekleme.`;
+Bu karaktere uygun, doğal görünen bir ${contentType} yaz. Sadece içeriği yaz, başka açıklama ekleme.`;
 }
 
 export function buildCampaignPrompt(
