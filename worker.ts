@@ -10,6 +10,7 @@ import { createMonitoringWorker } from "./src/lib/queue/workers/monitoring";
 import { createRelevanceScoringWorker } from "./src/lib/queue/workers/relevance-scoring";
 import { createWorkspacePublishingWorker } from "./src/lib/queue/workers/workspace-publishing";
 import { createOrganicActivityWorker } from "./src/lib/queue/workers/organic-activity";
+import { createTwitterScanWorker } from "./src/lib/queue/workers/twitter-scan";
 import { monitoringQueue, organicActivityQueue } from "./src/lib/queue/queues";
 
 console.log("Starting Persona workers...");
@@ -21,6 +22,7 @@ const monitoringWorker = createMonitoringWorker();
 const relevanceScoringWorker = createRelevanceScoringWorker();
 const workspacePublishingWorker = createWorkspacePublishingWorker();
 const organicActivityWorker = createOrganicActivityWorker();
+const twitterScanWorker = createTwitterScanWorker();
 
 // Schedule repeatable monitoring job every 15 minutes
 monitoringQueue.add("monitoring-cron", {}, {
@@ -42,6 +44,7 @@ console.log("  - monitoring (concurrency: 3, every 15min)");
 console.log("  - relevance-scoring (concurrency: 5)");
 console.log("  - workspace-publishing (concurrency: 3)");
 console.log("  - organic-activity (concurrency: 2, every 30min)");
+console.log("  - twitter-scan (concurrency: 2)");
 
 // Graceful shutdown
 async function shutdown() {
@@ -54,6 +57,7 @@ async function shutdown() {
     relevanceScoringWorker.close(),
     workspacePublishingWorker.close(),
     organicActivityWorker.close(),
+    twitterScanWorker.close(),
   ]);
   process.exit(0);
 }
