@@ -341,10 +341,8 @@ export default function TasksPage() {
         <span className="text-xs text-muted-foreground ml-auto">{filtered.length} görev</span>
       </div>
 
-      {/* Table + Detail split */}
-      <div className="flex gap-4">
-        {/* Table */}
-        <div className={`${selectedTask ? "flex-1 min-w-0" : "w-full"}`}>
+      {/* Table */}
+      <div>
           {filtered.length === 0 ? (
             <Card><CardContent className="py-12 text-center text-muted-foreground">
               <ListTodo className="h-10 w-10 mx-auto mb-3 opacity-40" />
@@ -355,13 +353,13 @@ export default function TasksPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="text-xs">
-                    <TableHead className="w-16">Kod</TableHead>
-                    <TableHead>Görev</TableHead>
-                    <TableHead className="w-20">Durum</TableHead>
+                    <TableHead className="w-14">Kod</TableHead>
+                    <TableHead className="max-w-[280px]">Görev</TableHead>
+                    <TableHead className="w-24">Durum</TableHead>
                     <TableHead className="w-16">Öncelik</TableHead>
                     <TableHead className="w-20">Kategori</TableHead>
-                    <TableHead className="w-36">Faz</TableHead>
-                    <TableHead className="w-24">Atanan</TableHead>
+                    <TableHead className="w-28">Faz</TableHead>
+                    <TableHead className="w-20">Atanan</TableHead>
                     <TableHead className="w-16">Tarih</TableHead>
                     <TableHead className="w-8"></TableHead>
                   </TableRow>
@@ -382,8 +380,8 @@ export default function TasksPage() {
                         <TableCell className="font-mono text-[10px] text-muted-foreground">
                           {t.task.taskCode || "—"}
                         </TableCell>
-                        <TableCell>
-                          <p className={`font-medium truncate ${done ? "line-through text-muted-foreground" : ""}`}>
+                        <TableCell className="max-w-[280px]">
+                          <p className={`font-medium truncate text-xs ${done ? "line-through text-muted-foreground" : ""}`} title={t.task.title}>
                             {t.task.title}
                           </p>
                         </TableCell>
@@ -444,91 +442,114 @@ export default function TasksPage() {
           )}
         </div>
 
-        {/* Detail Panel */}
-        {selectedTask && (
-          <div className="w-80 shrink-0 rounded-lg border p-4 space-y-4 bg-card sticky top-4 max-h-[calc(100vh-120px)] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm">Detay</h3>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedTask(null)}>
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-
-            {selectedTask.task.taskCode && (
-              <p className="text-xs font-mono text-muted-foreground">{selectedTask.task.taskCode}</p>
-            )}
-            <p className="font-medium text-sm">{selectedTask.task.title}</p>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <p className="text-muted-foreground mb-1">Durum</p>
-                <Badge variant="outline" className={`${STATUS_CFG[selectedTask.task.status]?.color}`}>
-                  {STATUS_CFG[selectedTask.task.status]?.label}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">Öncelik</p>
-                <span className={PRIORITY_CFG[selectedTask.task.priority]?.color}>
-                  {PRIORITY_CFG[selectedTask.task.priority]?.label}
-                </span>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">Kategori</p>
-                <Badge variant="outline" className={CATEGORY_CFG[selectedTask.task.category]?.color}>
-                  {CATEGORY_CFG[selectedTask.task.category]?.label}
-                </Badge>
-              </div>
-              <div>
-                <p className="text-muted-foreground mb-1">Atanan</p>
-                <span>{selectedTask.assignedName || "—"}</span>
-              </div>
-            </div>
-
-            {selectedTask.task.phase && (
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-1">Faz</p>
-                <p>{selectedTask.task.phase}</p>
-              </div>
-            )}
-
-            {selectedTask.task.description && (
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-1">Açıklama</p>
-                <p className="whitespace-pre-wrap text-foreground">{selectedTask.task.description}</p>
-              </div>
-            )}
-
-            {selectedTask.task.dependency && (
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-1">Bağımlılık</p>
-                <p className="text-orange-700">{selectedTask.task.dependency}</p>
-              </div>
-            )}
-
-            {selectedTask.task.solution && (
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-1">Çözüm Notu</p>
-                <div className="rounded-md border border-green-200 bg-green-50 p-2">
-                  <p className="text-green-800 whitespace-pre-wrap">{selectedTask.task.solution}</p>
-                </div>
-              </div>
-            )}
-
-            {selectedTask.task.resultNote && (
-              <div className="text-xs">
-                <p className="text-muted-foreground mb-1">Sonuç</p>
-                <p className="text-green-700">{selectedTask.task.resultNote}</p>
-              </div>
-            )}
-
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => openEdit(selectedTask)}>
-                <Pencil className="mr-1 h-3 w-3" /> Düzenle
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Detail Modal */}
+      <Dialog open={!!selectedTask} onOpenChange={(o) => { if (!o) setSelectedTask(null); }}>
+        <DialogContent className="max-w-lg">
+          {selectedTask && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  {selectedTask.task.taskCode && (
+                    <Badge variant="outline" className="font-mono text-xs">{selectedTask.task.taskCode}</Badge>
+                  )}
+                  <DialogTitle className="text-base">{selectedTask.task.title}</DialogTitle>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-4 py-2">
+                <div className="grid grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <p className="text-muted-foreground mb-1">Durum</p>
+                    <Badge variant="outline" className={STATUS_CFG[selectedTask.task.status]?.color}>
+                      {STATUS_CFG[selectedTask.task.status]?.label}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1">Öncelik</p>
+                    <span className={`font-medium ${PRIORITY_CFG[selectedTask.task.priority]?.color}`}>
+                      {PRIORITY_CFG[selectedTask.task.priority]?.label}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1">Kategori</p>
+                    <Badge variant="outline" className={CATEGORY_CFG[selectedTask.task.category]?.color}>
+                      {CATEGORY_CFG[selectedTask.task.category]?.label}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground mb-1">Atanan</p>
+                    <span>{selectedTask.assignedName || "—"}</span>
+                  </div>
+                </div>
+
+                {selectedTask.task.phase && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground mb-1">Faz</p>
+                    <p className="font-medium">{selectedTask.task.phase}</p>
+                  </div>
+                )}
+
+                {selectedTask.task.description && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground mb-1">Açıklama</p>
+                    <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.task.description}</p>
+                  </div>
+                )}
+
+                {selectedTask.task.dependency && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground mb-1">Bağımlılık</p>
+                    <div className="rounded-md border border-orange-200 bg-orange-50 p-2">
+                      <p className="text-orange-800">{selectedTask.task.dependency}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedTask.task.solution && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground mb-1">Çözüm Notu</p>
+                    <div className="rounded-md border border-green-200 bg-green-50 p-2">
+                      <p className="text-green-800 whitespace-pre-wrap">{selectedTask.task.solution}</p>
+                    </div>
+                  </div>
+                )}
+
+                {selectedTask.task.resultNote && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground mb-1">Sonuç</p>
+                    <p className="text-green-700">{selectedTask.task.resultNote}</p>
+                  </div>
+                )}
+
+                {(selectedTask.task.dueDate || selectedTask.task.completedAt) && (
+                  <div className="flex gap-4 text-xs">
+                    {selectedTask.task.dueDate && (
+                      <div>
+                        <p className="text-muted-foreground mb-1">Son Tarih</p>
+                        <p>{formatDate(selectedTask.task.dueDate)}</p>
+                      </div>
+                    )}
+                    {selectedTask.task.completedAt && (
+                      <div>
+                        <p className="text-muted-foreground mb-1">Tamamlandı</p>
+                        <p className="text-green-600">{formatDate(selectedTask.task.completedAt)}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button size="sm" variant="outline" onClick={() => { openEdit(selectedTask); setSelectedTask(null); }}>
+                  <Pencil className="mr-1 h-3 w-3" /> Düzenle
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
